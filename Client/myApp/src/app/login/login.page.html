@@ -1,0 +1,17 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-label position="floating">用户名</ion-label>
+  <ion-input type="text" [(ngModel)]="username"></ion-input>
+  <ion-label position="floating">密码</ion-label>
+  <ion-input type="password" [(ngModel)]="password"></ion-input>
+  <ion-button expand="block" (click)="login()">登录</ion-button>
+  <ion-button expand="block" fill="outline" color="secondary" 
+  (click)="navigateToRegister()">
+没有账号？立即注册
+</ion-button>
+</ion-content>
