@@ -8,7 +8,7 @@ import { authChildGuard } from './auth/guards/auth-child.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: tokenExists() ? 'tabs' : 'login',
     pathMatch: 'full'
   },
   {
@@ -28,6 +28,10 @@ const routes: Routes = [
   },
   
 ];
+
+function tokenExists() {
+  return localStorage.getItem('token') !== null;
+}
 
 @NgModule({
   imports: [

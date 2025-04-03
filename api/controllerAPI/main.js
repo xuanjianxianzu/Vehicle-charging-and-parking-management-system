@@ -78,7 +78,7 @@ router.post('/login',async (req,res) =>{
         if(!isMatch){
             return res.status(401).json({
                 code: 401,
-                message: '密码错误'
+                message: '用户名或密码错误'
             });
         }
 
@@ -114,9 +114,44 @@ router.post('/login',async (req,res) =>{
 );
 
 
-router.get('/index',(req,res)=>{
-    res.send('ok')
-})
+router.get('/parking-spaces', async (req, res) => {
+    console.log('sssss');
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const [rows] = await connection.query(
+            `SELECT 
+                ps.id,
+                ps.type,
+                ps.rate,
+                ps.parking_rate,
+                ps.overtime_occupancy_rate,
+                ps.status,
+                ps.vehicles_id,
+                ps.created_at,
+                ps.updated_at 
+            FROM 
+                parking_spaces ps 
+            LEFT JOIN 
+                vehicles v ON ps.vehicles_id = v.id;`)
+        return res.status(200).json({
+            code: 200,
+            data: rows,
+            message: '获取车位信息成功'
+        });
+    } catch (error) {
+        console.error('获取车位信息错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
 
 
 

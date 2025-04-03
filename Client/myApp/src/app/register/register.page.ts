@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -11,61 +12,73 @@ import { ToastController } from '@ionic/angular';
 export class RegisterPage {
   username: string = '';
   password: string = '';
+  confirmPassword: string = '';
 
   constructor(
     private authService: AuthService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private router: Router
   ) {}
 
   async register() {
+
+
+    if (!this.username || !this.password || !this.confirmPassword) {
+      await this.showToast('请填写所有字段');
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      await this.showToast('两次输入的密码不一致');
+      return;
+    }
 
     const usernameRegex = /^\d{10,15}$/;
     const passwordRegex = /^[a-zA-Z0-9]{8,16}$/;
 
     if (!usernameRegex.test(this.username)) {
-      const toast = await this.toastController.create({
-        message: '账号必须为10 - 15位数字',
-        duration: 2000,
-        position: 'top'
-      });
-      await toast.present();
+      await this.showToast('账号必须为10 - 15位数字');
       return;
     }
 
     if (!passwordRegex.test(this.password)) {
-      const toast = await this.toastController.create({
-        message: '密码必须为8 - 16位数字或字母',
-        duration: 2000,
-        position: 'top'
-      });
-      await toast.present();
+      await this.showToast('密码必须为8 - 16位数字或字母');
       return;
     }
 
     try {
       const response = await this.authService.register(this.username, this.password).toPromise();
-      if (response.code === 201) {
-        const toast = await this.toastController.create({
-          message: '注册成功',
-          duration: 2000,
-          position: 'top'
-        });
-        await toast.present();
-      } else {
-        const toast = await this.toastController.create({
-          message: response.message,
-          duration: 2000,
-          position: 'top'
-        });
-        await toast.present();
+      switch(response.code) {
+        case 201:
+          this.showToast('注册成功');
+          this.router.navigate(['/login']);
+          break;
+        case 409:
+          this.showToast('用户名已存在');
+          break;
+        default:
+          this.showToast(response.message || '注册失败');
       }
-    } catch (error) {
-      const toast = await this.toastController.create({
-        message: '注册失败，请重试',
-        duration: 2000,
-        position: 'top'
-      });
-      await toast.present();
+      
+    } catch (error:any) {
+      if (error.status === 409) {
+        this.showToast('用户名已存在');
+      } else {
+        this.showToast('网络异常，请检查连接');
+      }
+    
     }
   }
+
+
+
+  private async showToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'top'
+    });
+    await toast.present();
+  }
+
 }

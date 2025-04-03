@@ -6,44 +6,59 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 
-app.use('/api',(req,res,next) => {
-    if(req.url == '/register'||req.url == '/login'){
+app.use('/api', (req, res, next) => {
+
+    if (req.method === 'OPTIONS') {
         return next();
+      }
+    if (req.url === '/register' || req.url === '/login') {
+      return next();
     }
+    console.log('aaaa');
+    //console.log(req);
+    const authHeader = req.headers.authorization;
+    console.log(authHeader);
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('daaddd');
+      return res.status(401).json({
+        data: null,
+        meta: {
+          msg: "缺少有效的 Authorization 头部",
+          status: 401
+        }
+      });
+    }
+  
+    const token = authHeader.split(' ')[1];
 
-    const token = String(req.headers.authorization);
-    console.log(token);
-    if(token == 'undefined'&&token == 'null'){
-        res.status(400).send({
-            data:null,
-            meta: {
-                msg:"token无效",
-                status:400
-            }
-        })
-    }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+      console.log('ddddd');
+      next();
     } catch (err) {
-        return res.status(401).json({
-            data: null,
-            meta: {
-                msg: "token无效或已过期",
-                status: 401
-            }
-        });
+        console.log('daadd1111d');
+      return res.status(401).json({
+        data: null,
+        meta: {
+          msg: "token无效或已过期",
+          status: 401
+        }
+      });
     }
+  });
 
-
-})
 
 
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
-app.use(cors()); 
+app.use(cors({
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Authorization'],
+    credentials: true
+  })); 
 
 app.use('/api',main)
 
