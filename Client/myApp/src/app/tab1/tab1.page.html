@@ -5,6 +5,41 @@
       (ionChange)="filterSpaces()" 
       placeholder="Search by type or status">
     </ion-searchbar>
+    <ion-grid class="filter-row">
+      <ion-row>
+        <ion-col size="4">
+          <ion-select 
+            [(ngModel)]="statusFilter" 
+            (ionChange)="filterSpaces()"
+            placeholder="Status" 
+            interface="popover">
+            <ion-select-option value="">All Status</ion-select-option>
+            <ion-select-option value="idle">Idle</ion-select-option>
+            <ion-select-option value="occupied">Occupied</ion-select-option>
+            <ion-select-option value="be_booked">Be Booked</ion-select-option>
+          </ion-select>
+        </ion-col>
+        
+        <ion-col size="4">
+          <ion-select 
+            [(ngModel)]="typeFilter" 
+            (ionChange)="filterSpaces()"
+            placeholder="Type" 
+            interface="popover">
+            <ion-select-option value="">All Types</ion-select-option>
+            <ion-select-option value="fast_charging">Fast Charging</ion-select-option>
+            <ion-select-option value="slow_charging">Slow Charging</ion-select-option>
+            <ion-select-option value="normal">Normal</ion-select-option>
+          </ion-select>
+        </ion-col>
+
+        <ion-col size="4">
+          <ion-chip [outline]="!myAppointmentFilter" (click)="toggleMyAppointment()">
+            <ion-label>My Appointments</ion-label>
+          </ion-chip>
+        </ion-col> 
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
 
@@ -13,8 +48,12 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner></ion-spinner>
+    <p>Loading parking spaces...</p>
+  </div>
+
   <div *ngIf="!isLoading && filteredSpaces.length === 0" class="empty-state">
-    <ion-icon name="alert-circle-outline"></ion-icon>
     <p>No parking spaces found</p>
   </div>
 
@@ -33,17 +72,17 @@
         
         <ion-item lines="none">
           <ion-label>Rate:</ion-label>
-          <ion-text>${{ space.rate }}/hr</ion-text>
+          <ion-text>¥{{ space.rate }}/kWh</ion-text>
         </ion-item>
         
         <ion-item lines="none">
           <ion-label>Parking Rate:</ion-label>
-          <ion-text>${{ space.parking_rate }}</ion-text>
+          <ion-text>¥{{ space.parking_rate }}</ion-text>
         </ion-item>
         
         <ion-item lines="none" *ngIf="space.overtime_occupancy_rate">
           <ion-label>Overtime Rate:</ion-label>
-          <ion-text>${{ space.overtime_occupancy_rate }}</ion-text>
+          <ion-text>¥{{ space.overtime_occupancy_rate }}</ion-text>
         </ion-item>
       </ion-card-content>
     </ion-card>

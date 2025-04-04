@@ -6,10 +6,11 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthService } from '../app/auth/auth.service';
 
 import { FormsModule } from '@angular/forms';
+import { authInterceptor } from './auth/auth.interceptor';
 
 
 @NgModule({
@@ -17,7 +18,7 @@ import { FormsModule } from '@angular/forms';
     AppComponent,
   ],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, FormsModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },provideHttpClient(withInterceptorsFromDi()),AuthService],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },provideHttpClient(withInterceptors([authInterceptor])),AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

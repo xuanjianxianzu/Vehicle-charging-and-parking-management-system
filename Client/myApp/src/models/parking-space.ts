@@ -5,4 +5,5 @@ export interface ParkingSpace {
     parking_rate:number;
     overtime_occupancy_rate:number;
     status:string;
+    vehicles_id:number|null;
 }

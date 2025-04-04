@@ -11,14 +11,13 @@ export class DataService {
   constructor(private http: HttpClient) { }
 
   getParkingSpaces(): Observable<any> {
-    const token = localStorage.getItem('token');
+   /* const token = localStorage.getItem('token');
     console.log(token);
 
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
     });
- console.log(headers);
-    return this.http.get(`${this.apiUrl}/parking-spaces`, { headers });
+ console.log(headers);*/
+    return this.http.get(`${this.apiUrl}/parking-spaces`);
   }
 }
