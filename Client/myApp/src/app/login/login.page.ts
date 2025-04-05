@@ -22,9 +22,11 @@ export class LoginPage {
   async login() {
     try {
       const response = await this.authService.login(this.username, this.password).toPromise();
+      console.log(response.data.id);
       switch(response.code) {
         case 200:
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('myUserID', response.data.id);
           this.showToast('登陆成功');
           this.router.navigate(['/tabs/tab1']);
           break;

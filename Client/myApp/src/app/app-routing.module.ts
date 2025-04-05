@@ -26,6 +26,17 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then( m => m.TabsPageModule)
     
   },
+  {
+    path: 'add-car',
+    loadChildren: () => import('./add-car/add-car.module').then( m => m.AddCarPageModule)
+  },
+  {
+    path: 'update-car',
+    loadChildren: () => import('./update-car/update-car.module').then( m => m.UpdateCarPageModule)
+  },
+
+
+
   
 ];
 

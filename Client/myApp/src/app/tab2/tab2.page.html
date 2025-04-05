@@ -1,13 +1,49 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>tab2</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">tab2</ion-title>
+      <ion-title>My beloved car</ion-title>
     </ion-toolbar>
   </ion-header>
-</ion-content>
+  
+ 
+  
+
+  
+<ion-content [fullscreen]="true">
+
+
+
+    <div *ngIf="MyCarArray.length === 0">
+    </div>
+  
+    <ion-list *ngIf="MyCarArray.length > 0">
+      <ion-card *ngFor="let car of MyCarArray; let i = index" (click)="toChangeCar(car)">
+        <ion-card-header>
+          <ion-card-subtitle>ID: {{ i+1 }}</ion-card-subtitle>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <ion-item lines="none">
+            <ion-label>License plate:</ion-label>
+            <ion-badge>{{ car. license_plate }}</ion-badge>
+          </ion-item>
+          
+          <ion-item lines="none">
+            <ion-label>Type:</ion-label>
+            <ion-text>{{ car.type }}</ion-text>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+
+
+    <ion-card (click)="toAddCar()">
+        <ion-card-header>
+          <ion-card-title>+Add a car</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>点击添加您的爱车信息。</p>
+        </ion-card-content>
+      </ion-card>
+
+
+  </ion-content>

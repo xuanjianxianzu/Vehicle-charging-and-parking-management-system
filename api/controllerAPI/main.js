@@ -152,7 +152,155 @@ router.get('/parking-spaces', async (req, res) => {
     }
 });
 
+router.post('/add-vehicle', async (req, res) => {
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const { license_plate, type, userId } = req.body;
+ 
+        const [existingRows] = await connection.query(
+            'SELECT * FROM vehicles WHERE user_id = ? AND license_plate = ?',
+            [userId, license_plate]
+        );
+ 
+        if (existingRows.length > 0) {
+            return res.status(400).json({
+                code: 400,
+                message: '该用户已存在此车牌号的车辆',
+            });
+        }
+ 
+        const [rows] = await connection.query(
+            'INSERT INTO vehicles (license_plate, user_id, type) VALUES (?, ?, ?)',
+            [license_plate, userId, type]
+        );
+ 
+        return res.status(201).json({
+            code: 201,
+            message: '车辆信息添加成功',
+        });
+    } catch (error) {
+        console.error('添加车辆信息错误:', error);
+        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
+router.put('/updateCar', async (req, res) => {
+    console.log('update');
+    console.log(req.body);
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const { id, license_plate, userId, type } = req.body;
+        const [licensePlateCheck] = await connection.query(
+            'SELECT * FROM vehicles WHERE license_plate = ? AND user_id = ? AND id = ?',
+            [license_plate, userId, id]
+        );
+        console.log(licensePlateCheck);
+        if (licensePlateCheck.length > 0) {
+            console.log('updatedddddd');
+            return res.status(400).json({
+                code: 400,
+                message: '该用户已存在此车牌号的车辆',
+            });
+        }
+
+        await connection.query(
+            'UPDATE vehicles SET license_plate = ?, type = ? WHERE id = ? AND user_id = ?',
+            [license_plate, type, id, userId]
+        );
+
+        return res.status(200).json({
+            code: 200,
+            message: '车辆信息更新成功',
+        });
+    } catch (error) {
+        console.error('更新车辆信息错误:', error);
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
+router.get('/myCar/:userId', async (req, res) => {
+    let connection;
+    const userId = req.params.userId;
+    try {
+        connection = await dbcon.getConnection();
+        const [rows] = await connection.query(
+            `SELECT 
+                v.id,
+                v.license_plate,
+                v.type,
+                v.user_id,
+                v.created_at,
+                v.updated_at 
+            FROM 
+                vehicles v
+            WHERE 
+                v.user_id = ?
+            ORDER BY 
+                v.created_at ASC;`, [userId]);
+        return res.status(200).json({
+            code: 200,
+            data: rows,
+            message: '获取用户车辆信息成功'
+        });
+    } catch (error) {
+        console.error('获取用户车辆信息错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
 
 
 
+
+router.delete('/deleteCar/:id', async (req, res) => {
+    console.log('dele');
+    const carId = req.params.id;
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+
+        await connection.query(
+            'DELETE FROM vehicles WHERE id = ?',
+            [carId]
+        );
+ 
+        return res.status(200).json({
+            code: 200,
+            message: '车辆信息删除成功',
+        });
+    } catch (error) {
+        console.error('删除车辆信息错误:', error);
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+ 
 module.exports = router;
+
+
+

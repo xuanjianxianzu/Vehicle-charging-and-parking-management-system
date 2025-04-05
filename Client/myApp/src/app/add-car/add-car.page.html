@@ -1,0 +1,54 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>addCar</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <ion-item>
+      <ion-label position="floating">License Plate</ion-label>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4">
+            <ion-input 
+              [(ngModel)]="licensePlateLeft" 
+              name="licensePlateLeft" 
+              required 
+              placeholder="如: 京A">
+            </ion-input>
+          </ion-col>
+          <ion-col size="1">
+            ·
+          </ion-col>
+          <ion-col size="7">
+            <ion-input 
+              [(ngModel)]="licensePlateRight" 
+              name="licensePlateRight" 
+              required 
+              placeholder="如: A1234">
+            </ion-input>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+ 
+    <ion-radio-group [(ngModel)]="vehicleType" name="vehicleType" required>
+      <ion-list-header>
+        <ion-label>Vehicle Type</ion-label>
+      </ion-list-header>
+      
+      <ion-item>
+        <ion-radio slot="start" value="electric"></ion-radio>
+        <ion-label>Electric</ion-label>
+      </ion-item>
+      
+      <ion-item>
+        <ion-radio slot="start" value="fuel"></ion-radio>
+        <ion-label>Fuel</ion-label>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>
+ 
+  <ion-button expand="full" (click)="addCar()">Add Car</ion-button>
+</ion-content>

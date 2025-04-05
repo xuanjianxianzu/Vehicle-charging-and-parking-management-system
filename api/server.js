@@ -14,10 +14,7 @@ app.use('/api', (req, res, next) => {
     if (req.url === '/register' || req.url === '/login') {
       return next();
     }
-    console.log('aaaa');
-    //console.log(req);
     const authHeader = req.headers.authorization;
-    console.log(authHeader);
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.log('daaddd');
       return res.status(401).json({
@@ -28,16 +25,14 @@ app.use('/api', (req, res, next) => {
         }
       });
     }
-  
-    const token = authHeader.split(' ')[1];
 
+    const token = authHeader.split(' ')[1];
+    console.log(token);
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded;
-      console.log('ddddd');
       next();
     } catch (err) {
-        console.log('daadd1111d');
       return res.status(401).json({
         data: null,
         meta: {
