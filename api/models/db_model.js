@@ -2,6 +2,6 @@
 module.exports = {
     host:'localhost',
     user:'root',
-    password:'Wadwad2020a',
+    password:'123456',
     database:'vehicle_charging_parking'
 };

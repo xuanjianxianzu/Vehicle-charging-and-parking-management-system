@@ -300,7 +300,129 @@ router.delete('/deleteCar/:id', async (req, res) => {
     }
 });
  
+
+
+
+
+// 获取用户头像和基本信息
+router.get('/api/user-profile/:userId', async (req, res) => {
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const userId = req.params.userId;
+        
+        // 查询用户基本信息
+        const [userRows] = await connection.query(
+            `SELECT 
+                u.id,
+                u.username,
+                u.email,
+                u.phone,
+                u.created_at,
+                (SELECT COUNT(*) FROM vehicles WHERE user_id = u.id) as vehicle_count
+            FROM users u
+            WHERE u.id = ?`,
+            [userId]
+        );
+
+        if (userRows.length === 0) {
+            return res.status(404).json({ code: 404, message: '用户不存在' });
+        }
+
+        const user = userRows[0];
+        
+        // 设置默认头像
+        user.avatar_url = 'assets/images/default-avatar.png';
+        
+        return res.status(200).json({ 
+            code: 200, 
+            data: user,
+            message: '获取用户信息成功' 
+        });
+    } catch (error) {
+        console.error('获取用户信息错误:', error);
+        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
+// 添加用户账单路由
+router.get('/api/user-bills/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        // 查询数据库获取账单信息（示例）
+        const [billRows] = await connection.query('SELECT * FROM bills WHERE user_id = ?', [userId]);
+        res.status(200).json({ code: 200, data: billRows });
+    } catch (error) {
+        console.error('获取账单信息错误:', error);
+        res.status(500).json({ code: 500, message: '服务器内部错误' });
+    }
+});
+
+// 添加停车历史路由
+router.get('/api/parking-history/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        // 查询数据库获取停车历史（示例）
+        const [historyRows] = await connection.query('SELECT * FROM parking_history WHERE user_id = ?', [userId]);
+        res.status(200).json({ code: 200, data: historyRows });
+    } catch (error) {
+        console.error('获取停车历史错误:', error);
+        res.status(500).json({ code: 500, message: '服务器内部错误' });
+    }
+});
+
+// 注销账号
+// 将注释掉的 delete1 改为 logout
+router.delete('/api/logout/:userId', async (req, res) => {
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const userId = req.params.userId;
+
+        // 开始事务
+        await connection.beginTransaction();
+
+        try {
+            // 删除用户相关的所有数据
+            // 1. 删除用户的车辆记录
+            await connection.query('DELETE FROM vehicles WHERE user_id = ?', [userId]);
+            
+            // 2. 删除用户的使用记录
+            await connection.query(`
+                DELETE ur FROM usage_records ur
+                INNER JOIN vehicles v ON ur.vehicles_id = v.id
+                WHERE v.user_id = ?
+            `, [userId]);
+            
+            // 3. 最后删除用户账号
+            await connection.query('DELETE FROM users WHERE id = ?', [userId]);
+
+            // 提交事务
+            await connection.commit();
+
+            return res.status(200).json({
+                code: 200,
+                message: '账号注销成功'
+            });
+        } catch (error) {
+            // 如果出错，回滚事务
+            await connection.rollback();
+            throw error;
+        }
+    } catch (error) {
+        console.error('注销账号错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
 module.exports = router;
-
-
-

@@ -1,13 +1,53 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>tab3</ion-title>
+    <ion-title>MINE</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">tab3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="my-page-content">
+    <!-- 用户头像和用户名 -->
+    <div class="user-profile">
+      <img [src]="avatarUrl" alt="用户名" class="avatar" />
+      <h1>{{ username }}</h1>
+    </div>
+
+    <!-- 用户账单 -->
+    <div class="user-bills">
+      <h2>个人账单</h2>
+      <ul>
+        <li *ngFor="let bill of bills">
+          <p>费用: {{ bill.total_fee }} 元</p>
+          <p>开始时间: {{ bill.start_time }}</p>
+          <p>结束时间: {{ bill.end_time }}</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 车位历史 -->
+    <div class="parking-history">
+      <h2>车位历史</h2>
+      <ul>
+        <li *ngFor="let history of parkingHistory">
+          <p>车位类型: {{ history.parking_type }}</p>
+          <p>开始时间: {{ history.start_time }}</p>
+          <p>结束时间: {{ history.end_time }}</p>
+          <p>费用: {{ history.total_fee }} 元</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 添加退出和注销按钮 -->
+    <div class="action-buttons">
+      <ion-button expand="block" color="medium" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        退出登录
+      </ion-button>
+      <ion-button expand="block" color="danger" (click)="showDeleteConfirm()">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        注销账号
+      </ion-button>
+    </div>
+  </div>
 </ion-content>
+
