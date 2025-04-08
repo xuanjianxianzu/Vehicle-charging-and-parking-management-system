@@ -23,13 +23,14 @@ DROP TABLE IF EXISTS `vehicles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `vehicles` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
-  `license_plate` varchar(20) NOT NULL COMMENT 'license_plate',
-  `user_id` int NOT NULL COMMENT 'user_id',
-  `type` enum('electric','fuel') NOT NULL COMMENT 'type',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'created_at',
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'updated_at',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `license_plate` varchar(20) NOT NULL,
+  `user_id` int NOT NULL,
+  `type` enum('electric','fuel') NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `license_plate` (`license_plate`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `vehicles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -53,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-30  4:25:03
+-- Dump completed on 2025-04-08 18:55:02

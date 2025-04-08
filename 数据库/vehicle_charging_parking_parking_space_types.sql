@@ -16,34 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `parking_spaces`
+-- Table structure for table `parking_space_types`
 --
 
-DROP TABLE IF EXISTS `parking_spaces`;
+DROP TABLE IF EXISTS `parking_space_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `parking_spaces` (
+CREATE TABLE `parking_space_types` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `type_id` int NOT NULL,
-  `status` enum('idle','occupied','booked') NOT NULL DEFAULT 'idle',
-  `vehicles_id` int DEFAULT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `type` enum('fast_charging','slow_charging','normal') NOT NULL,
+  `rate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `parking_rate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `overtime_occupancy_rate` decimal(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`),
-  KEY `vehicles_id` (`vehicles_id`),
-  KEY `idx_parking_spaces` (`type_id`,`status`),
-  CONSTRAINT `parking_spaces_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `parking_space_types` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `parking_spaces_ibfk_2` FOREIGN KEY (`vehicles_id`) REFERENCES `vehicles` (`id`) ON DELETE SET NULL
+  UNIQUE KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `parking_spaces`
+-- Dumping data for table `parking_space_types`
 --
 
-LOCK TABLES `parking_spaces` WRITE;
-/*!40000 ALTER TABLE `parking_spaces` DISABLE KEYS */;
-/*!40000 ALTER TABLE `parking_spaces` ENABLE KEYS */;
+LOCK TABLES `parking_space_types` WRITE;
+/*!40000 ALTER TABLE `parking_space_types` DISABLE KEYS */;
+/*!40000 ALTER TABLE `parking_space_types` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
