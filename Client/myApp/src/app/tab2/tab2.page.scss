@@ -1,0 +1,20 @@
+.drop-zone {
+
+    margin: 10px auto;
+    width: 80%;
+    height: 100px;
+    border: 2px dashed var(--ion-color-medium);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(var(--ion-color-light-rgb), 0.5);
+    transition: all 0.3s ease;
+    z-index: 100;
+  }
+
+  .drop-zone.active {
+    border-color: var(--ion-color-primary);
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+  }

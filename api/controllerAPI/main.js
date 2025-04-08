@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 router.post('/register',async (req,res) =>{
+    console.log('aaaaaregister');
     let connection;
     try {
         connection = await dbcon.getConnection();
@@ -53,6 +54,7 @@ router.post('/register',async (req,res) =>{
 
 
 router.post('/login',async (req,res) =>{
+    console.log('aaalogin');
     let connection;
     try {
         connection = await dbcon.getConnection();
@@ -121,17 +123,21 @@ router.get('/parking-spaces', async (req, res) => {
         connection = await dbcon.getConnection();
         const [rows] = await connection.query(
             `SELECT 
-                ps.id,
-                ps.type,
-                ps.rate,
-                ps.parking_rate,
-                ps.overtime_occupancy_rate,
+                ps.id AS space_id,
+                pst.type AS space_type,
+                pst.rate AS charging_rate,
+                pst.parking_rate,
+                pst.overtime_occupancy_rate,
                 ps.status,
                 ps.vehicles_id,
+                v.license_plate,
+                v.type AS vehicle_type,
                 ps.created_at,
-                ps.updated_at 
+                ps.updated_at
             FROM 
-                parking_spaces ps 
+                parking_spaces ps
+            LEFT JOIN 
+                parking_space_types pst ON ps.type_id = pst.id
             LEFT JOIN 
                 vehicles v ON ps.vehicles_id = v.id;`)
         return res.status(200).json({

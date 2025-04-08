@@ -34,8 +34,8 @@
         </ion-col>
 
         <ion-col size="4">
-          <ion-chip [outline]="!myAppointmentFilter" (click)="toggleMyAppointment()">
-            <ion-label>My Appointments</ion-label>
+          <ion-chip [outline]="!isFindUsing" (click)="toggleMyAppointment()">
+            <ion-label>My using</ion-label>
           </ion-chip>
         </ion-col> 
       </ion-row>
@@ -53,12 +53,12 @@
     <p>Loading parking spaces...</p>
   </div>
 
-  <div *ngIf="!isLoading && filteredSpaces.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && filteredSpaces.length === 0">
     <p>No parking spaces found</p>
   </div>
 
   <ion-list *ngIf="!isLoading && filteredSpaces.length > 0">
-    <ion-card *ngFor="let space of filteredSpaces">
+    <ion-card *ngFor="let space of filteredSpaces" (click)="toUse(space.id)">
       <ion-card-header>
         <ion-card-title>{{ space.type }}</ion-card-title>
         <ion-card-subtitle>ID: {{ space.id }}</ion-card-subtitle>

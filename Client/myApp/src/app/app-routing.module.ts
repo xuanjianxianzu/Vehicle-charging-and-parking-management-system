@@ -34,6 +34,11 @@ const routes: Routes = [
     path: 'update-car',
     loadChildren: () => import('./update-car/update-car.module').then( m => m.UpdateCarPageModule)
   },
+  {
+    path: 'to-use-space/:id',
+    loadChildren: () => import('./to-use-space/to-use-space.module').then( m => m.ToUseSpacePageModule)
+  },
+
 
 
 

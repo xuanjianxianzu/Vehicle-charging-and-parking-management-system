@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { DataService } from 'src/data.service';
 import { ParkingSpace } from 'src/models/parking-space';
+import { Vehicle } from 'src/models/vehicle';
 
 @Component({
   selector: 'app-tab1',
@@ -11,18 +12,20 @@ import { ParkingSpace } from 'src/models/parking-space';
 })
 export class Tab1Page implements OnInit {
 
+  MyCarArray: Vehicle[] = [];
   searchTerm: string='';
   statusFilter:string='';
   typeFilter:string='';
-  myAppointmentFilter: boolean = false;
+  isFindUsing: boolean = false;
   parkingSpaces: ParkingSpace[] = [];
   filteredSpaces: ParkingSpace[] = [];
   isLoading:boolean = true;
-  MyCarId = localStorage.getItem('MyCarId');
+  MyCarId:number[]=[];
+  myUserID = localStorage.getItem('myUserID');
 
   constructor(
     private dataService: DataService,
-    private toastController: ToastController,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -54,24 +57,28 @@ export class Tab1Page implements OnInit {
   }
 
 
-  async toggleMyAppointment(){
-    if(!this.MyCarId){
-      const toast = await this.toastController.create({
-        message:"未绑定车辆",
-        duration: 2000,
-        position: 'top'
-      });
-      await toast.present();
-      return;
+  async toggleMyAppointment() {
+    try {
+      const userId = Number(this.myUserID); 
+      const response = await this.dataService.getMyCar(userId).toPromise();
+      this.MyCarArray = response.data || [];
+      this.MyCarId = this.MyCarArray.map(car => car.id);
+      if(this.MyCarId.length>0){  
+        console.log(this.MyCarId);
+        console.log('<0');
+        this.isFindUsing = !this.isFindUsing;
+        this.filterSpaces();
+      }
+  
+    } catch (error) {
+      console.error('Failed to fetch cars:', error);
     }
-    this.myAppointmentFilter = !this.myAppointmentFilter;
-    console.log(this.myAppointmentFilter);
   }
 
   filterSpaces() {
 
     console.log(this.typeFilter);
-    if (!this.searchTerm&&!this.statusFilter&&!this.typeFilter&&!this.myAppointmentFilter) {
+    if (!this.searchTerm&&!this.statusFilter&&!this.typeFilter&&!this.isFindUsing) {
       this.filteredSpaces = [...this.parkingSpaces];
       console.log('aaaaa');
       return;
@@ -85,8 +92,12 @@ export class Tab1Page implements OnInit {
       filtered = filtered.filter(space => space.type === this.typeFilter);
     }
 
-    if (this.myAppointmentFilter) {
-        filtered = filtered.filter(space => space.vehicles_id === Number(this.MyCarId));
+    if (this.isFindUsing) {
+      console.log('find');
+      filtered = filtered.filter(space => 
+        space.vehicles_id !== null && 
+        this.MyCarId.includes(space.vehicles_id)
+      );
     }
 
     if (this.searchTerm) {
@@ -99,5 +110,9 @@ export class Tab1Page implements OnInit {
     this.filteredSpaces = filtered;
   }
 
+
+  toUse(id:number){
+    this.router.navigate([`/to-use-space/${id}`]);
+  }
 
 }

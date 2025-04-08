@@ -38,7 +38,7 @@ export class UpdateCarPage implements OnInit {
       return;
     }
     const licensePlateLeftRegex = /^[\u4e00-\u9fa5][A-Z]/;
-    const licensePlateRightRegex = /^[a-zA-Z0-9]{5}$/;
+    const licensePlateRightRegex = /^[A-Z0-9]{5}$/;
     if (!licensePlateLeftRegex.test(this.licensePlateLeft)||!licensePlateRightRegex.test(this.licensePlateRight)) {
       await this.showToast('请按正确格式填写车牌号');
       return;
