@@ -123,23 +123,20 @@ router.get('/parking-spaces', async (req, res) => {
         connection = await dbcon.getConnection();
         const [rows] = await connection.query(
             `SELECT 
-                ps.id AS space_id,
-                pst.type AS space_type,
-                pst.rate AS charging_rate,
-                pst.parking_rate,
-                pst.overtime_occupancy_rate,
-                ps.status,
-                ps.vehicles_id,
-                v.license_plate,
-                v.type AS vehicle_type,
-                ps.created_at,
-                ps.updated_at
-            FROM 
-                parking_spaces ps
-            LEFT JOIN 
-                parking_space_types pst ON ps.type_id = pst.id
-            LEFT JOIN 
-                vehicles v ON ps.vehicles_id = v.id;`)
+            ps.id AS id,  
+            pst.type AS space_type,
+            pst.rate AS charging_rate,
+            pst.parking_rate,
+            pst.overtime_occupancy_rate,
+            ps.status,
+            ps.vehicles_id,
+            v.license_plate,
+            v.type AS vehicle_type,
+            ps.created_at,
+            ps.updated_at
+            FROM parking_spaces ps
+            LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
+            LEFT JOIN vehicles v ON ps.vehicles_id = v.id;`)
         return res.status(200).json({
             code: 200,
             data: rows,
@@ -431,4 +428,95 @@ router.delete('/api/logout/:userId', async (req, res) => {
         }
     }
 });
+
+router.get('/parking-spaces/:id', async (req, res) => {
+    let connection;
+    try {
+      connection = await dbcon.getConnection();
+      const [rows] = await connection.query(
+        `SELECT * FROM parking_spaces WHERE id = ?`,
+        [req.params.id]
+      );
+      return res.status(200).json({ data: rows[0] });
+    } catch (error) {
+      console.error('查询车位错误:', error);
+      return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+      if (connection) await connection.end();
+    }
+  });
+  router.post('/bookings', async (req, res) => {
+    let connection;
+    try {
+      connection = await dbcon.getConnection();
+      const { user_id, space_id, vehicle_id, start_time, status } = req.body;
+      
+      const [result] = await connection.query(
+        `INSERT INTO bookings (user_id, space_id, vehicle_id, start_time, status) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [user_id, space_id, vehicle_id, start_time, status]
+      );
+      
+      return res.status(201).json({
+        code: 201,
+        data: { id: result.insertId },
+        message: '预订创建成功'
+      });
+    } catch (error) {
+      console.error('创建预订错误:', error);
+      return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+      if (connection) await connection.end();
+    }
+  });
+  router.post('/bookings', async (req, res) => {
+    let connection;
+    try {
+      connection = await dbcon.getConnection();
+      const { user_id, space_id, vehicle_id, start_time, status } = req.body;
+      
+      const [result] = await connection.query(
+        `INSERT INTO bookings (user_id, space_id, vehicle_id, start_time, status) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [user_id, space_id, vehicle_id, start_time, status]
+      );
+      
+      return res.status(201).json({
+        code: 201,
+        data: { id: result.insertId },
+        message: '预订创建成功'
+      });
+    } catch (error) {
+      console.error('创建预订错误:', error);
+      return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+      if (connection) await connection.end();
+    }
+  });
+  // 在 main.js 中添加
+router.post('/usage-records', async (req, res) => {
+    let connection;
+    try {
+      connection = await dbcon.getConnection();
+      const { user_id, space_id, amount, duration, status } = req.body;
+      
+      const [result] = await connection.query(
+        `INSERT INTO usage_records (user_id, space_id, amount, duration, status)
+         VALUES (?, ?, ?, ?, ?)`,
+        [user_id, space_id, amount, duration, status]
+      );
+      
+      return res.status(201).json({
+        code: 201,
+        data: { id: result.insertId },
+        message: '使用记录创建成功'
+      });
+    } catch (error) {
+      console.error('创建使用记录错误:', error);
+      return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+      if (connection) await connection.end();
+    }
+  });
+
 module.exports = router;

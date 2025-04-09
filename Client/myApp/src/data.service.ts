@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Vehicle } from './models/vehicle';
+import { User } from 'src/models/user';
+import { ParkingSpace } from 'src/models/parking-space';
 import { N } from '@angular/core/navigation_types.d-u4EOrrdZ';
 
 @Injectable({
@@ -22,7 +24,9 @@ export class DataService {
  console.log(headers);*/
     return this.http.get(`${this.apiUrl}/parking-spaces`);
   }
-
+  getParkingSpace(id: number): Observable<{ data: ParkingSpace }> {
+    return this.http.get<{ data: ParkingSpace }>(`${this.apiUrl}/parking-spaces/${id}`);
+  }
   getMyCar(myUserID:number): Observable<any> {
     return this.http.get(`${this.apiUrl}/myCar/${myUserID}`);
   }
@@ -42,4 +46,29 @@ export class DataService {
     console.log('de',id);
     return this.http.delete<any>(`${this.apiUrl}/deleteCar/${id}`);
   }
+  getUser(userId: string) {
+    return this.http.get<{ data: User }>(`/api/users/${userId}`);
+  }
+  
+  // data.service.ts
+getUserVehicles(userId: string): Observable<{ data: Vehicle[] }> {
+  const numericUserId = Number(userId);
+  return this.http.get<{ data: Vehicle[] }>(
+    `${this.apiUrl}/vehicles?user_id=${numericUserId}`
+  );
+}
+  
+createBooking(data: any) {
+  return this.http.post(`${this.apiUrl}/bookings`, data); // 添加 apiUrl 前缀
+}
+
+createUsageRecord(data: any) {
+  return this.http.post(`${this.apiUrl}/usage-records`, data); // 添加 apiUrl 前缀
+}
+  
+  updateParkingSpace(id: number, data: any) {
+    return this.http.patch(`/api/parking-spaces/${id}`, data);
+  }
+  
+  
 }

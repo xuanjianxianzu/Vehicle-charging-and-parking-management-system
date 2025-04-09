@@ -1,13 +1,79 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>toUseSpace</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Parking Space {{ space.id }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">toUseSpace</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div *ngIf="isLoading" class="loading">
+    <ion-spinner></ion-spinner>
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- 车位信息 -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ getTypeLabel(space.type) }}</ion-card-title>
+        <ion-card-subtitle>Status: {{ space.status| titlecase }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list>
+          <ion-item>
+            <ion-label>Rate:</ion-label>
+            <ion-text>¥{{ space.rate }}/kWh</ion-text>
+          </ion-item>
+          
+          <ion-item>
+            <ion-label>Parking Rate:</ion-label>
+            <ion-text>¥{{ space.parking_rate }}/hour</ion-text>
+          </ion-item>
+
+          <ion-item *ngIf="space.overtime_occupancy_rate">
+            <ion-label>Overtime Rate:</ion-label>
+            <ion-text>¥{{ space.overtime_occupancy_rate }}/hour</ion-text>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- 用户车辆信息 -->
+    <ion-card *ngIf="hasVehicle">
+      <ion-card-header>
+        <ion-card-title>Your Vehicle</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label>License Plate:</ion-label>
+          <ion-text>{{ currentVehicle?.license_plate }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Type:</ion-label>
+          <ion-text>{{ currentVehicle?.type }}</ion-text>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- 操作按钮 -->
+    <div class="ion-padding">
+      <ion-button 
+        expand="block" 
+        (click)="handleBooking()"
+        [disabled]="space.status !== 'idle' || !hasVehicle">
+        {{ space.status === 'idle' ? 'Book Now' : 'Already Booked' }}
+      </ion-button>
+
+      <ion-alert
+        [isOpen]="showNoVehicleAlert"
+        header="No Vehicle"
+        message="Please add a vehicle before booking"
+        [buttons]="['OK']"
+        (didDismiss)="showNoVehicleAlert = false">
+      </ion-alert>
+    </div>
+  </div>
 </ion-content>
