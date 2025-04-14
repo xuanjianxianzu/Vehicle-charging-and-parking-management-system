@@ -48,7 +48,7 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isLoading" class="loading-state">
+  <div *ngIf="isLoading">
     <ion-spinner></ion-spinner>
     <p>Loading parking spaces...</p>
   </div>
@@ -60,7 +60,7 @@
   <ion-list *ngIf="!isLoading && filteredSpaces.length > 0">
     <ion-card *ngFor="let space of filteredSpaces" (click)="toUse(space.id)">
       <ion-card-header>
-        <ion-card-title>{{ space.type }}</ion-card-title>
+        <ion-card-title>{{ space.space_type }}</ion-card-title>
         <ion-card-subtitle>ID: {{ space.id }}</ion-card-subtitle>
       </ion-card-header>
       
@@ -72,7 +72,7 @@
         
         <ion-item lines="none">
           <ion-label>Rate:</ion-label>
-          <ion-text>¥{{ space.rate }}/kWh</ion-text>
+          <ion-text>¥{{ space.charging_rate }}/kWh</ion-text>
         </ion-item>
         
         <ion-item lines="none">

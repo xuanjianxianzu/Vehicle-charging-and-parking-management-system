@@ -116,7 +116,7 @@ export class Tab3Page implements OnInit {
     await alert.present();
   }
 
-  // 注销账号
+
   async deleteAccount() {
     const userId = localStorage.getItem('myUserID');
     if (!userId) {

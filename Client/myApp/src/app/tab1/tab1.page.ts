@@ -34,7 +34,7 @@ export class Tab1Page implements OnInit {
 
   loadParkingSpaces(event?: any) {
     this.isLoading = true;
-    this.dataService.getParkingSpaces().subscribe({
+    this.dataService.getParkingSpaces(0).subscribe({
       next: (data: any) => {
         this.parkingSpaces = data.data;
         this.filterSpaces();
@@ -80,6 +80,7 @@ export class Tab1Page implements OnInit {
     console.log(this.typeFilter);
     if (!this.searchTerm&&!this.statusFilter&&!this.typeFilter&&!this.isFindUsing) {
       this.filteredSpaces = [...this.parkingSpaces];
+      console.log(this.filteredSpaces);
       console.log('aaaaa');
       return;
     }
@@ -89,21 +90,21 @@ export class Tab1Page implements OnInit {
     }
 
     if (this.typeFilter && this.typeFilter!== '') {
-      filtered = filtered.filter(space => space.type === this.typeFilter);
+      filtered = filtered.filter(space => space.space_type === this.typeFilter);
     }
 
     if (this.isFindUsing) {
       console.log('find');
       filtered = filtered.filter(space => 
-        space.vehicles_id !== null && 
-        this.MyCarId.includes(space.vehicles_id)
+        space.vehicle_id !== null && 
+        this.MyCarId.includes(space.vehicle_id)
       );
     }
 
     if (this.searchTerm) {
       const search = this.searchTerm.toLowerCase();
       filtered = filtered.filter(space =>
-        space.type.toLowerCase().includes(search) ||
+        space.space_type.toLowerCase().includes(search) ||
         space.status.toLowerCase().includes(search)
       );
     }

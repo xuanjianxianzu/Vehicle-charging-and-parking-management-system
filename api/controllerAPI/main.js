@@ -54,11 +54,12 @@ router.post('/register',async (req,res) =>{
 
 
 router.post('/login',async (req,res) =>{
+    console.log(req.body);
     console.log('aaalogin');
     let connection;
     try {
         connection = await dbcon.getConnection();
-
+        console.log(req.body);
         const { username, password } = req.body;
         console.log(username);
         const [rows] = await connection.query('SELECT * FROM users WHERE username = ?', [username]);
@@ -116,12 +117,14 @@ router.post('/login',async (req,res) =>{
 );
 
 
-router.get('/parking-spaces', async (req, res) => {
+router.get('/parking-spaces/:id', async (req, res) => {
     console.log('sssss');
     let connection;
     try {
         connection = await dbcon.getConnection();
-        const [rows] = await connection.query(
+        const id = parseInt(req.params.id, 10);;
+        let query;
+        query=
             `SELECT 
             ps.id AS id,  
             pst.type AS space_type,
@@ -129,14 +132,18 @@ router.get('/parking-spaces', async (req, res) => {
             pst.parking_rate,
             pst.overtime_occupancy_rate,
             ps.status,
-            ps.vehicles_id,
+            ps.vehicle_id,
             v.license_plate,
             v.type AS vehicle_type,
             ps.created_at,
             ps.updated_at
             FROM parking_spaces ps
             LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
-            LEFT JOIN vehicles v ON ps.vehicles_id = v.id;`)
+            LEFT JOIN vehicles v ON ps.vehicle_id = v.id`
+            if (id!== 0) {
+                query += ' WHERE ps.id =?';
+            }
+            const [rows] = await connection.query(query,id)
         return res.status(200).json({
             code: 200,
             data: rows,
@@ -307,79 +314,14 @@ router.delete('/deleteCar/:id', async (req, res) => {
 
 
 
-// 获取用户头像和基本信息
-router.get('/api/user-profile/:userId', async (req, res) => {
-    let connection;
-    try {
-        connection = await dbcon.getConnection();
-        const userId = req.params.userId;
-        
-        // 查询用户基本信息
-        const [userRows] = await connection.query(
-            `SELECT 
-                u.id,
-                u.username,
-                u.email,
-                u.phone,
-                u.created_at,
-                (SELECT COUNT(*) FROM vehicles WHERE user_id = u.id) as vehicle_count
-            FROM users u
-            WHERE u.id = ?`,
-            [userId]
-        );
 
-        if (userRows.length === 0) {
-            return res.status(404).json({ code: 404, message: '用户不存在' });
-        }
 
-        const user = userRows[0];
-        
-        // 设置默认头像
-        user.avatar_url = 'assets/images/default-avatar.png';
-        
-        return res.status(200).json({ 
-            code: 200, 
-            data: user,
-            message: '获取用户信息成功' 
-        });
-    } catch (error) {
-        console.error('获取用户信息错误:', error);
-        return res.status(500).json({ code: 500, message: '服务器内部错误' });
-    } finally {
-        if (connection) {
-            await connection.end();
-        }
-    }
-});
 
-// 添加用户账单路由
-router.get('/api/user-bills/:userId', async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        // 查询数据库获取账单信息（示例）
-        const [billRows] = await connection.query('SELECT * FROM bills WHERE user_id = ?', [userId]);
-        res.status(200).json({ code: 200, data: billRows });
-    } catch (error) {
-        console.error('获取账单信息错误:', error);
-        res.status(500).json({ code: 500, message: '服务器内部错误' });
-    }
-});
 
-// 添加停车历史路由
-router.get('/api/parking-history/:userId', async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        // 查询数据库获取停车历史（示例）
-        const [historyRows] = await connection.query('SELECT * FROM parking_history WHERE user_id = ?', [userId]);
-        res.status(200).json({ code: 200, data: historyRows });
-    } catch (error) {
-        console.error('获取停车历史错误:', error);
-        res.status(500).json({ code: 500, message: '服务器内部错误' });
-    }
-});
 
-// 注销账号
-// 将注释掉的 delete1 改为 logout
+
+
+/*
 router.delete('/api/logout/:userId', async (req, res) => {
     let connection;
     try {
@@ -397,7 +339,7 @@ router.delete('/api/logout/:userId', async (req, res) => {
             // 2. 删除用户的使用记录
             await connection.query(`
                 DELETE ur FROM usage_records ur
-                INNER JOIN vehicles v ON ur.vehicles_id = v.id
+                INNER JOIN vehicles v ON ur.vehicle_id = v.id
                 WHERE v.user_id = ?
             `, [userId]);
             
@@ -428,82 +370,43 @@ router.delete('/api/logout/:userId', async (req, res) => {
         }
     }
 });
+*/
 
-router.get('/parking-spaces/:id', async (req, res) => {
-    let connection;
-    try {
-      connection = await dbcon.getConnection();
-      const [rows] = await connection.query(
-        `SELECT * FROM parking_spaces WHERE id = ?`,
-        [req.params.id]
-      );
-      return res.status(200).json({ data: rows[0] });
-    } catch (error) {
-      console.error('查询车位错误:', error);
-      return res.status(500).json({ code: 500, message: '服务器内部错误' });
-    } finally {
-      if (connection) await connection.end();
-    }
-  });
-  router.post('/bookings', async (req, res) => {
-    let connection;
-    try {
-      connection = await dbcon.getConnection();
-      const { user_id, space_id, vehicle_id, start_time, status } = req.body;
-      
-      const [result] = await connection.query(
-        `INSERT INTO bookings (user_id, space_id, vehicle_id, start_time, status) 
-         VALUES (?, ?, ?, ?, ?)`,
-        [user_id, space_id, vehicle_id, start_time, status]
-      );
-      
-      return res.status(201).json({
-        code: 201,
-        data: { id: result.insertId },
-        message: '预订创建成功'
-      });
-    } catch (error) {
-      console.error('创建预订错误:', error);
-      return res.status(500).json({ code: 500, message: '服务器内部错误' });
-    } finally {
-      if (connection) await connection.end();
-    }
-  });
-  router.post('/bookings', async (req, res) => {
-    let connection;
-    try {
-      connection = await dbcon.getConnection();
-      const { user_id, space_id, vehicle_id, start_time, status } = req.body;
-      
-      const [result] = await connection.query(
-        `INSERT INTO bookings (user_id, space_id, vehicle_id, start_time, status) 
-         VALUES (?, ?, ?, ?, ?)`,
-        [user_id, space_id, vehicle_id, start_time, status]
-      );
-      
-      return res.status(201).json({
-        code: 201,
-        data: { id: result.insertId },
-        message: '预订创建成功'
-      });
-    } catch (error) {
-      console.error('创建预订错误:', error);
-      return res.status(500).json({ code: 500, message: '服务器内部错误' });
-    } finally {
-      if (connection) await connection.end();
-    }
-  });
-  // 在 main.js 中添加
+
+
+
+
 router.post('/usage-records', async (req, res) => {
     let connection;
     try {
+      console.log('daoda usage',req.body)
       connection = await dbcon.getConnection();
-      const { user_id, space_id, amount, duration, status } = req.body;
-      
+      const { 
+        startTime, 
+        chargingStartTime,
+        chargingCompleteTime,
+        endTime,
+        status, 
+        vehicleId,
+        parkingSpaceId
+         } = req.body.usageRecords;
+
+         const formatTime = (timeStr) => {
+            if (!timeStr) return null;
+            return new Date(timeStr).toISOString().slice(0, 19).replace('T', ' ');
+          };
+    
+          const formattedStartTime = formatTime(startTime);
+          const formattedEndTime = formatTime(endTime);
+          const formattedChargingStart = formatTime(chargingStartTime);
+          const formattedChargingComplete = formatTime(chargingCompleteTime);
+    
+          console.log('Formatted times:', { formattedStartTime, formattedEndTime });
+
       const [result] = await connection.query(
-        `INSERT INTO usage_records (user_id, space_id, amount, duration, status)
-         VALUES (?, ?, ?, ?, ?)`,
-        [user_id, space_id, amount, duration, status]
+        `INSERT INTO usage_records (start_time, charging_start_time, charging_complete_time, end_time, status, vehicle_id, parking_space_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [formattedStartTime, formattedChargingStart, formattedChargingComplete, formattedEndTime, status, vehicleId, parkingSpaceId]
       );
       
       return res.status(201).json({
@@ -518,5 +421,7 @@ router.post('/usage-records', async (req, res) => {
       if (connection) await connection.end();
     }
   });
+
+
 
 module.exports = router;
