@@ -16,32 +16,38 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `billing_rules`
+-- Table structure for table `bookings`
 --
 
-DROP TABLE IF EXISTS `billing_rules`;
+DROP TABLE IF EXISTS `bookings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `billing_rules` (
+CREATE TABLE `bookings` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `rule_key` varchar(50) NOT NULL,
-  `rule_value` decimal(10,2) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `user_id` int NOT NULL,
+  `vehicle_id` int NOT NULL,
+  `parking_space_id` int NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `status` enum('confirmed','cancelled','completed') DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `rule_key` (`rule_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `user_id` (`user_id`),
+  KEY `parking_space_id` (`parking_space_id`),
+  KEY `idx_status_endtime` (`status`,`end_time`),
+  CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`parking_space_id`) REFERENCES `parking_spaces` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `billing_rules`
+-- Dumping data for table `bookings`
 --
 
-LOCK TABLES `billing_rules` WRITE;
-/*!40000 ALTER TABLE `billing_rules` DISABLE KEYS */;
-INSERT INTO `billing_rules` VALUES (1,'charge_duration_threshold',20.00,'充电优惠阈值（分钟）','2025-04-08 18:53:41','2025-04-08 18:53:41'),(2,'free_overtime_buffer',60.00,'免费超时时长（分钟）','2025-04-08 18:53:41','2025-04-08 18:53:41'),(3,'max_overtime_fee',30.00,'单次超时费用上限（元）','2025-04-08 18:53:41','2025-04-08 18:53:41'),(4,'parking_hour_rounding',1.00,'停车时长取整方式（1=向上取整）','2025-04-08 18:53:41','2025-04-08 18:53:41');
-/*!40000 ALTER TABLE `billing_rules` ENABLE KEYS */;
+LOCK TABLES `bookings` WRITE;
+/*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
+INSERT INTO `bookings` VALUES (1,1,2,1,'2025-04-16 22:37:33','2025-04-16 22:37:38','cancelled','2025-04-16 22:37:36');
+/*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -53,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-08 18:55:02
+-- Dump completed on 2025-04-17  0:11:00

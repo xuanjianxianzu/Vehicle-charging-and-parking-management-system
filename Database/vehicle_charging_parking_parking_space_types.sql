@@ -16,35 +16,32 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `bookings`
+-- Table structure for table `parking_space_types`
 --
 
-DROP TABLE IF EXISTS `bookings`;
+DROP TABLE IF EXISTS `parking_space_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `bookings` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `parking_space_id` int NOT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime NOT NULL,
-  `status` enum('pending','confirmed','cancelled') DEFAULT 'pending',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE `parking_space_types` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '类型ID',
+  `type` enum('fast_charging','slow_charging','normal') NOT NULL COMMENT '类型名称',
+  `rate` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '充电费率（元/度）',
+  `parking_rate` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '停车费率（元/小时）',
+  `overtime_occupancy_rate` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '超时占用费率（元/分钟）',
+  `power` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '充电功率（KW）',
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `parking_space_id` (`parking_space_id`),
-  CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`parking_space_id`) REFERENCES `parking_spaces` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `type` (`type`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `bookings`
+-- Dumping data for table `parking_space_types`
 --
 
-LOCK TABLES `bookings` WRITE;
-/*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
+LOCK TABLES `parking_space_types` WRITE;
+/*!40000 ALTER TABLE `parking_space_types` DISABLE KEYS */;
+INSERT INTO `parking_space_types` VALUES (1,'fast_charging',0.61,2.00,0.30,120.00),(2,'slow_charging',1.26,2.00,0.30,7.00),(3,'normal',0.00,2.00,0.00,0.00);
+/*!40000 ALTER TABLE `parking_space_types` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -56,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-08 18:55:02
+-- Dump completed on 2025-04-17  0:11:00

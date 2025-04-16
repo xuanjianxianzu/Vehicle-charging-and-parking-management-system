@@ -40,12 +40,12 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 SET character_set_client      = gbk */;
+/*!50001 SET character_set_results     = gbk */;
+/*!50001 SET collation_connection      = gbk_chinese_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `parking_space_status` AS select `ps`.`id` AS `id`,`pst`.`type` AS `type`,`ps`.`status` AS `status`,`v`.`license_plate` AS `license_plate`,`ur`.`start_time` AS `start_time`,timestampdiff(HOUR,`ur`.`start_time`,now()) AS `used_hours` from (((`parking_spaces` `ps` left join `parking_space_types` `pst` on((`ps`.`type_id` = `pst`.`id`))) left join `vehicles` `v` on((`ps`.`vehicles_id` = `v`.`id`))) left join `usage_records` `ur` on(((`ps`.`id` = `ur`.`parking_space_id`) and (`ur`.`status` = 'in_progress')))) */;
+/*!50001 VIEW `parking_space_status` AS select `ps`.`id` AS `id`,`pst`.`type` AS `type`,`ps`.`status` AS `status`,`v`.`license_plate` AS `license_plate`,`ur`.`start_time` AS `start_time`,timestampdiff(HOUR,`ur`.`start_time`,now()) AS `used_hours` from (((`parking_spaces` `ps` left join `parking_space_types` `pst` on((`ps`.`type_id` = `pst`.`id`))) left join `vehicles` `v` on((`ps`.`vehicle_id` = `v`.`id`))) left join `usage_records` `ur` on(((`ps`.`id` = `ur`.`parking_space_id`) and (`ur`.`status` = 'in_progress')))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -59,4 +59,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-08 18:55:02
+-- Dump completed on 2025-04-17  0:11:01
