@@ -43,7 +43,7 @@
     </ion-card>
 
     <ion-list *ngIf="hasVehicle">
-    <ion-card *ngFor="let Vehicle of currentVehicles " (click)="getCarID(Vehicle.id)" [class.selected-card]="selectedCarId === Vehicle.id">
+    <ion-card *ngFor="let Vehicle of MyCarArray " (click)="getCarID(Vehicle.id)" [class.selected-card]="selectedCarId === Vehicle.id">
       <ion-card-header>
         <ion-card-title>Your Vehicle</ion-card-title>
       </ion-card-header>
@@ -76,9 +76,17 @@
       (click)="isMyCar && cancelBook()">
       {{ isMyCar ? 'Cancel Booking' : 'Booked By Others' }}
     </ion-button>
+
+    <ion-button 
+    *ngIf="space.status === 'booked'"
+    expand="block"
+    [disabled]="!isMyCar"
+    (click)="isMyCar&&getBookMess()">
+    Start Usage
+  </ion-button>
     
     <ion-button 
-      *ngIf="space.status === 'idle' || hasVehicle"
+      *ngIf="space.status === 'idle'"
       expand="block"
       (click)="openUsageModal()">
       Start Usage
@@ -88,7 +96,7 @@
       *ngIf="space.status === 'occupied'"
       expand="block"
       [disabled]="!isMyCar"
-      (click)="isMyCar && openUpDateModal()">
+      (click)="isMyCar && toCloseOrder()">
       End Usage
     </ion-button>
     
@@ -104,7 +112,7 @@
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <p>Confirm booking for space {{ spaceId }} using vehicle {{ selectedCarId }}?</p>
+          
 
           <ion-item>
             <ion-label position="stacked">Duration (0-60 minutes)</ion-label>
@@ -134,36 +142,83 @@
       </ng-template>
     </ion-modal>
 
-    <ion-modal [isOpen]="isUsageModalOpen" (ionModalDidDismiss)="closeModalTwo()">
+    <ion-modal [isOpen]="isUsageModalOpen" (ionModalDidDismiss)="closeModal()">
       <ng-template>
         <ion-header>
           <ion-toolbar>
             <ion-title>Confirm Usage</ion-title>
             <ion-buttons slot="end">
-              <ion-button (click)="closeModalTwo()">Close</ion-button>
+              <ion-button (click)="closeModal()">Close</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <p>Confirm using space {{ spaceId }}?</p>
+          <ion-item>
+            <ion-label position="stacked">Charging Start Time</ion-label>
+            <ion-datetime 
+              [(ngModel)]="usageStartTime"
+              [min]="currentTime"
+              presentation="date-time"
+              preferWheel="true"
+            ></ion-datetime>
+          </ion-item>
+    
           <ion-button expand="block" (click)="confirmModalTwo()">Confirm</ion-button>
         </ion-content>
       </ng-template>
     </ion-modal>
 
-    <ion-modal [isOpen]="isUpDateModalOpen" (ionModalDidDismiss)="closeModalThree()">
+    <ion-modal [isOpen]="isUpDateModalOpen" (ionModalDidDismiss)="closeModal()">
       <ng-template>
         <ion-header>
           <ion-toolbar>
-            <ion-title>Confirm Usage</ion-title>
+            <ion-title>结束使用</ion-title>
             <ion-buttons slot="end">
-              <ion-button (click)="closeModalThree()">Close</ion-button>
+              <ion-button (click)="closeModal()">关闭</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
-        <ion-content>
-          <p>Confirm using space {{ spaceId }}?</p>
-          <ion-button expand="block" (click)="confirmModalThree()">Confirm</ion-button>
+        <ion-content class="ion-padding">
+          <ion-item>
+            <ion-label position="stacked">开始时间</ion-label>
+            <ion-text>{{ orderStartTime | date: 'yyyy-MM-dd HH:mm' }}</ion-text>
+          </ion-item>
+    
+          <ion-item>
+            <ion-label position="stacked">充电开始时间</ion-label>
+            <ion-text>{{ orderChargingStart | date: 'yyyy-MM-dd HH:mm' }}</ion-text>
+          </ion-item>
+    
+          <ion-item>
+            <ion-label position="stacked">充电完成时间</ion-label>
+            <ion-datetime
+              [(ngModel)]="chargingCompleteTime"
+              [min]="minChargingCompleteTime"
+              presentation="date-time"
+              preferWheel="true"
+              locale="zh-CN"
+              doneText="完成"
+              cancelText="取消"
+              (ionChange)="updateEndTimeLimits()">
+            </ion-datetime>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">结束时间</ion-label>
+            <ion-datetime
+              [(ngModel)]="endTime"
+              [min]="minEndTime"
+              presentation="date-time"
+              preferWheel="true"
+              locale="zh-CN"
+              doneText="完成"
+              cancelText="取消">
+            </ion-datetime>
+          </ion-item>
+    
+          <ion-button expand="block" (click)="confirmModalThree()" [disabled]="!chargingCompleteTime">
+            确认结束使用
+          </ion-button>
         </ion-content>
       </ng-template>
     </ion-modal>

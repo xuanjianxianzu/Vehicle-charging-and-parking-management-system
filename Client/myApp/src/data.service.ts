@@ -42,5 +42,15 @@ export class DataService {
     return this.http.post(`${this.apiUrl}/usage-records`, body);
 
 }
+
+
+updateUsageRecord(charging_complete_time:string|null,end_time:string|null,parking_space_id:number,status:string,endStatus:string): Observable<any> {
+  const body = { charging_complete_time,end_time, parking_space_id, status ,endStatus};
+  return this.http.put<any>(`${this.apiUrl}/usage-records/update`, body);
+}
+
+getUsageMess(CarId:number,status:string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/usage-records/${CarId}/${status}`);
+}
  
 }

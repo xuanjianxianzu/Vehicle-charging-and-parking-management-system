@@ -393,7 +393,7 @@ router.post('/usage-records', async (req, res) => {
 
          const formatTime = (timeStr) => {
             if (!timeStr) return null;
-            return new Date(timeStr).toISOString().slice(0, 19).replace('T', ' ');
+            return timeStr.slice(0, 19).replace('T', ' ');
           };
     
           const formattedStartTime = formatTime(startTime);
@@ -421,6 +421,83 @@ router.post('/usage-records', async (req, res) => {
       if (connection) await connection.end();
     }
   });
+
+
+
+  router.put('/usage-records/update', async (req, res) => {
+    let connection;
+    try {
+        console.log('Updating usage record:', req.body);
+        connection = await dbcon.getConnection();
+        const { charging_complete_time,end_time ,parking_space_id,status,endStatus} = req.body;
+        const formatTime = (timeStr) => {
+            if (!timeStr) return null;
+            return timeStr.slice(0, 19).replace('T', ' ');
+          };
+          const formattedEndTime = formatTime(end_time);
+          const formattedChargingComplete = formatTime(charging_complete_time);
+        console.log('aaaanoend');
+        const [result] = await connection.query(`
+            UPDATE usage_records
+            SET charging_complete_time=?,end_time=?,status=?
+            WHERE status = ? 
+              AND parking_space_id = ?
+        `, [formattedChargingComplete,formattedEndTime,endStatus,status,parking_space_id]);
+
+
+        return res.status(200).json({
+            code: 200,
+            message: '使用记录更新成功',
+            data: { updatedRows: result.affectedRows }
+        });
+
+    } catch (error) {
+        console.error('更新使用记录错误:', error);
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+
+
+router.get('/usage-records/:carId/:status', async (req, res) => {
+    let connection;
+    const carId = req.params.carId;
+    const status = req.params.status;
+    try {
+        connection = await dbcon.getConnection();
+        const [rows] = await connection.query(
+            `SELECT 
+                ur.start_time,
+                ur.charging_start_time,
+                ur.id
+            FROM 
+                usage_records ur
+            WHERE 
+                ur.vehicle_id = ?
+            AND
+                ur.status=?`, [carId,status]);
+        return res.status(200).json({
+            code: 200,
+            data: rows,
+            message: '获取信息成功'
+        });
+    } catch (error) {
+        console.error('获取信息错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
 
 
 

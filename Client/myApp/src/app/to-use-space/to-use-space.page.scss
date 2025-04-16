@@ -15,3 +15,15 @@ ion-card.selected-card {
   ion-card:active {
     transform: scale(0.98);
   }
+
+  ion-datetime {
+    --background: var(--ion-color-light);
+    border-radius: 8px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  ion-text {
+    font-size: 16px;
+    color: var(--ion-color-dark);
+  }

@@ -6,13 +6,12 @@
 
 <ion-content [fullscreen]="true">
   <div class="my-page-content">
-    <!-- 用户头像和用户名 -->
     <div class="user-profile">
       <img [src]="avatarUrl" alt="用户名" class="avatar" />
       <h1>{{ username }}</h1>
     </div>
 
-    <!-- 用户账单 -->
+
     <div class="user-bills">
       <h2>个人账单</h2>
       <ul>
@@ -24,7 +23,6 @@
       </ul>
     </div>
 
-    <!-- 车位历史 -->
     <div class="parking-history">
       <h2>车位历史</h2>
       <ul>
@@ -37,7 +35,6 @@
       </ul>
     </div>
 
-    <!-- 添加退出和注销按钮 -->
     <div class="action-buttons">
       <ion-button expand="block" color="medium" (click)="logout()">
         <ion-icon name="log-out-outline" slot="start"></ion-icon>

@@ -1,8 +1,8 @@
 export interface UsageRecords {
-    startTime: Date | string;
-    chargingStartTime?: Date | string | null;
-    chargingCompleteTime?: Date | string | null;
-    endTime?: Date | string | null;
+    startTime: string;
+    chargingStartTime?: string | null;
+    chargingCompleteTime?: string | null;
+    endTime?: string | null;
     status: string;
     vehicleId: number;
     parkingSpaceId: number;
