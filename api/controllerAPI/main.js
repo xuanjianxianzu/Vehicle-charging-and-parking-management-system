@@ -499,6 +499,172 @@ router.get('/usage-records/:carId/:status', async (req, res) => {
     }
 });
 
+router.put('/Recharge', async (req, res) => {
+    let connection;
+    try {
+        console.log('Recharge:', req.body);
+        connection = await dbcon.getConnection();
+        const { userId,Amount} = req.body;
+        if (!userId || !Amount || Amount <= 0) {
+            return res.status(401).json({
+                code: 401,
+                message: '充值金额需要大于零且用户ID不能为空'
+            });
+        }
+        const [result] = await connection.query(`
+            UPDATE users
+                SET balance = balance + ?
+                WHERE id = ?;
+        `, [Amount,userId]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '用户未找到或充值失败'
+            });
+        }
+
+        return res.status(200).json({
+            code: 200,
+            message: '充值成功',
+            affectedRows: result.affectedRows
+        });
+
+    } catch (error) {
+        console.error('错误:', error);
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+
+router.put('/payBill', async (req, res) => {
+    let connection;
+    try {
+        console.log('payBill:', req.body);
+        connection = await dbcon.getConnection();
+        await connection.beginTransaction();
+        const { userId,usageRecordId} = req.body;
+        if (!userId || !usageRecordId) {
+            return res.status(400).json({
+                code: 400,
+                message: '参数缺失'
+            });
+        }
+        const [userRows] = await connection.query('SELECT * FROM users WHERE id = ?', [userId]);
+        if (userRows.length === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '用户未找到'
+            });
+        }
+        
+        const user = userRows[0];
+        const [recordRows] = await connection.query('SELECT * FROM usage_records WHERE id = ?', [usageRecordId]);
+        if (recordRows.length === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '使用记录未找到'
+            });
+        }
+        const record = recordRows[0];
+
+        if (user.balance < record.total_fee || record.status === 'completed') {
+            return res.status(401).json({
+                code: 401,
+                message: '余额不足或记录已支付'
+            });
+        }
+        await connection.query(`
+            UPDATE users
+            SET balance = balance - ?
+            WHERE id = ?;
+        `, [record.total_fee, userId]);
+ 
+        await connection.query(`
+            UPDATE usage_records
+            SET status = 'completed'
+            WHERE id = ?;
+        `, [usageRecordId]);
+
+        await connection.commit();
+
+        return res.status(200).json({
+            code: 200,
+            message: '支付成功',
+        });
+
+    } catch (error) {
+        console.error('错误:', error);
+        if (connection) await connection.rollback();
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+router.get('/usage-records/:userId', async (req, res) => {
+    let connection;
+    try {
+        const userId = req.params.userId;
+        if (!userId) {
+            return res.status(400).json({ code: 400, message: '无效的用户ID' });
+        }
+        connection = await dbcon.getConnection();
+        const [carRows] = await connection.query(
+            `SELECT * FROM vehicles WHERE user_id = ?`, [userId]);
+            if (carRows.length === 0) {
+                return res.status(200).json({ 
+                    code: 200, 
+                    data: [], 
+                    message: '用户暂无车辆' 
+                });
+            }
+
+        const [vehicleIds] = carRows.map(v => v.id);
+
+        const [records] = await connection.query(`
+            SELECT 
+                ur.id,
+                ur.start_time,
+                ur.end_time,
+                ur.total_fee,
+                ur.status,
+                v.license_plate,
+                pst.type AS space_type
+            FROM usage_records ur
+            JOIN vehicles v ON ur.vehicle_id = v.id
+            JOIN parking_spaces ps ON ur.parking_space_id = ps.id
+            JOIN parking_space_types pst ON ps.type_id = pst.id
+            WHERE ur.vehicle_id IN (?)
+            ORDER BY ur.start_time DESC
+            LIMIT 100`,
+            [vehicleIds]
+        );
+        return res.status(200).json({
+            code: 200,
+            data: {records},
+            message: '查询成功'
+        });
+
+    } catch (error) {
+        console.error('获取信息错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
 
 
 module.exports = router;

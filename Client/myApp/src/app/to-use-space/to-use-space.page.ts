@@ -161,7 +161,7 @@ async cancelBook() {
     alert('取消预约请求发送失败，请检查网络连接');
   }
 }
-
+ 
 
 async confirmBooking(){
   if (this.duration <= 0) {
@@ -245,8 +245,28 @@ async confirmModalThree(){
       'in_progress',
       'to_be_paid',
     ).toPromise();
-
     await this.loadData();
+    this.closeModal();
+    const userConfirmed = confirm('是否立即支付账单？');
+    if (userConfirmed) {
+      try {
+        const response = await this.dataService.payBill(Number(this.myUserID), this.orderID).toPromise();
+        if (response.code === 200) {
+          alert('支付成功');
+          this.router.navigate(['/tabs/tab1']);
+        } else {
+          alert('支付失败，请稍后重试');
+          this.router.navigate(['/my-bill']);
+        }
+      } catch (error) {
+        console.error('支付失败:', error);
+        alert('支付失败，请稍后重试');
+        this.router.navigate(['/my-bill']);
+      }
+    } else {
+      alert('请尽快支付');
+      this.router.navigate(['/tabs/tab1']);
+    }
     this.closeModal();
   } catch (error) {
     console.error('结束使用失败:', error);

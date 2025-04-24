@@ -28,19 +28,24 @@ const routes: Routes = [
   },
   {
     path: 'add-car',
+    canActivate: [authGuard],
     loadChildren: () => import('./add-car/add-car.module').then( m => m.AddCarPageModule)
   },
   {
     path: 'update-car',
+    canActivate: [authGuard],
     loadChildren: () => import('./update-car/update-car.module').then( m => m.UpdateCarPageModule)
   },
   {
     path: 'to-use-space/:id',
+    canActivate: [authGuard],
     loadChildren: () => import('./to-use-space/to-use-space.module').then( m => m.ToUseSpacePageModule)
   },
-
-
-
+  {
+    path: 'my-bill',
+    canActivate: [authGuard],
+    loadChildren: () => import('./my-bill/my-bill.module').then( m => m.MyBillPageModule)
+  },
 
   
 ];

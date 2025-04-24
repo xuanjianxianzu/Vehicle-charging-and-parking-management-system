@@ -88,6 +88,7 @@
     <ion-button 
       *ngIf="space.status === 'idle'"
       expand="block"
+      [disabled]="!hasVehicle"
       (click)="openUsageModal()">
       Start Usage
     </ion-button>

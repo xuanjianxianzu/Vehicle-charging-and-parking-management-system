@@ -52,5 +52,10 @@ updateUsageRecord(charging_complete_time:string|null,end_time:string|null,parkin
 getUsageMess(CarId:number,status:string): Observable<any> {
   return this.http.get(`${this.apiUrl}/usage-records/${CarId}/${status}`);
 }
+
+payBill(userId:number,usageRecordId:number){
+  const body = { userId,usageRecordId};
+  return this.http.put<any>(`${this.apiUrl}/payBill`, body);
+}
  
 }
