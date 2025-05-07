@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab4"></ion-back-button>
+    </ion-buttons>
+    <ion-title>wallet</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>当前余额</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <h1>¥{{ balance}}</h1>
+    </ion-card-content>
+  </ion-card>
+
+
+
+
+  <ion-list lines="none">
+    <ion-list-header>
+      <ion-label>选择充值金额</ion-label>
+    </ion-list-header>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col size="4" *ngFor="let amount of [6,18,30,68,118,198,348,648]">
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            (click)="recharge(amount)"
+          >
+            ￥{{ amount }}
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-item>
+      <ion-input
+        type="number"
+        [(ngModel)]="customAmount"
+        placeholder="输入自定义金额"
+        min="1"
+        step="1"
+        clearInput
+      ></ion-input>
+      <ion-button 
+        slot="end" 
+        fill="solid" 
+        color="primary"
+        (click)="recharge(customAmount || 0)"
+        [disabled]="!customAmount || customAmount <= 0"
+      >
+        充值
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+
+</ion-content>

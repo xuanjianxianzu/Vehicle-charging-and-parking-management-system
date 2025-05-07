@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from 'src/data.service';
 import { ParkingSpace } from 'src/models/parking-space';
 import { Vehicle } from 'src/models/vehicle';
@@ -26,10 +26,14 @@ export class Tab1Page implements OnInit {
   constructor(
     private dataService: DataService,
     private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
     this.loadParkingSpaces();
+    this.route.params.subscribe(() => {
+      this.loadParkingSpaces();
+    });
   }
 
   loadParkingSpaces(event?: any) {
@@ -76,7 +80,6 @@ export class Tab1Page implements OnInit {
   }
 
   filterSpaces() {
-
     console.log(this.typeFilter);
     if (!this.searchTerm&&!this.statusFilter&&!this.typeFilter&&!this.isFindUsing) {
       this.filteredSpaces = [...this.parkingSpaces];
@@ -93,13 +96,7 @@ export class Tab1Page implements OnInit {
       filtered = filtered.filter(space => space.space_type === this.typeFilter);
     }
 
-    if (this.isFindUsing) {
-      console.log('find');
-      filtered = filtered.filter(space => 
-        space.vehicle_id !== null && 
-        this.MyCarId.includes(space.vehicle_id)
-      );
-    }
+
 
     if (this.searchTerm) {
       const search = this.searchTerm.toLowerCase();
@@ -115,5 +112,6 @@ export class Tab1Page implements OnInit {
   toUse(id:number){
     this.router.navigate([`/to-use-space/${id}`]);
   }
+
 
 }

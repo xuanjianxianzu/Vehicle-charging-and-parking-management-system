@@ -11,11 +11,14 @@ import { AuthService } from '../app/auth/auth.service';
 
 import { FormsModule } from '@angular/forms';
 import { authInterceptor } from './auth/auth.interceptor';
-
+import { ModalToInfComponent } from './modal-to-inf/modal-to-inf.component';
+import { ModalToPicComponent } from './modal-to-pic/modal-to-pic.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    ModalToInfComponent,
+    ModalToPicComponent
   ],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, FormsModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },provideHttpClient(withInterceptors([authInterceptor])),AuthService],

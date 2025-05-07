@@ -1,7 +1,7 @@
 //Database details module
 module.exports = {
     host:'localhost',
-    user:'root',
-    password:'Wadwad2020a',
+    user:'app_user',
+    password:'UserWadwad2020a',
     database:'vehicle_charging_parking'
 };

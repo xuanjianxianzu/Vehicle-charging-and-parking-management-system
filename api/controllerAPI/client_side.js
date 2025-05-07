@@ -511,23 +511,28 @@ router.put('/Recharge', async (req, res) => {
                 message: '充值金额需要大于零且用户ID不能为空'
             });
         }
-        const [result] = await connection.query(`
+        await connection.query(`
             UPDATE users
                 SET balance = balance + ?
                 WHERE id = ?;
         `, [Amount,userId]);
         
-        if (result.affectedRows === 0) {
+        const [result] = await connection.query(
+            'SELECT balance FROM users WHERE id = ?',
+            [userId]
+        );
+
+        if (result.length === 0) {
             return res.status(404).json({
                 code: 404,
-                message: '用户未找到或充值失败'
+                message: '用户不存在'
             });
         }
 
-        return res.status(200).json({
+        res.status(200).json({
             code: 200,
             message: '充值成功',
-            affectedRows: result.affectedRows
+            balance: result[0].balance
         });
 
     } catch (error) {
@@ -573,7 +578,8 @@ router.put('/payBill', async (req, res) => {
         }
         const record = recordRows[0];
 
-        if (user.balance < record.total_fee || record.status === 'completed') {
+        if (Number(user.balance) < Number(record.total_fee) || record.status === 'completed') {
+            console.log(user.balance,record.total_fee,Number(user.balance) < Number(record.total_fee))
             return res.status(401).json({
                 code: 401,
                 message: '余额不足或记录已支付'
@@ -592,10 +598,11 @@ router.put('/payBill', async (req, res) => {
         `, [usageRecordId]);
 
         await connection.commit();
-
+        console.log('aaa')
         return res.status(200).json({
             code: 200,
             message: '支付成功',
+
         });
 
     } catch (error) {
@@ -650,7 +657,7 @@ router.get('/usage-records/:userId', async (req, res) => {
         );
         return res.status(200).json({
             code: 200,
-            data: {records},
+            data: records,
             message: '查询成功'
         });
 
@@ -659,6 +666,91 @@ router.get('/usage-records/:userId', async (req, res) => {
         return res.status(500).json({
             code: 500,
             message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+
+router.get('/user/:userId', async (req, res) => {
+    let connection;
+    try {
+        const userId = req.params.userId;
+        if (!userId) {
+            return res.status(400).json({ code: 400, message: '无效的用户ID' });
+        }
+        connection = await dbcon.getConnection();
+
+        const [records] = await connection.query(`
+            SELECT 
+                u.id,
+                u.name,
+                u.phone,
+                u.email,
+                u.avatar_number,
+                u.balance
+            FROM users u
+            WHERE u.id = ?`,
+            [userId]
+        );
+        return res.status(200).json({
+            code: 200,
+            data: records,
+            message: '查询成功'
+        });
+
+    } catch (error) {
+        console.error('获取信息错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+
+
+
+
+
+router.put('/userProfile/update', async (req, res) => {
+    let connection;
+    try {
+        console.log('payBill:', req.body);
+        connection = await dbcon.getConnection();
+        const { id,name,phone,email,avatar_number} = req.body;
+        if (!id) {
+            return res.status(400).json({
+                code: 400,
+                message: '参数缺失'
+            });
+        }
+        const [records] = await connection.query(`
+            UPDATE users
+            SET 
+                name = ?,
+                phone = ?,
+                email = ?,
+                avatar_number = ?
+            WHERE 
+                id = ?;
+        `, [name,phone,email,avatar_number,id]);
+
+        return res.status(200).json({
+            code: 200,
+            message: '成功',
+            data: records,
+        });
+
+    } catch (error) {
+        console.error('错误:', error);
+        if (connection) await connection.rollback();
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
         });
     } finally {
         if (connection) await connection.end();

@@ -1,50 +1,70 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>MINE</ion-title>
-  </ion-toolbar>
-</ion-header>
+    <ion-toolbar>
+      <ion-title>My Usage</ion-title>
 
-<ion-content [fullscreen]="true">
-  <div class="my-page-content">
-    <div class="user-profile">
-      <img [src]="avatarUrl" alt="用户名" class="avatar" />
-      <h1>{{ username }}</h1>
-    </div>
+    </ion-toolbar>
 
+  </ion-header>
 
-    <div class="user-bills">
-      <h2>个人账单</h2>
-      <ul>
-        <li *ngFor="let bill of bills">
-          <p>费用: {{ bill.total_fee }} 元</p>
-          <p>开始时间: {{ bill.start_time }}</p>
-          <p>结束时间: {{ bill.end_time }}</p>
-        </li>
-      </ul>
-    </div>
+  <ion-content [fullscreen]="true">
 
-    <div class="parking-history">
-      <h2>车位历史</h2>
-      <ul>
-        <li *ngFor="let history of parkingHistory">
-          <p>车位类型: {{ history.parking_type }}</p>
-          <p>开始时间: {{ history.start_time }}</p>
-          <p>结束时间: {{ history.end_time }}</p>
-          <p>费用: {{ history.total_fee }} 元</p>
-        </li>
-      </ul>
-    </div>
+    <ion-list *ngIf="filteredSpaces.length > 0">
+        <ion-card *ngFor="let space of filteredSpaces" (click)="toUse(space.id)">
+          <ion-card-header>
+            <ion-card-title>{{ space.space_type }}</ion-card-title>
+            <ion-card-subtitle>ID: {{ space.id }}</ion-card-subtitle>
+          </ion-card-header>
+          
+          <ion-card-content>
+            <ion-item lines="none">
+              <ion-label>Status:</ion-label>
+              <ion-badge>{{ space.status }}</ion-badge>
+            </ion-item>
+            
+            <ion-item lines="none">
+              <ion-label>Rate:</ion-label>
+              <ion-text>¥{{ space.charging_rate }}/kWh</ion-text>
+            </ion-item>
+            
+            <ion-item lines="none">
+              <ion-label>Parking Rate:</ion-label>
+              <ion-text>¥{{ space.parking_rate }}</ion-text>
+            </ion-item>
+            
+            <ion-item lines="none" *ngIf="space.overtime_occupancy_rate">
+              <ion-label>Overtime Rate:</ion-label>
+              <ion-text>¥{{ space.overtime_occupancy_rate }}</ion-text>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      </ion-list>
 
-    <div class="action-buttons">
-      <ion-button expand="block" color="medium" (click)="logout()">
-        <ion-icon name="log-out-outline" slot="start"></ion-icon>
-        退出登录
-      </ion-button>
-      <ion-button expand="block" color="danger" >
-        <ion-icon name="trash-outline" slot="start"></ion-icon>
-        注销账号
-      </ion-button>
-    </div>
-  </div>
-</ion-content>
+      <div *ngIf="filteredSpaces.length === 0" class="empty-state">
+        <ion-grid class="ion-padding">
+          <ion-row class="ion-justify-content-center">
+            <ion-col size="12" class="ion-text-center">
+              <ion-icon 
+                name="car-sport-outline" 
+                color="medium" 
+                class="empty-icon"
+              ></ion-icon>
+              
+              <h2 class="ion-text-wrap ion-margin-top">
+                暂时没有正在使用的车位
+              </h2>
+              
+              <ion-button 
+                fill="solid" 
+                color="primary" 
+                class="ion-margin-top empty-state-button"
+                routerLink="/tabs/tab1"
+              >
+                <ion-icon slot="start" name="flash-outline"></ion-icon>
+                立即寻找车位
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
 
+  </ion-content>

@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>编辑{{ fieldLabel }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">关闭</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="stacked">{{ fieldLabel }}</ion-label>
+    <ion-input 
+      [(ngModel)]="currentValue" 
+      [type]="inputType"
+      autofocus
+    ></ion-input>
+  </ion-item>
+  
+  <ion-button 
+    expand="block" 
+    (click)="save()"
+    [disabled]="!isValid"
+  >保存</ion-button>
+</ion-content>

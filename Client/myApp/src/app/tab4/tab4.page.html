@@ -1,0 +1,59 @@
+<ion-header [translucent]="true">
+  <ion-toolbar (click)="goToInfor()">
+    <div class="header-container">
+      <img [src]="userAvatar" alt="用户头像" class="avatar">
+      <h1>{{ user?.name || '暂无昵称' }}</h1>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+
+  <ion-card class="cardF" (click)="goToWallet()">
+    <ion-card-header class="header-content2">
+      <div class="left-group">
+        <ion-icon name="wallet-outline" class="left-icon"></ion-icon>
+        <span class="vehicle-text">Wallet</span>
+        <span class="wallet">¥{{user?.balance||'0.00'}}</span>
+      <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>  </div>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card class="cardFA" (click)="goToAllOrders()">
+    <ion-card-header class="header-content3">
+      <div class="left-group">
+        <ion-icon name="receipt-outline" class="left-icon"></ion-icon>
+        <span class="vehicle-text">All Orders</span>
+      <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>  </div>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card class="cardFA" (click)="goToMyUsage()">
+    <ion-card-header class="header-content3">
+      <div class="left-group">
+        <ion-icon name="hourglass-outline" class="left-icon"></ion-icon>
+        <span class="vehicle-text">My Usage</span>
+      <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>  </div>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card class="cardFA" (click)="goToMyCar()">
+    <ion-card-header class="header-content3">
+      <div class="left-group">
+        <ion-icon name="car-sport-outline" class="left-icon"></ion-icon>
+        <span class="vehicle-text">My Car</span>
+      <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>  </div>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card class="cardF" (click)="goToSetup()">
+    <ion-card-header class="header-content2">
+      <div class="left-group">
+        <ion-icon name="settings-outline" class="left-icon"></ion-icon>
+        <span class="vehicle-text">Set Up</span>
+      <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>  </div>
+    </ion-card-header>
+  </ion-card>
+
+</ion-content>

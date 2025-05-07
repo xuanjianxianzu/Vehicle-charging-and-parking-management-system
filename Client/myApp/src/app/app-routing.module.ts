@@ -46,6 +46,28 @@ const routes: Routes = [
     canActivate: [authGuard],
     loadChildren: () => import('./my-bill/my-bill.module').then( m => m.MyBillPageModule)
   },
+  {
+    path: 'tab4',
+    canActivate: [authGuard],
+    loadChildren: () => import('./tab4/tab4.module').then( m => m.Tab4PageModule)
+  },
+  {
+    path: 'personal-information',
+    canActivate: [authGuard],
+    loadChildren: () => import('./personal-information/personal-information.module').then( m => m.PersonalInformationPageModule)
+  },
+  {
+    path: 'wallet',
+    canActivate: [authGuard],
+    loadChildren: () => import('./wallet/wallet.module').then( m => m.WalletPageModule)
+  },
+  {
+    path: 'setup',
+    canActivate: [authGuard],
+    loadChildren: () => import('./setup/setup.module').then( m => m.SetupPageModule)
+  },
+
+
 
   
 ];

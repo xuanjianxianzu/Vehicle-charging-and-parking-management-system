@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors')
-const main = require('./controllerAPI/main')
+const cors = require('cors');
+const client = require('./controllerAPI/client_side');
+const admin = require('./controllerAPI/admin_side');
 const jwt = require('jsonwebtoken');
 const app = express();
 
@@ -11,7 +12,7 @@ app.use('/api', (req, res, next) => {
     if (req.method === 'OPTIONS') {
         return next();
       }
-    if (req.url === '/register' || req.url === '/login') {
+    if (req.url === '/client/register' || req.url === '/client/login'||req.url === '/admin/login') {
       return next();
     }
     const authHeader = req.headers.authorization;
@@ -55,7 +56,8 @@ app.use(cors({
     credentials: true
   })); 
 
-app.use('/api',main)
+app.use('/api/client',client);
+app.use('/api/admin',admin)
 
 app.listen(3060);
 
