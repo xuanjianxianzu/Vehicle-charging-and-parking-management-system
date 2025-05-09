@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>发表评价</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">关闭</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="rating-container">
+    <div class="stars">
+      <ion-icon 
+        *ngFor="let star of [1,2,3,4,5]; let i = index"
+        [name]="i < rating ? 'star' : 'star-outline'"
+        (click)="setRating(i + 1)"
+        class="star-icon"
+        color="warning">
+      </ion-icon>
+    </div>
+  </div>
+
+  <ion-item>
+    <ion-label position="stacked">评论</ion-label>
+    <ion-textarea [(ngModel)]="comment" rows="4" placeholder="请输入评论"></ion-textarea>
+  </ion-item>
+
+  <ion-button expand="block" (click)="submit()" [disabled]="!rating">
+    提交评价
+  </ion-button>
+
+
+  
+
+
+</ion-content>

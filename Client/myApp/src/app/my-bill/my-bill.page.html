@@ -9,4 +9,39 @@
 
 <ion-content [fullscreen]="true">
 
+
+  <div *ngIf="myOrders.length === 0">
+    <p>You don't have an order yet</p>
+  </div>
+
+
+  <ion-list *ngIf="myOrders.length > 0" >
+    <ion-card *ngFor="let Order of myOrders" (click)="completeOrder(Order)">
+      <ion-card-header>
+        <ion-card-subtitle>ID: {{ Order.id }}</ion-card-subtitle>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label></ion-label>
+          <ion-badge>{{ Order.status }}</ion-badge>
+        </ion-item>
+        
+
+        
+        <ion-item lines="none" *ngIf="Order.electricity_used">
+          <ion-label>electricity used:</ion-label>
+          <ion-text>{{ Order.electricity_used }}</ion-text>
+        </ion-item>
+        
+        <ion-item lines="none" *ngIf="Order.total_fee">
+          <ion-label>total fee:</ion-label>
+          <ion-text>¥{{ Order.total_fee }}</ion-text>
+        </ion-item>
+
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+
+
 </ion-content>

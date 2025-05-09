@@ -5,6 +5,7 @@ import { ParkingSpace } from 'src/models/parking-space';
 import { Vehicle } from 'src/models/vehicle';
 import { UsageRecords } from 'src/models/usage-records';
 import { DateTime } from 'luxon';
+import { comment } from 'src/models/comment';
 @Component({
   selector: 'app-to-use-space',
   templateUrl: './to-use-space.page.html',
@@ -36,8 +37,8 @@ export class ToUseSpacePage implements OnInit {
   minChargingCompleteTime: string = DateTime.now().toISO()!;
   maxChargingCompleteTime: string = DateTime.now().toISO()!;
   orderID:number=0;
-minEndTime: string = DateTime.now().toISO()!;
-
+  minEndTime: string = DateTime.now().toISO()!;
+  comment:comment[]=[];
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -58,6 +59,7 @@ minEndTime: string = DateTime.now().toISO()!;
   async ngOnInit() {
     this.spaceId = +this.route.snapshot.params['id'];
     await this.loadData();
+    this.loadComment();
   }
 
   updateEndTime() {
@@ -237,7 +239,7 @@ async confirmModalThree(){
       alert('结束时间不能早于充电完成时间');
       return;
     }
-
+    this.closeModal();
     await this.dataService.updateUsageRecord(
       this.chargingCompleteTime,
       this.endTime,
@@ -246,7 +248,6 @@ async confirmModalThree(){
       'to_be_paid',
     ).toPromise();
     await this.loadData();
-    this.closeModal();
     const userConfirmed = confirm('是否立即支付账单？');
     if (userConfirmed) {
       try {
@@ -266,8 +267,8 @@ async confirmModalThree(){
     } else {
       alert('请尽快支付');
       this.router.navigate(['/tabs/tab1']);
+
     }
-    this.closeModal();
   } catch (error) {
     console.error('结束使用失败:', error);
     alert('请求发送失败，请检查网络连接');
@@ -329,5 +330,26 @@ updateEndTimeLimits() {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+loadComment() {
+  this.dataService.getComplete(this.spaceId).subscribe({
+    next: (data: any) => {
+      this.comment = data.data;
+      console.log(this.comment,data.data);
+    },
+    error: (error) => {
+      console.error('Error:', error);
+    }
+  });
+}
+
 
 }

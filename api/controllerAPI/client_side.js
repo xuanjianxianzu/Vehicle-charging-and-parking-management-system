@@ -758,5 +758,149 @@ router.put('/userProfile/update', async (req, res) => {
 });
 
 
+router.post('/usage-records/AllMy', async (req, res) => {
+    let connection;
+    try {
+        const carIds = Array.isArray(req.body) ? req.body : [req.body];
+
+        if (carIds.length === 0 || carIds.some(id => typeof id !== 'number' && typeof id !== 'string')) {
+            return res.status(400).json({
+                code: 400,
+                message: '无效的车辆ID参数'
+            });
+        }
+
+        connection = await dbcon.getConnection();
+        const placeholders = carIds.map(() => '?').join(',');
+        const [rows] = await connection.query(
+            `SELECT 
+                ur.id,
+                ur.start_time,
+                ur.charging_start_time,
+                ur.charging_complete_time,
+                ur.end_time,
+                ur.status,
+                ur.vehicle_id,
+                ur.parking_space_id,
+                ur.electricity_used,
+                ur.total_fee
+            FROM 
+                usage_records ur
+            WHERE 
+                ur.vehicle_id IN (${placeholders})`,
+            carIds
+        );
+
+        return res.status(200).json({
+            code: 200,
+            data: rows,
+            message: '获取信息成功'
+        });
+    } catch (error) {
+        console.error('获取信息错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
+router.post('/comment/rating', async (req, res) => {
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const { orderId, rating, comment } = req.body;
+        
+        const [orderRows] = await connection.query(
+            'SELECT * FROM comment_rating WHERE order_id = ?',
+            [orderId]
+        );
+  
+        if (orderRows.length > 0) {
+            return res.status(400).json({
+                code: 400,
+                message: '只能评价一次',
+            });
+        }
+ 
+        const [rows] = await connection.query(
+            'INSERT INTO comment_rating (rating, comment, order_id) VALUES (?, ?, ?)',
+            [rating, comment, orderId]
+        );
+ 
+        return res.status(201).json({
+            code: 201,
+            message: '添加成功',
+        });
+    } catch (error) {
+        console.error('添加信息错误:', error);
+        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
+
+router.get('/getComment/rating/:id',async (req,res) =>{
+    console.log('aaaaaregister');
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const pId = req.params.id;
+        const [usageRecords] = await connection.query(
+            `SELECT id FROM usage_records 
+            WHERE parking_space_id = ? 
+            AND status = 'completed'`, 
+            [pId]
+        );
+        if (usageRecords.length === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '该车位暂无使用记录'
+            });
+        }
+        const orderIds = usageRecords.map(record => record.id);
+        const [comments] = await connection.query(
+            `SELECT 
+                cr.rating,
+                cr.comment,
+                cr.created_at,
+                u.name,
+                u.avatar_number
+            FROM comment_rating cr
+            JOIN usage_records ur ON cr.order_id = ur.id
+            JOIN vehicles v ON ur.vehicle_id = v.id
+            JOIN users u ON v.user_id = u.id
+            WHERE cr.order_id IN (?)`,
+            [orderIds]
+        );
+        return res.status(200).json({
+            code: 200,
+            data: comments,
+            message: '查询成功'
+        });
+
+    } catch (error) {
+        console.error('错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    }finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+  }
+
+  
+);
+
 
 module.exports = router;

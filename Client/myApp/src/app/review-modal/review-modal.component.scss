@@ -1,0 +1,30 @@
+.rating-container {
+    text-align: center;
+    margin: 20px 0;
+  
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+  
+    .star-icon {
+      font-size: 32px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+  
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  
+    .rating-text {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .submit-button {
+    margin-top: 24px;
+  }
