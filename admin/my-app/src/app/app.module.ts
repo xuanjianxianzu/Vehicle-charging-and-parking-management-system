@@ -11,13 +11,17 @@ import { ParkingComponent } from './parking/parking.component';
 import { UsersComponent } from './users/users.component';
 import { ParkingDetailDialogComponent } from './parking/parking-detail-dialog/parking-detail-dialog.component';
 import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http'; // 添加这行
+import { HttpClientModule } from '@angular/common/http';
+import { LoginComponent } from './login/login.component';
+import { FormsModule } from '@angular/forms';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 @NgModule({
   declarations: [
     AppComponent,
     ParkingComponent,
     UsersComponent,
-    ParkingDetailDialogComponent
+    ParkingDetailDialogComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -29,6 +33,8 @@ import { HttpClientModule } from '@angular/common/http'; // 添加这行
     MatButtonModule,
     MatProgressSpinnerModule,
     HttpClientModule,
+    FormsModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -15,7 +15,9 @@ app.use('/api', (req, res, next) => {
     if (req.url === '/client/register' || req.url === '/client/login'||req.url === '/admin/login') {
       return next();
     }
+
     const authHeader = req.headers.authorization;
+        console.log(authHeader)
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.log('daaddd');
       return res.status(401).json({
