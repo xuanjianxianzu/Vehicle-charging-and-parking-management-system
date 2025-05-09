@@ -73,6 +73,7 @@ router.get('/parking-spaces', async (req, res) => {
           AND b.status = 'confirmed'
           AND b.end_time > NOW()
       `);
+      console.log('jjjjjjjjjjjj');
       connection.end();
       res.json(rows);
     } catch (err) {

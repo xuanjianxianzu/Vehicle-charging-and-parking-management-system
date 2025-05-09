@@ -4,7 +4,7 @@ import { ParkingComponent } from './parking/parking.component';
 import { UsersComponent } from './users/users.component';
 
 const routes: Routes = [
-  { path: '', component: ParkingComponent },    // 默认路由
+  { path: 'parking', component: ParkingComponent },    // 默认路由
   { path: 'users', component: UsersComponent },
   { path: '**', redirectTo: '' }           // 404重定向
 ];
