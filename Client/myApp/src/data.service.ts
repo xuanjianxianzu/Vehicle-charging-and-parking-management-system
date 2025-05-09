@@ -70,4 +70,19 @@ updateUserProfile(user:User){
   return this.http.put<any>(`${this.apiUrl}/userProfile/update`, user);
 }
 
+AllMyOrder(carIds: string[] | number[]): Observable<any> {
+  const body = carIds;
+  return this.http.post<any>(`${this.apiUrl}/usage-records/AllMy`,body);
+}
+
+completeEvaluation(orderId:number, rating:number, comment:string): Observable<any> {
+  const body = {orderId,rating,comment};
+  return this.http.post<any>(`${this.apiUrl}/comment/rating`,body);
+}
+
+getComplete(parking_space_id:number): Observable<any> {
+  return this.http.get<any>(`${this.apiUrl}/getComment/rating/${parking_space_id}`);
+}
+
+
 }

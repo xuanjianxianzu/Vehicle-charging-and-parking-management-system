@@ -15,7 +15,6 @@ export class Tab4Page implements OnInit {
 
   constructor(
     private router: Router,
-    private toastController: ToastController,
     private dataService:DataService,
     private route: ActivatedRoute
   ) {}
@@ -48,23 +47,6 @@ console.log('add');
     return `../../assets/images/${this.user?.avatar_number}.png`;
   }
 
-
-
-  async logout() {
-    localStorage.removeItem('myUserID');
-    localStorage.removeItem('token');
-
-    const toast = await this.toastController.create({
-      message: '已退出登录',
-      duration: 2000,
-      position: 'top'
-    });
-    await toast.present();
-
-    this.router.navigate(['/login']);
-  }
-
- 
   goToInfor(){
     this.router.navigate(['/personal-information'], { 
       state: { 
