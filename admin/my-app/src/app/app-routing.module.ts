@@ -4,9 +4,10 @@ import { ParkingComponent } from './parking/parking.component';
 import { UsersComponent } from './users/users.component';
 
 const routes: Routes = [
-  { path: 'parking', component: ParkingComponent },    // 默认路由
+  { path: '', redirectTo: '/parking', pathMatch: 'full' },
+  { path: 'parking', component: ParkingComponent },
   { path: 'users', component: UsersComponent },
-  { path: '**', redirectTo: '' }           // 404重定向
+  { path: '**', redirectTo: '/parking' }  
 ];
 
 @NgModule({
