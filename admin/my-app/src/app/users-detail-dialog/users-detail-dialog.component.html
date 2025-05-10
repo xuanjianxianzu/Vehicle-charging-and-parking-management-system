@@ -1,0 +1,113 @@
+<div class="detail-container" *ngIf="!loading">
+  <button mat-icon-button class="close-btn" (click)="closeDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <h2>用户详情 - {{ detail.user.username }}</h2>
+
+  <!-- 用户基本信息 -->
+  <mat-accordion *ngIf="isEditMode">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>基本信息</mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+        <mat-form-field>
+          <input matInput placeholder="姓名" formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field>
+          <input matInput placeholder="电话" formControlName="phone">
+        </mat-form-field>
+
+        <mat-form-field>
+          <input matInput placeholder="邮箱" formControlName="email">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-select placeholder="角色" formControlName="role">
+            <mat-option value="user">普通用户</mat-option>
+            <mat-option value="admin">管理员</mat-option>
+            <mat-option value="super_admin">超级管理员</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <input matInput type="number" placeholder="余额" formControlName="balance">
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit">
+          保存修改
+        </button>
+      </form>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <!-- 关联车辆 -->
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>关联车辆（{{ detail.vehicles.length }}辆）</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div *ngFor="let vehicle of detail.vehicles">
+        <h3>车辆信息</h3>
+        <mat-form-field>
+          <input matInput [(ngModel)]="vehicle.license_plate" (change)="updateVehicle(vehicle)">
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select [(ngModel)]="vehicle.type" (change)="updateVehicle(vehicle)">
+            <mat-option value="electric">电动车</mat-option>
+            <mat-option value="fuel">燃油车</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <!-- 使用记录 -->
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>使用记录（{{ detail.usageRecords.length }}条）</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div *ngFor="let record of detail.usageRecords">
+        <h3>使用记录 #{{ record.id }}</h3>
+        <p>开始时间：{{ record.start_time | date:'medium' }}</p>
+        <p>结束时间：{{ record.end_time | date:'medium' }}</p>
+        <p>费用：{{ record.total_fee | currency:'CNY' }}</p>
+        <mat-form-field>
+          <mat-select [(ngModel)]="record.status" (change)="updateRecord(record)">
+            <mat-option value="in_progress">进行中</mat-option>
+            <mat-option value="completed">已完成</mat-option>
+            <mat-option value="cancelled">已取消</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <!-- 预约记录 -->
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>预约记录（{{ detail.bookings.length }}条）</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div *ngFor="let booking of detail.bookings">
+        <h3>预约 #{{ booking.id }}</h3>
+        <p>车位：{{ booking.parking_space_id }}</p>
+        <p>时间：{{ booking.start_time | date:'medium' }} - {{ booking.end_time | date:'medium' }}</p>
+        <mat-form-field>
+          <mat-select [(ngModel)]="booking.status" (change)="updateBooking(booking)">
+            <mat-option value="confirmed">已确认</mat-option>
+            <mat-option value="cancelled">已取消</mat-option>
+            <mat-option value="completed">已完成</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <button *ngIf="!isEditMode" mat-raised-button color="primary" (click)="saveUser()">
+    保存所有修改
+  </button>
+</div>

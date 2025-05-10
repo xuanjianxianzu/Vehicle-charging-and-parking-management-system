@@ -10,6 +10,10 @@ interface ParkingSpace {
   licensePlate?: string;
   userName?: string;
   bookingStatus?: string;
+  user: any;
+  vehicles: any[];
+  usageRecords: any[];
+  bookings: any[];
 }
 
 interface SpaceDetail {
@@ -38,5 +42,35 @@ export class DataService {
   // 获取车位详情
   getSpaceDetails(id: number): Observable<SpaceDetail> {
     return this.http.get<SpaceDetail>(`${this.apiUrl}/${id}/details`);
+  }
+
+  // 获取所有用户
+  getUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/users`);
+  }
+ 
+  // 获取用户详情（包含关联数据）
+  getUserDetail(userId: number): Observable<ParkingSpace> {
+    return this.http.get<ParkingSpace>(`${this.apiUrl}/users/${userId}`);
+  }
+ 
+  // 更新用户信息
+  updateUser(userId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${userId}`, data);
+  }
+ 
+  // 更新关联车辆信息
+  updateVehicle(vehicleId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/vehicles/${vehicleId}`, data);
+  }
+ 
+  // 更新使用记录
+  updateUsageRecord(recordId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/usage-records/${recordId}`, data);
+  }
+ 
+  // 更新预约信息
+  updateBooking(bookingId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/bookings/${bookingId}`, data);
   }
 }

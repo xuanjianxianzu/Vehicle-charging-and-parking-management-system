@@ -4,6 +4,8 @@ const dbcon = require('../models/admin_connection_database')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const safeNumber = (num) => (isNaN(num) ? 0 : Number(num));
+
 router.post('/register',async (req,res) =>{
     console.log('aaaaaregister');
     let connection;
@@ -233,8 +235,209 @@ router.get('/parking-spaces', async (req, res) => {
         }
     }
   }
-
-  
 );
 
+
+
+
+// GET /admin/users - 获取所有用户（带统计信息）
+router.get('/users', async (req, res) => {
+  try {
+    const [results] = await db.query(`
+      SELECT 
+        u.id,
+        u.username,
+        u.name,
+        u.role,
+        u.balance,
+        COUNT(DISTINCT v.id) AS vehicle_count,
+        COUNT(DISTINCT ur.id) AS usage_count,
+        COUNT(DISTINCT b.id) AS booking_count
+      FROM users u
+      LEFT JOIN vehicles v ON u.id = v.user_id
+      LEFT JOIN usage_records ur ON u.id = ur.user_id
+      LEFT JOIN bookings b ON u.id = b.user_id
+      GROUP BY u.id
+    `);
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+ 
+// GET /admin/users/:id - 获取用户完整详情
+router.get('/users/:id', async (req, res) => {
+  try {
+    const [userResults] = await db.query(`
+      SELECT 
+        u.*,
+        (SELECT COUNT(*) FROM vehicles WHERE user_id = u.id) AS vehicle_count,
+        (SELECT COUNT(*) FROM usage_records WHERE user_id = u.id) AS usage_count,
+        (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) AS booking_count
+      FROM users u
+      WHERE u.id = ?
+    `, [req.params.id]);
+ 
+    if (!userResults.length) return res.status(404).json({ error: '用户不存在' });
+ 
+    const user = userResults[0];
+    const [vehicles] = await db.query('SELECT * FROM vehicles WHERE user_id = ?', [req.params.id]);
+    const [usageRecords] = await db.query(`
+      SELECT 
+        ur.*, 
+        ps.id AS parking_space_id,
+        pst.type AS parking_type,
+        v.license_plate AS vehicle_plate
+      FROM usage_records ur
+      LEFT JOIN parking_spaces ps ON ur.parking_space_id = ps.id
+      LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
+      LEFT JOIN vehicles v ON ur.vehicle_id = v.id
+      WHERE ur.user_id = ?
+    `, [req.params.id]);
+ 
+    const [bookings] = await db.query(`
+      SELECT 
+        b.*,
+        ps.id AS parking_space_id,
+        pst.type AS parking_type,
+        v.license_plate AS vehicle_plate
+      FROM bookings b
+      LEFT JOIN parking_spaces ps ON b.parking_space_id = ps.id
+      LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
+      LEFT JOIN vehicles v ON b.vehicle_id = v.id
+      WHERE b.user_id = ?
+    `, [req.params.id]);
+ 
+    res.json({
+      user,
+      vehicles,
+      usageRecords,
+      bookings
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+ 
+// PUT /admin/users/:id - 更新用户信息
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { name, phone, email, role, balance } = req.body;
+    const [result] = await db.query(`
+      UPDATE users 
+      SET 
+        name = ?,
+        phone = ?,
+        email = ?,
+        role = ?,
+        balance = ?
+      WHERE id = ?
+    `, [name, phone, email, role, safeNumber(balance), req.params.id]);
+ 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '用户不存在' });
+    }
+ 
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+ 
+// PUT /admin/vehicles/:id - 更新车辆信息
+router.put('/vehicles/:id', async (req, res) => {
+  try {
+    const { license_plate, type } = req.body;
+    const [result] = await db.query(`
+      UPDATE vehicles 
+      SET 
+        license_plate = ?,
+        type = ?
+      WHERE id = ?
+    `, [license_plate, type, req.params.id]);
+ 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '车辆不存在' });
+    }
+ 
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+ 
+// PUT /admin/usage-records/:id - 更新使用记录
+router.put('/usage-records/:id', async (req, res) => {
+  try {
+    const { 
+      start_time, 
+      charging_start_time, 
+      charging_complete_time, 
+      end_time, 
+      status,
+      electricity_used,
+      total_fee
+    } = req.body;
+ 
+    const [result] = await db.query(`
+      UPDATE usage_records 
+      SET 
+        start_time = ?,
+        charging_start_time = ?,
+        charging_complete_time = ?,
+        end_time = ?,
+        status = ?,
+        electricity_used = ?,
+        total_fee = ?
+      WHERE id = ?
+    `, [
+      start_time,
+      charging_start_time,
+      charging_complete_time,
+      end_time,
+      status,
+      safeNumber(electricity_used),
+      safeNumber(total_fee),
+      req.params.id
+    ]);
+ 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '使用记录不存在' });
+    }
+ 
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+ 
+// PUT /admin/bookings/:id - 更新预约信息
+router.put('/bookings/:id', async (req, res) => {
+  try {
+    const { start_time, end_time, status } = req.body;
+    const [result] = await db.query(`
+      UPDATE bookings 
+      SET 
+        start_time = ?,
+        end_time = ?,
+        status = ?
+      WHERE id = ?
+    `, [start_time, end_time, status, req.params.id]);
+ 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '预约不存在' });
+    }
+ 
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+ 
 module.exports = router;
