@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ParkingService } from '../parking.service';
+import { DataService } from '../../data.service';
 
 interface SpaceDetail {
   space: any;
@@ -10,19 +10,19 @@ interface SpaceDetail {
 @Component({
   selector: 'app-parking-detail-dialog',
   templateUrl: './parking-detail-dialog.component.html',
-  styleUrls: ['./parking-detail-dialog.component.css']
+  styleUrls: ['./parking-detail-dialog.component.css'],
 })
 export class ParkingDetailDialogComponent implements OnInit {
   detail: SpaceDetail | undefined;
   loading = true;
 
   constructor(
-    private parkingService: ParkingService,
+    private dataService: DataService,
     @Inject(MAT_DIALOG_DATA) public data: { spaceId: number }
   ) {}
 
   ngOnInit(): void {
-    this.parkingService.getSpaceDetails(this.data.spaceId).subscribe({
+    this.dataService.getSpaceDetails(this.data.spaceId).subscribe({
       next: (data) => {
         this.detail = data;
         this.loading = false;
@@ -30,7 +30,7 @@ export class ParkingDetailDialogComponent implements OnInit {
       error: (err) => {
         console.error('加载详情失败:', err);
         this.loading = false;
-      }
+      },
     });
   }
 }

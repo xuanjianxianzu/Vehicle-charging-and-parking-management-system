@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ParkingService } from './parking.service';
-import { ParkingDetailDialogComponent } from './parking-detail-dialog/parking-detail-dialog.component';
+import { DataService } from '../../data.service';
+import { ParkingDetailDialogComponent } from '../parking-detail-dialog/parking-detail-dialog.component';
 
 interface ParkingSpace {
   id: number;
@@ -16,7 +16,7 @@ interface ParkingSpace {
 @Component({
   selector: 'app-parking',
   templateUrl: './parking.component.html',
-  styleUrls: ['./parking.component.css']
+  styleUrls: ['./parking.component.css'],
 })
 export class ParkingComponent implements OnInit {
   spaces: ParkingSpace[] = [];
@@ -24,7 +24,7 @@ export class ParkingComponent implements OnInit {
   loading = true;
 
   constructor(
-    private parkingService: ParkingService,
+    private dataService: DataService,
     private dialog: MatDialog
   ) {}
 
@@ -33,7 +33,7 @@ export class ParkingComponent implements OnInit {
   }
 
   loadSpaces() {
-    this.parkingService.getSpaces().subscribe({
+    this.dataService.getSpaces().subscribe({
       next: (data) => {
         this.spaces = data;
         this.loading = false;
@@ -41,7 +41,7 @@ export class ParkingComponent implements OnInit {
       error: (err) => {
         console.error('加载车位失败:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -49,12 +49,12 @@ export class ParkingComponent implements OnInit {
     this.dialog.open(ParkingDetailDialogComponent, {
       data: { spaceId },
       width: '80vw',
-      maxHeight: '90vh'
+      maxHeight: '90vh',
     });
   }
 
   updateStatus(space: ParkingSpace, newStatus: string) {
-    this.parkingService.updateSpace(space.id, { status: newStatus }).subscribe({
+    this.dataService.updateSpace(space.id, { status: newStatus }).subscribe({
       next: () => {
         space.status = newStatus;
         // 更新本地状态（可根据需要优化）
@@ -62,7 +62,7 @@ export class ParkingComponent implements OnInit {
       },
       error: (err) => {
         console.error('更新状态失败:', err);
-      }
+      },
     });
   }
 }

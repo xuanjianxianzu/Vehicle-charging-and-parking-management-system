@@ -20,7 +20,7 @@ interface SpaceDetail {
 @Injectable({
   providedIn: 'root'
 })
-export class ParkingService {
+export class DataService {
   private apiUrl = 'http://localhost:3060/api/admin';
 
   constructor(private http: HttpClient) {}
