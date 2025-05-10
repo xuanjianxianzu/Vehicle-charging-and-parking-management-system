@@ -79,6 +79,8 @@ console.log('add');
   goToSetup() {
     this.router.navigate(['/setup']);
   }
-   
+  goToMyComment() {
+    this.router.navigate(['/my-comment']);
+  }
 
 }
