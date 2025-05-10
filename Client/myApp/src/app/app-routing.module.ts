@@ -66,6 +66,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     loadChildren: () => import('./setup/setup.module').then( m => m.SetupPageModule)
   },
+  {
+    path: 'my-comment',
+    canActivate: [authGuard],
+    loadChildren: () => import('./my-comment/my-comment.module').then( m => m.MyCommentPageModule)
+  },
+
 
 
 

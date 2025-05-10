@@ -23,9 +23,40 @@ export interface Order {
 export interface ParkingSpace {
     id:number;
     space_type:string;
-    charging_rate:number;
-    parking_rate:number;
-    overtime_occupancy_rate:number;
     status:string;
     vehicle_id:number|null;
+    license_plate:string|null;
+    name:string|null;
+}
+
+
+
+export interface UsageRecords {
+    startTime: string;
+    chargingStartTime?: string | null;
+    chargingCompleteTime?: string | null;
+    endTime?: string | null;
+    status: string;
+    vehicleId: number;
+    parkingSpaceId: number;
+   //electricityUsed?: number | null;
+   //totalFee?: number | null;
+   //parkingMinutes?: number; // 虚拟列：停车分钟数
+   //overtimeMinutes?: number; // 虚拟列：超时分钟数
+  }
+
+  export interface User {
+    id:number;
+    name:string|null;
+    phone:string|null;
+    email:string|null;
+    avatar_number:number;
+    balance:number;
+}
+
+export interface Vehicle {
+    id:number;
+    license_plate:string;
+    user_id:number;
+    type:string;
 }

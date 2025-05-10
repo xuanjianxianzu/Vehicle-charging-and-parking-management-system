@@ -903,4 +903,52 @@ router.get('/getComment/rating/:id',async (req,res) =>{
 );
 
 
+router.get('/getComment/rating/:userId',async (req,res) =>{
+    console.log('aaaaaregister');
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        const userId = req.params.userId;
+        const [comments] = await connection.query(
+            `SELECT 
+                cr.rating,
+                cr.comment,
+                cr.created_at,
+                u.name,
+                u.avatar_number
+            FROM comment_rating cr
+            JOIN usage_records ur ON cr.order_id = ur.id
+            JOIN vehicles v ON ur.vehicle_id = v.id
+            JOIN users u ON v.user_id = u.id
+            WHERE u.id=?`,[userId]
+        );
+        if (Records.length === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '该用户暂无评价'
+            });
+        }
+        return res.status(200).json({
+            code: 200,
+            data: comments,
+            message: '查询成功'
+        });
+
+    } catch (error) {
+        console.error('错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    }finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+  }
+
+  
+);
+
+
 module.exports = router;

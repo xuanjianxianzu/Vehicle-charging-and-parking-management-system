@@ -50,39 +50,53 @@ router.post('/register',async (req,res) =>{
         }
     }
   }
-
-  
 );
-// 新增车位管理相关路由
+
+
+
+
 router.get('/parking-spaces', async (req, res) => {
+    let connection;
     try {
-      const connection = await dbcon.getConnection();
-      const [rows] = await connection.query(`
+        connection = await dbcon.getConnection();
+
+        const [rows] = await connection.query(`
         SELECT 
           ps.id,
-          pst.type AS parking_type,
+          pst.type AS space_type,
           ps.status,
           v.license_plate,
-          u.name AS user_name,
-          b.status AS booking_status
+          u.name
         FROM parking_spaces ps
         LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
         LEFT JOIN usage_records ur ON ps.id = ur.parking_space_id 
           AND ur.status = 'in_progress'
         LEFT JOIN vehicles v ON ur.vehicle_id = v.id
         LEFT JOIN users u ON v.user_id = u.id
-        LEFT JOIN bookings b ON ps.id = b.parking_space_id 
-          AND b.status = 'confirmed'
-          AND b.end_time > NOW()
       `);
       console.log('jjjjjjjjjjjj');
-      connection.end();
-      res.json(rows);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Server error' });
+
+
+        return res.status(201).json({
+            code: 201,
+            data: rows,
+            message: '成功'
+        });
+    } catch (error) {
+        console.error('错误:', error);
+        return res.status(500).json({
+            code: 500,
+            message: '服务器内部错误'
+        });
+    }finally {
+        if (connection) await connection.end();
     }
-  });
+  }
+
+  
+);
+
+
   
   router.put('/parking-spaces/:id', async (req, res) => {
     try {

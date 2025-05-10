@@ -1,20 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-interface ParkingSpace {
-  id: number;
-  type: string;
-  status: string;
-  vehicleId?: number;
-  licensePlate?: string;
-  userName?: string;
-  bookingStatus?: string;
-  user: any;
-  vehicles: any[];
-  usageRecords: any[];
-  bookings: any[];
-}
+import { ParkingSpace } from './models';
 
 interface SpaceDetail {
   space: any;
@@ -30,7 +17,7 @@ export class DataService {
   constructor(private http: HttpClient) {}
 
   // 获取所有车位
-  getSpaces(): Observable<ParkingSpace[]> {
+  getSpaces(): Observable<any> {
     return this.http.get<ParkingSpace[]>(`${this.apiUrl}/parking-spaces`);
   }
 
