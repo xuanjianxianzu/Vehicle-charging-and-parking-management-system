@@ -11,7 +11,11 @@ import { User } from '../../models';
 })
 export class UsersComponent implements OnInit {
   users: User[]=[];
-  displayedColumns = ['id', 'username', 'name', 'role', 'balance', 'actions'];
+  displayedColumns = [
+  'id', 'username', 'name', 'role', 'balance',
+  'phone', 'email', 'avatar_number', 'created_at', 'updated_at', 
+  'actions'
+];
   loading = true;
 
   constructor(
