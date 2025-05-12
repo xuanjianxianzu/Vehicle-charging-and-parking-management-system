@@ -256,27 +256,42 @@ router.get('/parking-spaces', async (req, res) => {
 
 // GET /admin/users - 获取所有用户（带统计信息）
 router.get('/users', async (req, res) => {
+  let connection;
   try {
-    const [results] = await db.query(`
+    connection = await dbcon.getConnection(); // 获取数据库连接
+    
+    // 修正后的SQL查询（确保字段存在）
+    const [results] = await connection.query(`
       SELECT 
         u.id,
         u.username,
         u.name,
         u.role,
-        u.balance,
+        u.balance,  -- 确认users表有balance字段
         COUNT(DISTINCT v.id) AS vehicle_count,
         COUNT(DISTINCT ur.id) AS usage_count,
         COUNT(DISTINCT b.id) AS booking_count
       FROM users u
       LEFT JOIN vehicles v ON u.id = v.user_id
-      LEFT JOIN usage_records ur ON u.id = ur.user_id
-      LEFT JOIN bookings b ON u.id = b.user_id
+      LEFT JOIN usage_records ur ON v.id = ur.vehicle_id  -- 通过vehicle关联
+      LEFT JOIN bookings b ON v.id = b.vehicle_id        -- 通过vehicle关联
       GROUP BY u.id
     `);
-    res.json(results);
+ 
+    res.status(200).json({  // 明确返回状态码
+      code: 200,
+      data: results,
+      message: '成功'
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    console.error('用户查询错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message  // 返回具体错误信息
+    });
+  } finally {
+    if (connection) await connection.end();
   }
 });
  

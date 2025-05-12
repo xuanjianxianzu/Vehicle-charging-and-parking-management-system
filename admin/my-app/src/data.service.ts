@@ -32,8 +32,8 @@ export class DataService {
   }
 
   // 获取所有用户
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/users`);
+  getUsers(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/users`);
   }
  
   // 获取用户详情（包含关联数据）

@@ -47,10 +47,9 @@ export interface UsageRecords {
 
   export interface User {
     id:number;
+    username:string;
     name:string|null;
-    phone:string|null;
-    email:string|null;
-    avatar_number:number;
+    role:string;
     balance:number;
 }
 
