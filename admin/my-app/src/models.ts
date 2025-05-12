@@ -66,7 +66,7 @@ export interface ParkingSpaceType {
 export interface ParkingSpace {
     id: number; // 车位ID（主键）
     type_id: number; // 类型ID（外键：parking_space_types.id）
-    status: 'idle' | 'occupied' | 'booked'; // 状态（枚举）
+    status: SpaceStatus; // 状态（枚举）
     vehicle_id: number | null; // 占用车辆ID（外键：vehicles.id，可为空）
     created_at: DateTime; // 创建时间
     updated_at: DateTime; // 更新时间
@@ -116,3 +116,9 @@ export interface ParkingSpaceDetail extends ParkingSpace {
     currentVehicle: Vehicle | null; // 当前占用车辆（当 status 非 idle 时存在）
 }
 
+//枚举
+export enum SpaceStatus {
+  IDLE = 'idle',
+  OCCUPIED = 'occupied',
+  BOOKED = 'booked'
+}
