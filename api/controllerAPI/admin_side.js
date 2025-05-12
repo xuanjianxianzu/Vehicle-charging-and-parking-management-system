@@ -255,82 +255,317 @@ router.get('/parking-spaces', async (req, res) => {
   
 // GET /admin/users - 获取所有用户（带统计信息）
 router.get('/users', async (req, res) => {
+  let connection;
   try {
-    const [results] = await db.query(`
+    connection = await dbcon.getConnection(); // 获取数据库连接
+    
+    // 修正后的SQL查询（确保字段存在）
+    const [results] = await connection.query(`
       SELECT 
-        u.id,
-        u.username,
-        u.name,
-        u.role,
-        u.balance,
-        COUNT(DISTINCT v.id) AS vehicle_count,
-        COUNT(DISTINCT ur.id) AS usage_count,
-        COUNT(DISTINCT b.id) AS booking_count
-      FROM users u
-      LEFT JOIN vehicles v ON u.id = v.user_id
-      LEFT JOIN usage_records ur ON u.id = ur.user_id
-      LEFT JOIN bookings b ON u.id = b.user_id
-      GROUP BY u.id
+      u.id,
+      u.username,
+      u.name,
+      u.role,
+      u.balance,
+      u.phone,
+      u.email,
+      u.avatar_number,
+      u.created_at,
+      u.updated_at,
+      COUNT(DISTINCT v.id) AS vehicle_count,
+      COUNT(DISTINCT ur.id) AS usage_count,
+      COUNT(DISTINCT b.id) AS booking_count
+    FROM users u
+    LEFT JOIN vehicles v ON u.id = v.user_id
+    LEFT JOIN usage_records ur ON v.id = ur.vehicle_id
+    LEFT JOIN bookings b ON v.id = b.vehicle_id
+    GROUP BY u.id;
     `);
-    res.json(results);
+ 
+    res.status(200).json({  // 明确返回状态码
+      code: 200,
+      data: results,
+      message: '成功'
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    console.error('用户查询错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message  // 返回具体错误信息
+    });
+  } finally {
+    if (connection) await connection.end();
   }
 });
  
 // GET /admin/users/:id - 获取用户完整详情
 router.get('/users/:id', async (req, res) => {
+  let connection;
   try {
-    const [userResults] = await db.query(`
-      SELECT 
-        u.*,
-        (SELECT COUNT(*) FROM vehicles WHERE user_id = u.id) AS vehicle_count,
-        (SELECT COUNT(*) FROM usage_records WHERE user_id = u.id) AS usage_count,
-        (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) AS booking_count
-      FROM users u
-      WHERE u.id = ?
+    connection = await dbcon.getConnection();
+    
+    // 查询用户基本信息
+    const [userResults] = await connection.query(`
+      SELECT * FROM users WHERE id = ?
     `, [req.params.id]);
- 
-    if (!userResults.length) return res.status(404).json({ error: '用户不存在' });
- 
+    
+    if (userResults.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        message: '用户不存在'
+      });
+    }
+    
     const user = userResults[0];
-    const [vehicles] = await db.query('SELECT * FROM vehicles WHERE user_id = ?', [req.params.id]);
-    const [usageRecords] = await db.query(`
-      SELECT 
-        ur.*, 
-        ps.id AS parking_space_id,
-        pst.type AS parking_type,
-        v.license_plate AS vehicle_plate
-      FROM usage_records ur
-      LEFT JOIN parking_spaces ps ON ur.parking_space_id = ps.id
-      LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
-      LEFT JOIN vehicles v ON ur.vehicle_id = v.id
-      WHERE ur.user_id = ?
+    
+    // 查询用户车辆
+    const [vehicleResults] = await connection.query(`
+      SELECT * FROM vehicles WHERE user_id = ?
     `, [req.params.id]);
- 
-    const [bookings] = await db.query(`
+    
+    // 查询用户使用记录（带关联信息）
+    const [usageResults] = await connection.query(`
+      SELECT 
+        ur.*,
+        v.license_plate,
+        ps.id AS parking_space_id,
+        ps.status AS parking_status,
+        pst.type AS space_type,
+        pst.rate AS charging_rate,
+        pst.parking_rate
+      FROM usage_records ur
+      JOIN vehicles v ON ur.vehicle_id = v.id
+      JOIN parking_spaces ps ON ur.parking_space_id = ps.id
+      JOIN parking_space_types pst ON ps.type_id = pst.id
+      WHERE v.user_id = ?
+    `, [req.params.id]);
+    
+    // 查询用户预订记录（带关联信息）
+    const [bookingResults] = await connection.query(`
       SELECT 
         b.*,
         ps.id AS parking_space_id,
-        pst.type AS parking_type,
-        v.license_plate AS vehicle_plate
+        ps.status AS parking_status,
+        pst.type AS space_type,
+        pst.rate AS charging_rate,
+        pst.parking_rate
       FROM bookings b
-      LEFT JOIN parking_spaces ps ON b.parking_space_id = ps.id
-      LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
-      LEFT JOIN vehicles v ON b.vehicle_id = v.id
+      JOIN parking_spaces ps ON b.parking_space_id = ps.id
+      JOIN parking_space_types pst ON ps.type_id = pst.id
       WHERE b.user_id = ?
     `, [req.params.id]);
- 
-    res.json({
-      user,
-      vehicles,
-      usageRecords,
-      bookings
+    
+    // 查询用户评论
+    const [commentResults] = await connection.query(`
+      SELECT cr.*, ur.id AS order_id
+      FROM comment_rating cr
+      JOIN usage_records ur ON cr.order_id = ur.id
+      JOIN vehicles v ON ur.vehicle_id = v.id
+      WHERE v.user_id = ?
+    `, [req.params.id]);
+    
+    // 构建完整的用户详情对象
+    const userDetail = {
+      ...user,
+      vehicles: vehicleResults,
+      usageRecords: usageResults,
+      bookings: bookingResults,
+      comments: commentResults
+    };
+    
+    res.status(200).json({
+      code: 200,
+      data: userDetail,
+      message: '成功'
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: '服务器错误' });
+    console.error('获取用户详情错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message
+    });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+
+
+/**
+ * 创建用户
+ * POST /admin/users
+ */
+router.post('/users', async (req, res) => {
+  let connection;
+  try {
+    connection = await dbcon.getConnection();
+    
+    const { 
+      name, username, password, phone, email, role, 
+      avatar_number = 0, balance = 0 
+    } = req.body;
+    
+    // 检查用户名是否已存在
+    const [userCheck] = await connection.query(`
+      SELECT id FROM users WHERE username = ?
+    `, [username]);
+    
+    if (userCheck.length > 0) {
+      return res.status(400).json({
+        code: 400,
+        message: '用户名已存在'
+      });
+    }
+    
+    // 创建用户
+    const [result] = await connection.query(`
+      INSERT INTO users 
+        (name, username, password, phone, email, role, avatar_number, balance, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    `, [name, username, password, phone, email, role, avatar_number, balance]);
+    
+    const userId = result.insertId;
+    
+    // 返回创建的用户详情
+    const [newUser] = await connection.query(`
+      SELECT * FROM users WHERE id = ?
+    `, [userId]);
+    
+    res.status(201).json({
+      code: 201,
+      data: newUser[0],
+      message: '用户创建成功'
+    });
+  } catch (err) {
+    console.error('创建用户错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message
+    });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+
+/**
+ * 更新用户
+ * PUT /admin/users/:id
+ */
+router.put('/users/:id', async (req, res) => {
+  let connection;
+  try {
+    connection = await dbcon.getConnection();
+    
+    const userId = req.params.id;
+    const updateData = req.body;
+    
+    // 检查用户是否存在
+    const [userCheck] = await connection.query(`
+      SELECT id FROM users WHERE id = ?
+    `, [userId]);
+    
+    if (userCheck.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        message: '用户不存在'
+      });
+    }
+    
+    // 准备更新字段
+    const fieldsToUpdate = [];
+    const values = [];
+    
+    if (updateData.name !== undefined) {
+      fieldsToUpdate.push('name = ?');
+      values.push(updateData.name);
+    }
+    
+    if (updateData.username !== undefined) {
+      // 检查新用户名是否已存在
+      const [usernameCheck] = await connection.query(`
+        SELECT id FROM users WHERE username = ? AND id != ?
+      `, [updateData.username, userId]);
+      
+      if (usernameCheck.length > 0) {
+        return res.status(400).json({
+          code: 400,
+          message: '用户名已存在'
+        });
+      }
+      
+      fieldsToUpdate.push('username = ?');
+      values.push(updateData.username);
+    }
+    
+    if (updateData.password !== undefined) {
+      fieldsToUpdate.push('password = ?');
+      values.push(updateData.password);
+    }
+    
+    if (updateData.phone !== undefined) {
+      fieldsToUpdate.push('phone = ?');
+      values.push(updateData.phone);
+    }
+    
+    if (updateData.email !== undefined) {
+      fieldsToUpdate.push('email = ?');
+      values.push(updateData.email);
+    }
+    
+    if (updateData.role !== undefined) {
+      fieldsToUpdate.push('role = ?');
+      values.push(updateData.role);
+    }
+    
+    if (updateData.avatar_number !== undefined) {
+      fieldsToUpdate.push('avatar_number = ?');
+      values.push(updateData.avatar_number);
+    }
+    
+    if (updateData.balance !== undefined) {
+      fieldsToUpdate.push('balance = ?');
+      values.push(updateData.balance);
+    }
+    
+    // 添加更新时间
+    fieldsToUpdate.push('updated_at = NOW()');
+    
+    // 如果没有可更新的字段
+    if (fieldsToUpdate.length === 0) {
+      return res.status(400).json({
+        code: 400,
+        message: '没有提供可更新的数据'
+      });
+    }
+    
+    // 构建SQL查询
+    const sql = `UPDATE users SET ${fieldsToUpdate.join(', ')} WHERE id = ?`;
+    values.push(userId);
+    
+    // 执行更新
+    await connection.query(sql, values);
+    
+    // 返回更新后的用户详情
+    const [updatedUser] = await connection.query(`
+      SELECT * FROM users WHERE id = ?
+    `, [userId]);
+    
+    res.status(200).json({
+      code: 200,
+      data: updatedUser[0],
+      message: '用户更新成功'
+    });
+  } catch (err) {
+    console.error('更新用户错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message
+    });
+  } finally {
+    if (connection) await connection.end();
   }
 });
  
@@ -338,6 +573,7 @@ router.get('/users/:id', async (req, res) => {
 router.put('/users/:id', async (req, res) => {
   try {
     const { name, phone, email, role, balance } = req.body;
+    console.log(req.body,'111111111111');
     const [result] = await db.query(`
       UPDATE users 
       SET 

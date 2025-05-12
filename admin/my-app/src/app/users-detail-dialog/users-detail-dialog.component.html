@@ -1,113 +1,197 @@
-<div class="detail-container" *ngIf="!loading">
-  <button mat-icon-button class="close-btn" (click)="closeDialog()">
-    <mat-icon>close</mat-icon>
+<mat-dialog-content>
+  <form [formGroup]="userForm">
+    <h2 mat-dialog-title>{{ isNewUser ? '新建用户' : '编辑用户' }}</h2>
+
+    <!-- 基础信息 -->
+    <mat-card class="mb-4">
+      <mat-card-header>
+        <mat-card-title>用户基础信息</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field class="full-width">
+            <mat-label>用户名</mat-label>
+            <input matInput formControlName="username" required>
+            <mat-error *ngIf="userForm.get('username')?.hasError('required')">
+              用户名是必填项
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>姓名</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>密码</mat-label>
+            <input matInput type="password" formControlName="password">
+            <mat-hint>留空则不修改密码</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>电话</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>邮箱</mat-label>
+            <input matInput formControlName="email" [pattern]="emailPattern">
+            <mat-error *ngIf="userForm.get('email')?.hasError('email')">
+              请输入有效的邮箱地址
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>角色</mat-label>
+            <mat-select formControlName="role" required>
+              <mat-option [value]="role" *ngFor="let role of ['user', 'admin', 'super_admin']">
+  {{ roleDisplay[role] }}
+</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>头像编号</mat-label>
+            <input matInput type="number" formControlName="avatar_number">
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>账户余额</mat-label>
+            <input matInput type="number" formControlName="balance" min="0">
+            <span matTextSuffix>元</span>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- 关联车辆 -->
+    <mat-card class="mb-4">
+      <mat-card-header>
+        <mat-card-title>用户车辆 ({{ vehicles.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-table [dataSource]="vehicles" class="full-width">
+          <ng-container matColumnDef="license_plate">
+            <th mat-header-cell *matHeaderCellDef>车牌号</th>
+            <td mat-cell *matCellDef="let v">{{ v.license_plate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>类型</th>
+            <td mat-cell *matCellDef="let v">{{ getVehicleTypeDisplay(v.type) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="created_at">
+            <th mat-header-cell *matHeaderCellDef>创建时间</th>
+            <td mat-cell *matCellDef="let v">{{ formatDate(v.created_at) }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['license_plate', 'type', 'created_at']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['license_plate', 'type', 'created_at']"></tr>
+        </mat-table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- 使用记录 -->
+    <mat-card class="mb-4">
+      <mat-card-header>
+        <mat-card-title>使用记录 ({{ usageRecords.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-table [dataSource]="usageRecords" class="full-width">
+          <ng-container matColumnDef="start_time">
+            <th mat-header-cell *matHeaderCellDef>开始时间</th>
+            <td mat-cell *matCellDef="let u">{{ formatDate(u.start_time) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="end_time">
+            <th mat-header-cell *matHeaderCellDef>结束时间</th>
+            <td mat-cell *matCellDef="let u">{{ u.end_time ? formatDate(u.end_time) : '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>状态</th>
+            <td mat-cell *matCellDef="let u">{{ u.status }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="total_fee">
+            <th mat-header-cell *matHeaderCellDef>总费用</th>
+            <td mat-cell *matCellDef="let u">{{ u.total_fee | currency:'CNY' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['start_time', 'end_time', 'status', 'total_fee']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['start_time', 'end_time', 'status', 'total_fee']"></tr>
+        </mat-table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- 预订记录 -->
+    <mat-card class="mb-4">
+      <mat-card-header>
+        <mat-card-title>预订记录 ({{ bookings.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-table [dataSource]="bookings" class="full-width">
+          <ng-container matColumnDef="start_time">
+            <th mat-header-cell *matHeaderCellDef>开始时间</th>
+            <td mat-cell *matCellDef="let b">{{ formatDate(b.start_time) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="end_time">
+            <th mat-header-cell *matHeaderCellDef>结束时间</th>
+            <td mat-cell *matCellDef="let b">{{ formatDate(b.end_time) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>状态</th>
+            <td mat-cell *matCellDef="let b">{{ b.status }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['start_time', 'end_time', 'status']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['start_time', 'end_time', 'status']"></tr>
+        </mat-table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- 评论记录 -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>评论记录 ({{ comments.length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-table [dataSource]="comments" class="full-width">
+          <ng-container matColumnDef="rating">
+            <th mat-header-cell *matHeaderCellDef>评分</th>
+            <td mat-cell *matCellDef="let c">{{ c.rating }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="comment">
+            <th mat-header-cell *matHeaderCellDef>评论内容</th>
+            <td mat-cell *matCellDef="let c">{{ c.comment || '无评论' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="created_at">
+            <th mat-header-cell *matHeaderCellDef>评论时间</th>
+            <td mat-cell *matCellDef="let c">{{ formatDate(c.created_at) }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['rating', 'comment', 'created_at']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['rating', 'comment', 'created_at']"></tr>
+        </mat-table>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="cancel()">取消</button>
+  <button 
+    mat-button 
+    color="primary" 
+    [disabled]="loading || userForm.invalid" 
+    (click)="saveUser()"
+  >
+    {{ isNewUser ? '创建' : '保存' }}
+    <mat-spinner *ngIf="loading" diameter="20" class="ml-2"></mat-spinner>
   </button>
-
-  <h2>用户详情 - {{ detail.user.username }}</h2>
-
-  <!-- 用户基本信息 -->
-  <mat-accordion *ngIf="isEditMode">
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>基本信息</mat-panel-title>
-      </mat-expansion-panel-header>
-      <form [formGroup]="userForm" (ngSubmit)="saveUser()">
-        <mat-form-field>
-          <input matInput placeholder="姓名" formControlName="name">
-        </mat-form-field>
-
-        <mat-form-field>
-          <input matInput placeholder="电话" formControlName="phone">
-        </mat-form-field>
-
-        <mat-form-field>
-          <input matInput placeholder="邮箱" formControlName="email">
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-select placeholder="角色" formControlName="role">
-            <mat-option value="user">普通用户</mat-option>
-            <mat-option value="admin">管理员</mat-option>
-            <mat-option value="super_admin">超级管理员</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field>
-          <input matInput type="number" placeholder="余额" formControlName="balance">
-        </mat-form-field>
-
-        <button mat-raised-button color="primary" type="submit">
-          保存修改
-        </button>
-      </form>
-    </mat-expansion-panel>
-  </mat-accordion>
-
-  <!-- 关联车辆 -->
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>关联车辆（{{ detail.vehicles.length }}辆）</mat-panel-title>
-      </mat-expansion-panel-header>
-      <div *ngFor="let vehicle of detail.vehicles">
-        <h3>车辆信息</h3>
-        <mat-form-field>
-          <input matInput [(ngModel)]="vehicle.license_plate" (change)="updateVehicle(vehicle)">
-        </mat-form-field>
-        <mat-form-field>
-          <mat-select [(ngModel)]="vehicle.type" (change)="updateVehicle(vehicle)">
-            <mat-option value="electric">电动车</mat-option>
-            <mat-option value="fuel">燃油车</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-
-  <!-- 使用记录 -->
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>使用记录（{{ detail.usageRecords.length }}条）</mat-panel-title>
-      </mat-expansion-panel-header>
-      <div *ngFor="let record of detail.usageRecords">
-        <h3>使用记录 #{{ record.id }}</h3>
-        <p>开始时间：{{ record.start_time | date:'medium' }}</p>
-        <p>结束时间：{{ record.end_time | date:'medium' }}</p>
-        <p>费用：{{ record.total_fee | currency:'CNY' }}</p>
-        <mat-form-field>
-          <mat-select [(ngModel)]="record.status" (change)="updateRecord(record)">
-            <mat-option value="in_progress">进行中</mat-option>
-            <mat-option value="completed">已完成</mat-option>
-            <mat-option value="cancelled">已取消</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-
-  <!-- 预约记录 -->
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>预约记录（{{ detail.bookings.length }}条）</mat-panel-title>
-      </mat-expansion-panel-header>
-      <div *ngFor="let booking of detail.bookings">
-        <h3>预约 #{{ booking.id }}</h3>
-        <p>车位：{{ booking.parking_space_id }}</p>
-        <p>时间：{{ booking.start_time | date:'medium' }} - {{ booking.end_time | date:'medium' }}</p>
-        <mat-form-field>
-          <mat-select [(ngModel)]="booking.status" (change)="updateBooking(booking)">
-            <mat-option value="confirmed">已确认</mat-option>
-            <mat-option value="cancelled">已取消</mat-option>
-            <mat-option value="completed">已完成</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-
-  <button *ngIf="!isEditMode" mat-raised-button color="primary" (click)="saveUser()">
-    保存所有修改
-  </button>
-</div>
+</mat-dialog-actions>
