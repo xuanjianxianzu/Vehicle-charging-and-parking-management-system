@@ -1,14 +1,14 @@
 <div class="decorativeTop">
     <div class="webName">
         <span class="text1">SYSTEM</span>  
-        <span class="text2">admin</span>  
+    <span class="text2">admin</span>  
     </div>
     <div class="Navigation">
-        <span class="current">home</span>
-        <a href="/search"><span>search</span></a>
-        <a href="/fundraiser"><span>fundraiser</span></a>
+        <span class="current">home</span><a href="/search"><span>search</span></a><a href="/fundraiser"><span>fundraiser</span></a>
+        </div>
     </div>
-</div>
+
+
 
 <div class="container">
   <mat-spinner *ngIf="loading" diameter="50"></mat-spinner>
@@ -23,18 +23,17 @@
     <!-- 类型列 -->
     <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef>类型</th>
-      <td mat-cell *matCellDef="let space">{{ getSpaceTypeText(space.type_id) }}</td>
+      <td mat-cell *matCellDef="let space">{{ space.space_type }}</td>
     </ng-container>
 
     <!-- 状态列 -->
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef>状态</th>
       <td mat-cell *matCellDef="let space">
-        <!-- 使用枚举值绑定，而不是硬编码字符串 -->
-        <select [(ngModel)]="space.status" (change)="updateStatus(space, space.status)">
-          <option [value]="statusEnum.IDLE">空闲</option>
-          <option [value]="statusEnum.OCCUPIED">占用中</option>
-          <option [value]="statusEnum.BOOKED">已预约</option>
+        <select #statusSelect (change)="updateStatusFromTemplate(space, statusSelect.value)">
+        <option value="idle">空闲</option>
+        <option value="occupied">占用中</option>
+        <option value="booked">已预约</option>
         </select>
       </td>
     </ng-container>
@@ -43,7 +42,7 @@
     <ng-container matColumnDef="vehicle">
       <th mat-header-cell *matHeaderCellDef>车辆</th>
       <td mat-cell *matCellDef="let space">
-        {{ space.vehicle?.license_plate || '-' }}
+        {{ space.license_plate || '-' }}
       </td>
     </ng-container>
 
@@ -51,7 +50,7 @@
     <ng-container matColumnDef="user">
       <th mat-header-cell *matHeaderCellDef>用户</th>
       <td mat-cell *matCellDef="let space">
-        {{ space.user?.name || '-' }}
+        {{ space.name || '-' }}
       </td>
     </ng-container>
 
