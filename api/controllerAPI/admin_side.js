@@ -4,7 +4,68 @@ const dbcon = require('../models/admin_connection_database')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const safeNumber = (num) => (isNaN(num) ? 0 : Number(num));
+router.post('/login',async (req,res) =>{
+    console.log(req.body);
+    console.log('aaalogin');
+    let connection;
+    try {
+        connection = await dbcon.getConnection();
+        console.log(req.body);
+        const { username, password } = req.body;
+        console.log(username);
+        const [rows] = await connection.query(`SELECT * FROM users WHERE username = ? AND role IN ('admin','super_admin')`, [username]);
+        if (rows.length === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '用户名不存在'
+            });
+        }
+
+        const loginUser = rows[0];
+
+        console.log(password,loginUser.password);
+
+        const isMatch = await bcrypt.compare(password, loginUser.password);
+
+        console.log(isMatch);
+
+        if(!isMatch){
+            return res.status(401).json({
+                code: 401,
+                message: '用户名或密码错误'
+            });
+        }
+
+        const token = jwt.sign(
+            { userId: loginUser.id, username: loginUser.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '3h' }
+        );
+
+        return res.status(200).json({
+            code: 200,
+            data: {
+                id: loginUser.id,
+                username: loginUser.username,
+                role: loginUser.role,
+                token: token,
+                expiresIn: 3600
+            },
+            message: '登录成功'
+        });
+    
+    } catch (error) {
+        console.error('登录错误:', error);
+        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+
+    }finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+  }
+);
+
 
 router.post('/register',async (req,res) =>{
     console.log('aaaaaregister');
@@ -14,7 +75,7 @@ router.post('/register',async (req,res) =>{
 
         const { username, password } = req.body;
         console.log(username);
-        const [rows] = await connection.query('SELECT * FROM users WHERE username = ?', [username]);
+        const [rows] = await connection.query(`SELECT * FROM users WHERE username = ?`, [username]);
         if (rows.length > 0) {
             return res.status(409).json({
                 code: 409,
@@ -23,10 +84,10 @@ router.post('/register',async (req,res) =>{
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const [result] = await connection.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
+        const [result] = await connection.query(`INSERT INTO users (username, password, role) VALUES (?, ?,'admin')`, [username, hashedPassword]);
         const newUserId = result.insertId;
 
-        const [newUserRows] = await connection.query('SELECT id, username, created_at FROM users WHERE id = ?', [newUserId]);
+        const [newUserRows] = await connection.query(`SELECT id, username, created_at FROM users WHERE id = ?`, [newUserId]);
         const newUser = newUserRows[0];
 
         return res.status(201).json({
@@ -73,6 +134,7 @@ router.get('/parking-spaces', async (req, res) => {
           AND ur.status = 'in_progress'
         LEFT JOIN vehicles v ON ur.vehicle_id = v.id
         LEFT JOIN users u ON v.user_id = u.id
+        ORDER BY ps.id
       `);
       console.log('jjjjjjjjjjjj');
 
@@ -190,70 +252,7 @@ router.get('/parking-spaces', async (req, res) => {
     }
   });
 
-  router.post('/login',async (req,res) =>{
-    console.log(req.body);
-    console.log('aaalogin');
-    let connection;
-    try {
-        connection = await dbcon.getConnection();
-        console.log(req.body);
-        const { username, password } = req.body;
-        console.log(username);
-        const [rows] = await connection.query('SELECT * FROM users WHERE username = ?', [username]);
-        if (rows.length === 0) {
-            return res.status(404).json({
-                code: 404,
-                message: '用户名不存在'
-            });
-        }
-
-        const loginUser = rows[0];
-
-        console.log(password,loginUser.password);
-
-        const isMatch = await bcrypt.compare(password, loginUser.password);
-
-        console.log(isMatch);
-
-        if(!isMatch){
-            return res.status(401).json({
-                code: 401,
-                message: '用户名或密码错误'
-            });
-        }
-
-        const token = jwt.sign(
-            { userId: loginUser.id, username: loginUser.username },
-            process.env.JWT_SECRET,
-            { expiresIn: '3h' }
-        );
-
-        return res.status(200).json({
-            code: 200,
-            data: {
-                id: loginUser.id,
-                username: loginUser.username,
-                token: token,
-                expiresIn: 3600
-            },
-            message: '登录成功'
-        });
-    
-    } catch (error) {
-        console.error('登录错误:', error);
-        return res.status(500).json({ code: 500, message: '服务器内部错误' });
-
-    }finally {
-        if (connection) {
-            await connection.end();
-        }
-    }
-  }
-);
-
-
-
-
+  
 // GET /admin/users - 获取所有用户（带统计信息）
 router.get('/users', async (req, res) => {
   try {
