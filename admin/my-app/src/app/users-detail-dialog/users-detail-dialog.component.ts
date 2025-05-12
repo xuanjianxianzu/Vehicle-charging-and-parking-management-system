@@ -16,7 +16,23 @@ interface RoleDisplay {
 })
 export class UserDetailDialogComponent implements OnInit {
   userForm!: FormGroup;
-  userDetail!: UserDetail;
+  userDetail : UserDetail = {
+    id: 0,
+    name: null,
+    username: '',
+    password: '',
+    phone: null,
+    email: null,
+    role: 'user',
+    avatar_number: 0,
+    balance: 0,
+    created_at: '',
+    updated_at: '',
+    vehicles: [],
+    usageRecords: [],
+    bookings: [],
+    comments: []
+  };
   loading = false;
   isNewUser = false;
   emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}';
@@ -46,42 +62,68 @@ export class UserDetailDialogComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {
     this.isNewUser = data.userId === null;
-    this.initForm();
+    if (this.isNewUser) {
+      this.userDetail = this.getDefaultUserDetail();
+    }
   }
 
   ngOnInit(): void {
     if (!this.isNewUser) {
       this.fetchUserDetail();
+    }else {
+      this.initForm(); // 新建用户直接初始化空表单
     }
+  }
+
+  private getDefaultUserDetail(): UserDetail {
+    return {
+      id: 0,
+      name: null,
+      username: '',
+      password: '',
+      phone: null,
+      email: null,
+      role: 'user',
+      avatar_number: 0,
+      balance: 0,
+      created_at: '',
+      updated_at: '',
+      vehicles: [],
+      usageRecords: [],
+      bookings: [],
+      comments: []
+    };
   }
 
   // 初始化表单
   private initForm(): void {
     this.userForm = this.fb.group({
-      id: [null],
-      name: [null, Validators.maxLength(50)],
-      username: [null, [Validators.required, Validators.maxLength(50)]],
-      password: [null, Validators.maxLength(255)],
-      phone: [null, Validators.maxLength(20)],
-      email: [null, [Validators.email, Validators.maxLength(100)]],
-      role: ['user', Validators.required],
-      avatar_number: [0],
-      balance: [0, Validators.min(0)]
+      id: [this.userDetail.id],
+      name: [this.userDetail.name, Validators.maxLength(50)],
+      username: [this.userDetail.username, [Validators.required, Validators.maxLength(50)]],
+      password: [this.userDetail.password, Validators.maxLength(255)],
+      phone: [this.userDetail.phone, Validators.maxLength(20)],
+      email: [this.userDetail.email, [Validators.email, Validators.maxLength(100)]],
+      role: [this.userDetail.role, Validators.required],
+      avatar_number: [this.userDetail.avatar_number],
+      balance: [this.userDetail.balance, Validators.min(0)]
     });
   }
 
   // 获取用户详情
+// 修正fetchUserDetail（确保数据返回后初始化）
   private fetchUserDetail(): void {
     this.loading = true;
     this.http.get<UserDetail>(`/api/admin/users/${this.data.userId}`).subscribe({
       next: (response) => {
         this.userDetail = response;
-        this.bindDataToForm();
-        this.bindRelatedData();
+        this.initForm(); // 数据返回后再初始化表单
         this.loading = false;
       },
       error: (err) => {
-        this.snackBar.open(`加载失败：${err.error.message}`, '关闭', { duration: 3000 });
+        this.snackBar.open('加载失败，请检查用户ID是否存在', '关闭', { duration: 3000 });
+        this.userDetail = this.getDefaultUserDetail(); // 错误时使用默认值
+        this.initForm();
         this.loading = false;
       }
     });

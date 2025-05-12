@@ -45,7 +45,7 @@ export class ParkingComponent implements OnInit {
     });
   }
 
-  updateStatus(space: ParkingSpace, newStatus: string) {
+  updateStatus(space: ParkingSpace, newStatus: 'idle' | 'occupied' | 'booked') {
     this.dataService.updateSpace(space.id, { status: newStatus }).subscribe({
       next: () => {
         space.status = newStatus;
@@ -55,5 +55,15 @@ export class ParkingComponent implements OnInit {
         console.error('更新状态失败:', err);
       },
     });
+  }
+
+  // 添加类型安全的辅助方法
+  updateStatusFromTemplate(space: ParkingSpace, statusValue: string) {
+    const validStatuses: ('idle' | 'occupied' | 'booked')[] = ['idle', 'occupied', 'booked'];
+    if (validStatuses.includes(statusValue as any)) {
+      this.updateStatus(space, statusValue as 'idle' | 'occupied' | 'booked');
+    } else {
+      console.error('无效的状态值:', statusValue);
+    }
   }
 }
