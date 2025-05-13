@@ -37,7 +37,7 @@ export class DataService {
   }
  
   // 获取用户详情（包含关联数据）
-  getUserDetail(userId: number): Observable<ParkingSpace> {
+  getUserDetail(userId: number): Observable<any> {
     return this.http.get<ParkingSpace>(`${this.apiUrl}/users/${userId}`);
   }
  
@@ -60,4 +60,5 @@ export class DataService {
   updateBooking(bookingId: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/bookings/${bookingId}`, data);
   }
+
 }

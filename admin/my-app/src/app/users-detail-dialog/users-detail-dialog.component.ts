@@ -2,10 +2,9 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User, UserDetail, Vehicle, UsageRecord, Booking, Comment } from '../../models';
-import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateTime } from '../../models';
-
+import { DataService } from '../../data.service';
 interface RoleDisplay {
   [key: string]: string; // 添加索引签名
 }
@@ -60,8 +59,8 @@ export class UserDetailDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<UserDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { userId: number },
     private fb: FormBuilder,
-    private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dataService:DataService
   ) {
     this.isNewUser = data.userId === null;
     if (this.isNewUser) {
@@ -115,9 +114,11 @@ export class UserDetailDialogComponent implements OnInit {
   // 获取用户详情
   private fetchUserDetail(): void {
     this.loading = true;
-    this.http.get<UserDetail>(`/api/admin/users/${this.data.userId}`).subscribe({
+    this.dataService.getUserDetail(this.data.userId).subscribe({
       next: (response) => {
-        this.userDetail = response;
+        this.userDetail = response.data;
+        console.log(response);
+        console.log(this.userDetail);
         this.initForm();
         this.bindDataToForm();
         this.bindRelatedData();
@@ -155,7 +156,7 @@ export class UserDetailDialogComponent implements OnInit {
   }
 
   // 保存用户
-  saveUser(): void {
+  /*saveUser(): void {
     if (this.userForm.invalid || this.loading) return;
 
     const formValue = this.userForm.value;
@@ -171,9 +172,11 @@ export class UserDetailDialogComponent implements OnInit {
         this.snackBar.open(`操作失败：${err.error.message}`, '关闭', { duration: 5000 });
       }
     });
-  }
+  }*/
 
   // 取消
+saveUser(){}
+
   cancel(): void {
     this.dialogRef.close(false);
   }
