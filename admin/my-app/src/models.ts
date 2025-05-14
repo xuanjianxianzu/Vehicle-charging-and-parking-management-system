@@ -7,7 +7,6 @@ export interface User {
     id: number; // 用户ID（主键）
     name: string | null; // 姓名
     username: string; // 用户名（唯一）
-    password: string; // 密码
     phone: string | null; // 电话
     email: string | null; // 邮箱
     role: 'user' | 'admin' | 'super_admin'; // 角色（枚举）

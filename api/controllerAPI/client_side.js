@@ -903,7 +903,7 @@ router.get('/getComment/rating/:id',async (req,res) =>{
 );
 
 
-router.get('/getComment/rating/:userId',async (req,res) =>{
+router.get('/getComment/r/:userId',async (req,res) =>{
     console.log('aaaaaregister');
     let connection;
     try {
@@ -922,7 +922,8 @@ router.get('/getComment/rating/:userId',async (req,res) =>{
             JOIN users u ON v.user_id = u.id
             WHERE u.id=?`,[userId]
         );
-        if (Records.length === 0) {
+
+        if (comments.length === 0) {
             return res.status(404).json({
                 code: 404,
                 message: '该用户暂无评价'

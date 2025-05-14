@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>用户管理</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ion-padding">
+    <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+
+    <ion-list *ngIf="!loading">
+      <ion-item-group>
+        <ion-item-divider sticky>
+          <ion-grid class="header-grid">
+            <ion-row>
+              <ion-col size="1">ID</ion-col>
+              <ion-col size="1">用户名</ion-col>
+              <ion-col size="1">姓名</ion-col>
+              <ion-col size="1">角色</ion-col>
+              <ion-col size="1">余额</ion-col>
+              <ion-col size="1">电话</ion-col>
+              <ion-col size="1">邮箱</ion-col>
+              <ion-col size="1">头像</ion-col>
+              <ion-col size="1">注册时间</ion-col>
+              <ion-col size="1">最后更新</ion-col>
+              <ion-col size="1">操作</ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item-divider>
+
+        <!-- 数据行 -->
+        <ion-item-sliding *ngFor="let user of users">
+          <ion-item>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="1">{{ user.id }}</ion-col>
+                <ion-col size="1">{{ user.username }}</ion-col>
+                <ion-col size="1">{{ user.name }}</ion-col>
+                <ion-col size="1">{{ user.role }}</ion-col>
+                <ion-col size="1">{{ user.balance | currency:'CNY' }}</ion-col>
+                <ion-col size="1">{{ user.phone || '未填写' }}</ion-col>
+                <ion-col size="1">{{ user.email || '未填写' }}</ion-col>
+                <ion-col size="1">{{ user.avatar_number || 0 }}</ion-col>
+                <ion-col size="1">{{ user.created_at | date:'yyyy-MM-dd HH:mm' }}</ion-col>
+                <ion-col size="1">{{ user.updated_at | date:'yyyy-MM-dd HH:mm' }}</ion-col>
+                <ion-col size="1">
+                  <ion-button fill="solid" (click)="openDetail(user.id)">
+                    详情
+                  </ion-button>
+                  <ion-button fill="outline" (click)="updateUser(user)">
+                    更新
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="deleteUser(user.id)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-item-group>
+    </ion-list>
+  </div>
+</ion-content>

@@ -85,7 +85,7 @@ getComplete(parking_space_id:number): Observable<any> {
 }
 
 getComplete2(user_id:number): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/getComment/rating/${user_id}`);
+  return this.http.get<any>(`${this.apiUrl}/getComment/r/${user_id}`);
 }
 
 
