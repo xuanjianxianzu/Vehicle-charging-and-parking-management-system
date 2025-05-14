@@ -2,13 +2,13 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User, UserDetail, Vehicle, UsageRecord, Booking, Comment } from '../../models';
-import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateTime } from '../../models';
-
+import { DataService } from '../../data.service';
 interface RoleDisplay {
   [key: string]: string; // 添加索引签名
 }
+
 @Component({
   selector: 'app-users-detail-dialog',
   templateUrl: './users-detail-dialog.component.html',
@@ -16,7 +16,7 @@ interface RoleDisplay {
 })
 export class UserDetailDialogComponent implements OnInit {
   userForm!: FormGroup;
-  userDetail : UserDetail = {
+  userDetail: UserDetail = {
     id: 0,
     name: null,
     username: '',
@@ -35,6 +35,7 @@ export class UserDetailDialogComponent implements OnInit {
   };
   loading = false;
   isNewUser = false;
+  isEditMode = false; // 新增：表示是否处于编辑模式
   emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}';
   // 关联数据
   vehicles: Vehicle[] = [];
@@ -58,8 +59,8 @@ export class UserDetailDialogComponent implements OnInit {
     private dialogRef: MatDialogRef<UserDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { userId: number },
     private fb: FormBuilder,
-    private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dataService:DataService
   ) {
     this.isNewUser = data.userId === null;
     if (this.isNewUser) {
@@ -70,8 +71,8 @@ export class UserDetailDialogComponent implements OnInit {
   ngOnInit(): void {
     if (!this.isNewUser) {
       this.fetchUserDetail();
-    }else {
-      this.initForm(); // 新建用户直接初始化空表单
+    } else {
+      this.initForm();
     }
   }
 
@@ -111,18 +112,21 @@ export class UserDetailDialogComponent implements OnInit {
   }
 
   // 获取用户详情
-// 修正fetchUserDetail（确保数据返回后初始化）
   private fetchUserDetail(): void {
     this.loading = true;
-    this.http.get<UserDetail>(`/api/admin/users/${this.data.userId}`).subscribe({
+    this.dataService.getUserDetail(this.data.userId).subscribe({
       next: (response) => {
-        this.userDetail = response;
-        this.initForm(); // 数据返回后再初始化表单
+        this.userDetail = response.data;
+        console.log(response);
+        console.log(this.userDetail);
+        this.initForm();
+        this.bindDataToForm();
+        this.bindRelatedData();
         this.loading = false;
       },
       error: (err) => {
         this.snackBar.open('加载失败，请检查用户ID是否存在', '关闭', { duration: 3000 });
-        this.userDetail = this.getDefaultUserDetail(); // 错误时使用默认值
+        this.userDetail = this.getDefaultUserDetail();
         this.initForm();
         this.loading = false;
       }
@@ -152,27 +156,34 @@ export class UserDetailDialogComponent implements OnInit {
   }
 
   // 保存用户
-  saveUser(): void {
+  /*saveUser(): void {
     if (this.userForm.invalid || this.loading) return;
-    
+
     const formValue = this.userForm.value;
     const apiUrl = this.isNewUser ? '/api/admin/users' : `/api/admin/users/${formValue.id}`;
     const method = this.isNewUser ? 'post' : 'put';
 
     this.http.request<{ code: number; data: User; message: string }>(method, apiUrl, { body: formValue }).subscribe({
       next: () => {
-        this.snackBar.open(this.isNewUser ? '用户创建成功' : '用户更新成功', '关闭', { duration: 3000 });
+        this.snackBar.open(this.isNewUser? '用户创建成功' : '用户更新成功', '关闭', { duration: 3000 });
         this.dialogRef.close(true);
       },
       error: (err) => {
         this.snackBar.open(`操作失败：${err.error.message}`, '关闭', { duration: 5000 });
       }
     });
-  }
+  }*/
 
   // 取消
+saveUser(){}
+
   cancel(): void {
     this.dialogRef.close(false);
+  }
+
+  // 进入编辑模式
+  editUser(): void {
+    this.isEditMode = true;
   }
 
   getRoleDisplay(role: keyof RoleDisplay): string {
@@ -187,5 +198,4 @@ export class UserDetailDialogComponent implements OnInit {
   getVehicleTypeDisplay(type: Vehicle['type']): string {
     return this.vehicleTypeDisplay[type] || type;
   }
-
 }

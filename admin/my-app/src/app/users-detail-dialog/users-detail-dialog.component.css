@@ -1,0 +1,77 @@
+/* users-detail-dialog.component.css */
+:host {
+  display: block;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+mat-dialog-content {
+  padding: 0 !important;
+}
+
+mat-card {
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+mat-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+mat-card-header {
+  border-radius: 8px 8px 0 0;
+}
+
+.form-field-container {
+  margin-bottom: 16px;
+}
+
+mat-form-field {
+  margin-bottom: 0 !important;
+}
+
+mat-spinner {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* 为不同状态的字段添加动画效果 */
+input[disabled], mat-select[disabled] {
+  background-color: #f9fafb;
+  color: rgba(0, 0, 0, 0.7);
+  cursor: not-allowed;
+  transition: background-color 0.3s ease;
+}
+
+/* 为卡片内容添加内边距动画 */
+mat-card-content {
+  transition: padding 0.3s ease;
+}
+
+/* 为按钮添加悬停效果 */
+button[mat-flat-button] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button[mat-flat-button]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 为表格行添加悬停效果 */
+mat-row:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  transition: background-color 0.2s ease;
+}
+
+/* 为加载状态添加动画 */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}

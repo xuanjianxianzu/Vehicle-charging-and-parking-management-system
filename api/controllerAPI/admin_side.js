@@ -304,7 +304,7 @@ router.get('/users/:id', async (req, res) => {
   let connection;
   try {
     connection = await dbcon.getConnection();
-    
+         console.log('aaaaaa1')
     // 查询用户基本信息
     const [userResults] = await connection.query(`
       SELECT * FROM users WHERE id = ?
@@ -373,7 +373,8 @@ router.get('/users/:id', async (req, res) => {
       bookings: bookingResults,
       comments: commentResults
     };
-    
+    console.log(userDetail,'aaaaaa111115')
+
     res.status(200).json({
       code: 200,
       data: userDetail,
