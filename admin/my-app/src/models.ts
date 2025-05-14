@@ -7,6 +7,7 @@ export interface User {
     id: number; // 用户ID（主键）
     name: string | null; // 姓名
     username: string; // 用户名（唯一）
+    password: string; // 密码
     phone: string | null; // 电话
     email: string | null; // 邮箱
     role: 'user' | 'admin' | 'super_admin'; // 角色（枚举）
@@ -57,8 +58,6 @@ export interface ParkingSpaceType {
     parking_rate: number; // 停车费率（元/小时）
     overtime_occupancy_rate: number; // 超时占用费率（元/分钟）
     power: number; // 充电功率（KW）
-    created_at: DateTime; // 创建时间
-    updated_at: DateTime; // 更新时间
 }
 
 /** 车位表（parking_spaces） */
@@ -109,9 +108,17 @@ export interface UserDetail extends User {
 
 /** 车位详情页面完整接口（包含关联数据） */
 export interface ParkingSpaceDetail extends ParkingSpace {
-    typeDetail: ParkingSpaceType; // 车位类型详情（直接关联）
+    typeDetail: ParkingSpaceType; // 车位类型详情（直接关联，已移除多余字段）
     usageRecords: UsageRecord[]; // 该车位的所有使用记录
     bookings: Booking[]; // 该车位的所有预订记录
     currentVehicle: Vehicle | null; // 当前占用车辆（当 status 非 idle 时存在）
 }
 
+export interface ParkingSpaceDetailViewModel extends ParkingSpaceDetail {
+    currentVehicle: VehicleViewModel | null; 
+}
+
+export interface VehicleViewModel extends Vehicle {
+    userInfo_name?: string;
+    userInfo_phone?: string;
+}

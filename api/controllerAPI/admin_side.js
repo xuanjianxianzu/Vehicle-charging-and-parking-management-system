@@ -154,103 +154,214 @@ router.get('/parking-spaces', async (req, res) => {
         if (connection) await connection.end();
     }
   }
-
-  
 );
 
 
-  
-  router.put('/parking-spaces/:id', async (req, res) => {
-    try {
-      const connection = await dbcon.getConnection();
-      const { status, type_id } = req.body;
-      
-      // 开启事务
-      await connection.beginTransaction();
-      
-      // 更新车位信息
-      const [spaceResult] = await connection.query(
-        'UPDATE parking_spaces SET status = ?, type_id = ? WHERE id = ?',
-        [status, type_id, req.params.id]
-      );
-  
-      // 更新关联预约状态（如果需要）
-      if (status === 'idle') {
-        await connection.query(
-          'UPDATE bookings SET status = ? WHERE parking_space_id = ?',
-          ['cancelled', req.params.id]
-        );
-      }
-  
-      await connection.commit();
-      connection.end();
-  
-      if (spaceResult.affectedRows === 0) {
-        return res.status(404).json({ error: 'Parking space not found' });
-      }
-  
-      res.json({ success: true });
-    } catch (err) {
-      await connection.rollback();
-      console.error(err);
-      res.status(500).json({ error: 'Server error' });
-    }
-  });
-  
-  router.get('/parking-spaces/:id/details', async (req, res) => {
-    try {
-      const connection = await dbcon.getConnection();
-      const [spaceRows] = await connection.query(`
-        SELECT 
-          ps.*,
-          pst.type AS parking_type,
-          pst.rate,
-          pst.parking_rate,
-          v.license_plate,
-          u.name AS user_name,
-          ur.electricity_used,
-          ur.total_fee,
-          b.start_time AS booking_start,
-          b.end_time AS booking_end
-        FROM parking_spaces ps
-        LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
-        LEFT JOIN usage_records ur ON ps.id = ur.parking_space_id 
-          AND ur.status = 'in_progress'
-        LEFT JOIN vehicles v ON ur.vehicle_id = v.id
-        LEFT JOIN users u ON v.user_id = u.id
-        LEFT JOIN bookings b ON ps.id = b.parking_space_id 
-          AND b.status = 'confirmed'
-          AND b.end_time > NOW()
-        WHERE ps.id = ?
-      `, [req.params.id]);
-  
-      const [historyRows] = await connection.query(`
-        SELECT 
-          ur.start_time,
-          ur.end_time,
-          ur.electricity_used,
-          ur.total_fee,
-          v.license_plate,
-          u.name AS user_name
-        FROM usage_records ur
-        JOIN vehicles v ON ur.vehicle_id = v.id
-        JOIN users u ON v.user_id = u.id
-        WHERE ur.parking_space_id = ?
-        ORDER BY ur.start_time DESC
-        LIMIT 10
-      `, [req.params.id]);
-  
-      connection.end();
-  
-      res.json({
-        space: spaceRows[0],
-        history: historyRows
+// 获取所有车位类型
+router.get('/parking-space-types', async (req, res) => {
+  let connection;
+  try {
+    connection = await dbcon.getConnection();
+    const [types] = await connection.query(`SELECT * FROM parking_space_types`);
+    res.status(200).json({
+      code: 200,
+      data: types,
+      message: '获取车位类型成功'
+    });
+  } catch (err) {
+    console.error('获取车位类型错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message
+    });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+
+// 获取单个车位类型详情
+router.get('/parking-space-types/:id', async (req, res) => {
+  let connection;
+  try {
+    connection = await dbcon.getConnection();
+    const [types] = await connection.query(`SELECT * FROM parking_space_types WHERE id = ?`, [req.params.id]);
+    if (types.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        message: '车位类型不存在'
       });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Server error' });
     }
-  });
+    res.status(200).json({
+      code: 200,
+      data: types[0],
+      message: '获取车位类型成功'
+    });
+  } catch (err) {
+    console.error('获取车位类型错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message
+    });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+
+// 获取车位完整详情（包含关联数据）
+router.get('/parking-spaces/:id', async (req, res) => {
+  let connection;
+  try {
+    connection = await dbcon.getConnection();
+    const spaceId = req.params.id;
+
+    // 修正后的 SQL 查询（移除不存在的字段）
+    const [spaceResults] = await connection.query(`
+      SELECT
+        ps.id AS id,
+        ps.type_id AS type_id,
+        ps.status AS status,
+        ps.vehicle_id AS vehicle_id,
+        ps.created_at AS created_at,
+        ps.updated_at AS updated_at,
+        
+        pst.id AS typeInfo_id,
+        pst.type AS typeInfo_type,
+        pst.rate AS typeInfo_rate,
+        pst.parking_rate AS typeInfo_parking_rate,
+        pst.overtime_occupancy_rate AS typeInfo_overtime_occupancy_rate,
+        pst.power AS typeInfo_power
+      FROM parking_spaces ps
+      LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
+      WHERE ps.id = ?
+    `, [spaceId]);
+
+    if (spaceResults.length === 0) {
+      return res.status(404).json({ code: 404, message: '车位不存在' });
+    }
+
+    const parkingSpace = spaceResults[0];
+    
+    // 关联查询当前占用车辆（可选）
+    let currentVehicle = null;
+    if (parkingSpace.vehicle_id) {
+      const [vehicleResults] = await connection.query(`
+        SELECT 
+          v.id,
+          v.license_plate,
+          v.type AS vehicle_type,
+          u.name AS userInfo_name,
+          u.phone AS userInfo_phone
+        FROM vehicles v
+        LEFT JOIN users u ON v.user_id = u.id
+        WHERE v.id = ?
+      `, [parkingSpace.vehicle_id]);
+      currentVehicle = vehicleResults[0] || null;
+    }
+
+    // 关联查询使用记录和预订记录（可选）
+    const [usageResults] = await connection.query(`
+      SELECT * FROM usage_records WHERE parking_space_id = ?
+    `, [spaceId]);
+
+    const [bookingResults] = await connection.query(`
+      SELECT * FROM bookings WHERE parking_space_id = ?
+    `, [spaceId]);
+
+    // 构建完整的车位详情（包含关联数据）
+    const parkingDetail = {
+      ...parkingSpace,
+      typeDetail: {
+        id: parkingSpace.typeInfo_id,
+        type: parkingSpace.typeInfo_type,
+        rate: parkingSpace.typeInfo_rate,
+        parking_rate: parkingSpace.typeInfo_parking_rate,
+        overtime_occupancy_rate: parkingSpace.typeInfo_overtime_occupancy_rate,
+        power: parkingSpace.typeInfo_power
+      },
+      currentVehicle,
+      usageRecords: usageResults,
+      bookings: bookingResults
+    };
+
+    res.status(200).json({ code: 200, data: parkingDetail, message: '成功' });
+
+  } catch (err) {
+    console.error('查询错误:', err);
+    res.status(500).json({ code: 500, message: '服务器错误', details: err.message });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+
+// 更新车位信息（支持状态、类型、占用车辆更新）
+router.put('/parking-spaces/:id', async (req, res) => {
+  let connection;
+  try {
+    connection = await dbcon.getConnection();
+    const spaceId = req.params.id;
+    const updateData = req.body;
+
+    // 检查车位是否存在
+    const [spaceCheck] = await connection.query(`
+      SELECT id FROM parking_spaces WHERE id = ?
+    `, [spaceId]);
+
+    if (spaceCheck.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        message: '车位不存在'
+      });
+    }
+
+    // 构建更新字段
+    const fieldsToUpdate = [];
+    const values = [updateData.status, updateData.type_id, updateData.vehicle_id, spaceId];
+    
+    // 状态、类型、占用车辆为可更新字段
+    fieldsToUpdate.push('status = ?');
+    if (updateData.type_id !== undefined) fieldsToUpdate.push('type_id = ?');
+    if (updateData.vehicle_id !== undefined) fieldsToUpdate.push('vehicle_id = ?');
+    fieldsToUpdate.push('updated_at = NOW()');
+
+    // 执行更新
+    const [result] = await connection.query(`
+      UPDATE parking_spaces 
+      SET ${fieldsToUpdate.join(', ')} 
+      WHERE id = ?
+    `, values);
+
+    if (result.affectedRows === 0) {
+      return res.status(400).json({
+        code: 400,
+        message: '更新失败，无有效数据变更'
+      });
+    }
+
+    // 返回更新后的车位详情
+    const [updatedSpace] = await connection.query(`
+      SELECT * FROM parking_spaces WHERE id = ?
+    `, [spaceId]);
+
+    res.status(200).json({
+      code: 200,
+      data: updatedSpace[0],
+      message: '车位信息更新成功'
+    });
+
+  } catch (err) {
+    console.error('更新车位错误:', err);
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误',
+      details: err.message
+    });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+  
 
   
 // GET /admin/users - 获取所有用户（带统计信息）
