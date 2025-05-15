@@ -209,29 +209,27 @@ router.get('/parking-space-types/:id', async (req, res) => {
   }
 });
 
-// 获取车位完整详情（包含关联数据）
+// 获取车位完整详情（包含关联数据和评论）
 router.get('/parking-spaces/:id', async (req, res) => {
   let connection;
   try {
     connection = await dbcon.getConnection();
     const spaceId = req.params.id;
 
-    // 修正后的 SQL 查询（移除不存在的字段）
+    // 1. 查询车位基础信息及类型
     const [spaceResults] = await connection.query(`
       SELECT
-        ps.id AS id,
-        ps.type_id AS type_id,
-        ps.status AS status,
-        ps.vehicle_id AS vehicle_id,
-        ps.created_at AS created_at,
-        ps.updated_at AS updated_at,
-        
-        pst.id AS typeInfo_id,
-        pst.type AS typeInfo_type,
-        pst.rate AS typeInfo_rate,
-        pst.parking_rate AS typeInfo_parking_rate,
-        pst.overtime_occupancy_rate AS typeInfo_overtime_occupancy_rate,
-        pst.power AS typeInfo_power
+        ps.id,
+        ps.type_id,
+        ps.status,
+        ps.vehicle_id,
+        ps.created_at,
+        ps.updated_at,
+        pst.type AS type,
+        pst.rate,
+        pst.parking_rate,
+        pst.overtime_occupancy_rate,
+        pst.power
       FROM parking_spaces ps
       LEFT JOIN parking_space_types pst ON ps.type_id = pst.id
       WHERE ps.id = ?
@@ -242,8 +240,8 @@ router.get('/parking-spaces/:id', async (req, res) => {
     }
 
     const parkingSpace = spaceResults[0];
-    
-    // 关联查询当前占用车辆（可选）
+
+    // 2. 查询当前占用车辆（带用户信息）
     let currentVehicle = null;
     if (parkingSpace.vehicle_id) {
       const [vehicleResults] = await connection.query(`
@@ -260,7 +258,7 @@ router.get('/parking-spaces/:id', async (req, res) => {
       currentVehicle = vehicleResults[0] || null;
     }
 
-    // 关联查询使用记录和预订记录（可选）
+    // 3. 查询使用记录、预订记录
     const [usageResults] = await connection.query(`
       SELECT * FROM usage_records WHERE parking_space_id = ?
     `, [spaceId]);
@@ -269,23 +267,47 @@ router.get('/parking-spaces/:id', async (req, res) => {
       SELECT * FROM bookings WHERE parking_space_id = ?
     `, [spaceId]);
 
-    // 构建完整的车位详情（包含关联数据）
+    // 4. **新增：查询车位评论（关联用户和车辆）**
+    const [commentResults] = await connection.query(`
+      SELECT 
+        cr.id AS comment_id,
+        cr.rating,
+        cr.comment,
+        cr.created_at,
+        ur.id AS order_id,
+        v.license_plate AS vehicle_plate,
+        u.id AS user_id,
+        u.name AS user_name,
+        u.phone AS user_phone
+      FROM comment_rating cr
+      JOIN usage_records ur ON cr.order_id = ur.id
+      JOIN vehicles v ON ur.vehicle_id = v.id
+      JOIN users u ON v.user_id = u.id
+      WHERE ur.parking_space_id = ?
+    `, [spaceId]);
+
+    // 5. 构建完整响应
     const parkingDetail = {
       ...parkingSpace,
       typeDetail: {
-        id: parkingSpace.typeInfo_id,
-        type: parkingSpace.typeInfo_type,
-        rate: parkingSpace.typeInfo_rate,
-        parking_rate: parkingSpace.typeInfo_parking_rate,
-        overtime_occupancy_rate: parkingSpace.typeInfo_overtime_occupancy_rate,
-        power: parkingSpace.typeInfo_power
+        id: parkingSpace.type_id,
+        type: parkingSpace.type,
+        rate: parkingSpace.rate,
+        parking_rate: parkingSpace.parking_rate,
+        overtime_occupancy_rate: parkingSpace.overtime_occupancy_rate,
+        power: parkingSpace.power
       },
       currentVehicle,
       usageRecords: usageResults,
-      bookings: bookingResults
+      bookings: bookingResults,
+      comments: commentResults // 新增评论数据
     };
 
-    res.status(200).json({ code: 200, data: parkingDetail, message: '成功' });
+    res.status(200).json({ 
+      code: 200, 
+      data: parkingDetail, 
+      message: '成功获取车位详情' 
+    });
 
   } catch (err) {
     console.error('查询错误:', err);
@@ -444,7 +466,8 @@ router.get('/users/:id', async (req, res) => {
         ps.status AS parking_status,
         pst.type AS space_type,
         pst.rate AS charging_rate,
-        pst.parking_rate
+        pst.parking_rate,
+        pst.overtime_occupancy_rate
       FROM usage_records ur
       JOIN vehicles v ON ur.vehicle_id = v.id
       JOIN parking_spaces ps ON ur.parking_space_id = ps.id
@@ -460,7 +483,8 @@ router.get('/users/:id', async (req, res) => {
         ps.status AS parking_status,
         pst.type AS space_type,
         pst.rate AS charging_rate,
-        pst.parking_rate
+        pst.parking_rate,
+        pst.overtime_occupancy_rate
       FROM bookings b
       JOIN parking_spaces ps ON b.parking_space_id = ps.id
       JOIN parking_space_types pst ON ps.type_id = pst.id
@@ -469,11 +493,18 @@ router.get('/users/:id', async (req, res) => {
     
     // 查询用户评论
     const [commentResults] = await connection.query(`
-      SELECT cr.*, ur.id AS order_id
-      FROM comment_rating cr
-      JOIN usage_records ur ON cr.order_id = ur.id
-      JOIN vehicles v ON ur.vehicle_id = v.id
-      WHERE v.user_id = ?
+      SELECT 
+      cr.id AS comment_id,
+      cr.rating,
+      cr.comment,
+      cr.created_at,
+      ur.id AS order_id,
+      ur.parking_space_id, 
+      v.license_plate AS vehicle_plate
+    FROM comment_rating cr
+    JOIN usage_records ur ON cr.order_id = ur.id
+    JOIN vehicles v ON ur.vehicle_id = v.id
+    WHERE v.user_id = ?
     `, [req.params.id]);
     
     // 构建完整的用户详情对象

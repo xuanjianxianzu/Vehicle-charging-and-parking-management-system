@@ -2,121 +2,94 @@
   <div class="p-4">
     <div class="flex justify-between items-center mb-4">
       <h2 mat-dialog-title>
-        {{ isNewSpace ? '新建车位' : '车位详情 #' + parkingDetail.id }}
+        {{ isNewSpace ? 'New Parking Space' : 'Parking Space Details' }}
+        <span *ngIf="!isNewSpace"> #{{ parkingDetail.id }}</span>
       </h2>
       <button 
         *ngIf="!isNewSpace && !isEditMode" 
         mat-icon-button 
         color="primary" 
         (click)="editSpace()"
-        matTooltip="编辑车位"
+        matTooltip="Edit Space"
       >
         <mat-icon>edit</mat-icon>
       </button>
     </div>
 
-    <!-- 基础信息卡片 -->
+    <!-- Basic Information Card -->
     <mat-card class="mb-6 shadow-md">
       <mat-card-header class="bg-primary/10 px-4 py-3">
-        <mat-card-title class="text-lg font-medium">车位基础信息</mat-card-title>
+        <br>
+        <mat-card-title class="text-lg font-medium">Basic Information</mat-card-title>
       </mat-card-header>
       <mat-card-content class="p-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- 车位ID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6"> 
+          <!-- Parking ID -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">车位ID</label>
+            <br>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Parking ID</label>
             <div class="bg-gray-50 p-2 rounded border border-gray-200">
-              {{ parkingDetail.id || '新建中' }}
+              {{ parkingDetail.id || 'Creating' }}
             </div>
           </div>
 
-          <!-- 车位类型 -->
+          <!-- Type -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">车位类型</label>
+            <br>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Space Type</label> 
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ getTypeDisplay(parkingDetail.typeDetail.type) }}
-                <div class="text-sm text-gray-500 mt-1">
-                  充电功率：{{ parkingDetail.typeDetail.power }}kW | 停车费：{{ parkingDetail.typeDetail.parking_rate }}元/小时
+                <div class="font-medium">{{ formatType(parkingDetail.typeDetail.type) }}</div>
+                <div class="text-sm text-gray-500 space-y-2"> 
+                  <div class="flex justify-between">
+                    <br>
+                    <span class="font-medium">Charging Rate: </span> 
+                    <span>{{ parkingDetail.typeDetail.rate }} CNY/kWh</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium">Parking Rate: </span> 
+                    <span>{{ parkingDetail.typeDetail.parking_rate }} CNY/hour</span> 
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-medium">Overtime Occupancy Rate: </span> 
+                    <span>{{ parkingDetail.typeDetail.overtime_occupancy_rate }} CNY/min</span> 
+                  </div>
                 </div>
               </div>
-              <mat-form-field *ngIf="isEditMode" class="w-full">
-                <mat-select 
-                  formControlName="type_id" 
-                  required
-                  placeholder="选择车位类型"
-                >
-                  <mat-option 
-                    *ngFor="let type of parkingSpaceTypes" 
-                    [value]="type.id"
-                  >
-                    {{ getTypeDisplay(type.type) }} - {{ type.power }}kW
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
             </div>
           </div>
 
-          <!-- 当前状态 -->
+          <!-- Status -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">当前状态</label>
+            <br>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <div class="flex">
-              <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ getStatusDisplay(parkingDetail.status) }}
+              <div class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
+                {{ formatStatus(parkingDetail.status) }}
               </div>
-              <mat-form-field *ngIf="isEditMode" class="w-full">
-                <mat-select formControlName="status" required>
-                  <mat-option 
-                    [value]="status" 
-                    *ngFor="let status of ['idle', 'occupied', 'booked']"
-                  >
-                    {{ getStatusDisplay(status) }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
             </div>
           </div>
 
-          <!-- 占用车辆 -->
+          <!-- Vehicle ID -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">占用车辆</label>
-            <div class="flex">
-              <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ parkingDetail.currentVehicle?.license_plate || '-' }}
-                <div class="text-sm text-gray-500 mt-1" *ngIf="parkingDetail.currentVehicle">
-                    车主：{{ parkingDetail.currentVehicle.userInfo_name || '-' }} | 
-                    电话：{{ parkingDetail.currentVehicle.userInfo_phone || '-' }}
-                </div>
-              </div>
-              <mat-form-field *ngIf="isEditMode" class="w-full">
-                <input 
-                  matInput 
-                  formControlName="vehicle_id" 
-                  placeholder="输入车辆ID（可选）"
-                  [disabled]="parkingDetail.status === 'idle'"
-                >
-                <mat-hint>仅当状态为占用或预约时填写</mat-hint>
-              </mat-form-field>
+            <br>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Vehicle ID</label>
+            <div class="bg-gray-50 p-2 rounded border border-gray-200">
+              {{ parkingDetail.vehicle_id || 'no vehicles parked' }}
             </div>
           </div>
 
-          <!-- 时间信息 -->
-          <div class="col-span-2">
-            <div class="grid grid-cols-2 gap-4">
-              <!-- 创建时间 -->
+          <!-- Time Information -->
+          <div class="form-field-container col-span-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">创建时间</label>
-                <div class="bg-gray-50 p-2 rounded border border-gray-200">
-                  {{ formatDate(parkingDetail.created_at) }}
-                </div>
+                <br>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+                <div>{{ formatDate(parkingDetail.created_at) }}</div>
               </div>
-              
-              <!-- 更新时间 -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">更新时间</label>
-                <div class="bg-gray-50 p-2 rounded border border-gray-200">
-                  {{ formatDate(parkingDetail.updated_at) }}
-                </div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Updated At</label>
+                <div>{{ formatDate(parkingDetail.updated_at) }}</div>
               </div>
             </div>
           </div>
@@ -124,101 +97,166 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- 关联数据卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- 使用记录 -->
-      <mat-card class="shadow-md">
-        <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">
-            使用记录 ({{ parkingDetail.usageRecords.length }})
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          <div *ngIf="parkingDetail.usageRecords?.length === 0" class="text-center py-6 text-gray-500">
-  暂无使用记录
-</div>
-          <div *ngFor="let record of parkingDetail.usageRecords || []"
-            class="mb-3 p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
-          >
+    <!-- Usage Records -->
+    <mat-card class="shadow-md mb-6">
+      <mat-card-header class="bg-primary/10 px-4 py-3">
+        <mat-card-title class="text-lg font-medium">
+          Usage Records ({{ parkingDetail.usageRecords.length }})
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="p-4">
+        <div *ngIf="parkingDetail.usageRecords.length === 0" class="text-center py-6 text-gray-500">
+          No usage records found
+        </div>
+        <div *ngFor="let record of parkingDetail.usageRecords" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+          <div class="space-y-2">
             <div class="flex justify-between">
-              <span class="font-medium">开始时间:</span>
+              <br>
+              <span class="font-medium">Record ID: </span>
+              <span>{{ record.id }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Start Time: </span>
               <span>{{ formatDate(record.start_time) }}</span>
             </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">状态:</span>
-              <span>{{ record.status }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">用电量:</span>
-              <span>{{ record.electricity_used || 0 }} 度</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">总费用:</span>
-              <span>{{ record.total_fee || 0 | currency:'CNY' }}</span>
-            </div>
-          </div>
-          <div *ngIf="parkingDetail.usageRecords.length > 3" class="text-center text-primary cursor-pointer">
-            查看更多 ({{ parkingDetail.usageRecords.length - 3 }}条)
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- 预订记录 -->
-      <mat-card class="shadow-md">
-        <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">
-            预订记录 ({{ parkingDetail.bookings.length }})
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          <div *ngIf="parkingDetail.bookings?.length === 0" class="text-center py-6 text-gray-500">
-            暂无预订记录
-        </div>
-          <div *ngFor="let booking of parkingDetail.bookings || []" 
-            class="mb-3 p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
-          >
             <div class="flex justify-between">
-              <span class="font-medium">预订时间:</span>
+              <span class="font-medium">Charging Start: </span>
+              <span>{{ record.charging_start_time ? formatDate(record.charging_start_time) : 'N/A' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Charging End: </span>
+              <span>{{ record.charging_complete_time ? formatDate(record.charging_complete_time) : 'N/A' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">End Time: </span>
+              <span>{{ record.end_time ? formatDate(record.end_time) : '-' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Status: </span>
+              <span>{{ formatStatus(record.status) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Electricity Used: </span>
+              <span>{{ record.electricity_used }} kWh</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Total Fee: </span>
+              <span>{{ record.total_fee | currency:'CNY' }}</span> 
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Parking Minutes: </span>
+              <span>{{ record.parking_minutes }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Overtime Minutes: </span>
+              <span>{{ record.overtime_minutes }}</span>
+            </div>
+          </div>
+          <div class="mt-6 h-px bg-gray-200" *ngIf="!last"></div> 
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Bookings -->
+    <br>
+    <mat-card class="shadow-md mb-6">
+      <mat-card-header class="bg-primary/10 px-4 py-3">
+        <mat-card-title class="text-lg font-medium">
+          Bookings ({{ parkingDetail.bookings.length }})
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="p-4">
+        <div *ngIf="parkingDetail.bookings.length === 0" class="text-center py-6 text-gray-500">
+          No booking records found
+        </div>
+        <div *ngFor="let booking of parkingDetail.bookings" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <br>
+              <span class="font-medium">Booking ID: </span>
+              <span>{{ booking.id }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">User ID: </span>
+              <span>{{ booking.user_id }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Vehicle ID: </span>
+              <span>{{ booking.vehicle_id }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Parking Space ID: </span>
+              <span>{{ booking.parking_space_id }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Booking Time: </span>
               <span>{{ formatDate(booking.created_at) }}</span>
             </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">时间范围:</span>
-              <span>
-                {{ formatDate(booking.start_time) }} - {{ formatDate(booking.end_time) }}
-              </span>
+            <div class="flex justify-between">
+              <span class="font-medium">Time Range: </span>
+              <span>{{ formatDate(booking.start_time) }} - {{ formatDate(booking.end_time) }}</span>
             </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">状态:</span>
-              <span>{{ booking.status }}</span>
+            <div class="flex justify-between">
+              <span class="font-medium">Status: </span>
+              <span>{{ formatStatus(booking.status) }}</span>
             </div>
           </div>
-          <div *ngIf="parkingDetail.bookings.length > 3" class="text-center text-primary cursor-pointer">
-            查看更多 ({{ parkingDetail.bookings.length - 3 }}条)
+          <div class="mt-6 h-px bg-gray-200" *ngIf="!last"></div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Comments -->
+    <br>
+    <mat-card class="shadow-md">
+      <mat-card-header class="bg-primary/10 px-4 py-3">
+        <mat-card-title class="text-lg font-medium">
+          Comments ({{ parkingDetail.comments.length }})
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="p-4">
+        <div *ngIf="parkingDetail.comments.length === 0" class="text-center py-6 text-gray-500">
+          No comments found
+        </div>
+        <div *ngFor="let comment of parkingDetail.comments; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <br>
+              <span class="font-medium">Comment ID: </span>
+              <span>{{ comment.comment_id }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">User: </span>
+              <span>{{ comment.user_name || 'Guest' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Rating: </span>
+              <span>{{ comment.rating }} / 5</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Comment: </span>
+              <span>{{ comment.comment || 'No comment' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Vehicle Plate: </span>
+              <span>{{ comment.vehicle_plate || '-' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Order ID: </span>
+              <span>{{ comment.order_id || '-' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">User Phone: </span>
+              <span>{{ comment.user_phone || '-' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-medium">Created At: </span>
+              <span>{{ formatDate(comment.created_at) }}</span>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+          <div class="mt-6 h-px bg-gray-200" *ngIf="!last"></div>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 </mat-dialog-content>
-
-<mat-dialog-actions class="px-6 py-4 justify-end">
-  <button 
-    mat-stroked-button 
-    color="primary" 
-    (click)="cancel()"
-    [disabled]="loading"
-  >
-    取消
-  </button>
-  <button 
-    *ngIf="isEditMode"
-    mat-flat-button 
-    color="primary" 
-    [disabled]="loading || parkingForm.invalid" 
-    (click)="saveSpace()"
-    class="ml-3"
-  >
-    {{ isNewSpace ? '创建车位' : '保存修改' }}
-    <mat-spinner *ngIf="loading" diameter="20" class="ml-2"></mat-spinner>
-  </button>
-</mat-dialog-actions>

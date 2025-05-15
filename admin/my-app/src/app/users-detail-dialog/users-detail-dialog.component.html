@@ -2,28 +2,28 @@
 <mat-dialog-content>
   <div class="p-4">
     <div class="flex justify-between items-center mb-4">
-      <h2 mat-dialog-title>{{ isNewUser ? '新建用户' : '用户详情' }}</h2>
+      <h2 mat-dialog-title>{{ isNewUser ? 'Create User' : 'User Details' }}</h2>
       <button 
         *ngIf="!isNewUser && !isEditMode" 
         mat-icon-button 
         color="primary" 
         (click)="editUser()"
-        matTooltip="编辑用户"
+        matTooltip="Edit User"
       >
         <mat-icon>edit</mat-icon>
       </button>
     </div>
 
-    <!-- 基础信息卡片 -->
+    <!-- Basic Information Card -->
     <mat-card class="mb-6 shadow-md">
       <mat-card-header class="bg-primary/10 px-4 py-3">
-        <mat-card-title class="text-lg font-medium">基础信息</mat-card-title>
+        <mat-card-title class="text-lg font-medium">Basic Information</mat-card-title>
       </mat-card-header>
       <mat-card-content class="p-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- 用户名 -->
+          <!-- Username -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
                 {{ userDetail.username }}
@@ -31,15 +31,15 @@
               <mat-form-field *ngIf="isEditMode" class="w-full">
                 <input matInput formControlName="username" required>
                 <mat-error *ngIf="userForm.get('username')?.hasError('required')">
-                  用户名是必填项
+                  Username is required
                 </mat-error>
               </mat-form-field>
             </div>
           </div>
 
-          <!-- 姓名 -->
+          <!-- Name -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
                 {{ userDetail.name || '-' }}
@@ -50,23 +50,23 @@
             </div>
           </div>
 
-          <!-- 密码 -->
+          <!-- Password -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                ********
+                {{ '******'}}
               </div>
               <mat-form-field *ngIf="isEditMode" class="w-full">
                 <input matInput type="password" formControlName="password">
-                <mat-hint>留空则不修改密码</mat-hint>
+                <mat-hint>Leave blank to keep unchanged</mat-hint>
               </mat-form-field>
             </div>
           </div>
 
-          <!-- 电话 -->
+          <!-- Phone -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">电话</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
                 {{ userDetail.phone || '-' }}
@@ -77,9 +77,9 @@
             </div>
           </div>
 
-          <!-- 邮箱 -->
+          <!-- Email -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
                 {{ userDetail.email || '-' }}
@@ -87,32 +87,32 @@
               <mat-form-field *ngIf="isEditMode" class="w-full">
                 <input matInput formControlName="email" [pattern]="emailPattern">
                 <mat-error *ngIf="userForm.get('email')?.hasError('email')">
-                  请输入有效的邮箱地址
+                  Please enter a valid email address
                 </mat-error>
               </mat-form-field>
             </div>
           </div>
 
-          <!-- 角色 -->
+          <!-- Role -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">角色</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ getRoleDisplay(userDetail.role) }}
+                {{ formatRole(userDetail.role) }}
               </div>
               <mat-form-field *ngIf="isEditMode" class="w-full">
                 <mat-select formControlName="role" required>
                   <mat-option [value]="role" *ngFor="let role of ['user', 'admin', 'super_admin']">
-                    {{ getRoleDisplay(role) }}
+                    {{ formatRole(role) }}
                   </mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
           </div>
 
-          <!-- 头像编号 -->
+          <!-- Avatar Number -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">头像编号</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Avatar Number</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
                 {{ userDetail.avatar_number || 0 }}
@@ -123,144 +123,157 @@
             </div>
           </div>
 
-          <!-- 账户余额 -->
+          <!-- Balance -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">账户余额</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Balance</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ userDetail.balance || 0 }} 元
+                {{ userDetail.balance }} CNY
               </div>
               <mat-form-field *ngIf="isEditMode" class="w-full">
                 <input matInput type="number" formControlName="balance" min="0">
-                <span matTextSuffix>元</span>
+                <span matTextSuffix>CNY</span>
               </mat-form-field>
+            </div>
+          </div>
+          <div class="form-field-container">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+            <div class="flex">
+              <div class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
+                {{ formatDate(userDetail.created_at) }}
+              </div>
+            </div>
+          </div>
+          <div class="form-field-container">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Updated At</label>
+            <div class="flex">
+              <div class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
+                {{ formatDate(userDetail.updated_at) }}
+              </div>
             </div>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- 关联数据卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <!-- 车辆信息 -->
+    <!-- Related Data Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+      <!-- Vehicles -->
       <mat-card class="shadow-md">
         <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">用户车辆 ({{ vehicles.length }})</mat-card-title>
+          <mat-card-title class="text-lg font-medium">Vehicles ({{ vehicles.length }})</mat-card-title>
         </mat-card-header>
         <mat-card-content class="p-4">
           <div *ngIf="vehicles.length === 0" class="text-center py-6 text-gray-500">
-            暂无车辆信息
+            No vehicles found
           </div>
-          <div *ngFor="let vehicle of vehicles" class="mb-3 p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="flex justify-between">
-              <span class="font-medium">车牌号:</span>
-              <span>{{ vehicle.license_plate }}</span>
+          <div *ngFor="let vehicle of vehicles; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div class="space-y-2">
+              <br>
+              <div><span class="font-medium">License Plate:</span>   {{ vehicle.license_plate }}</div>
+              <div><span class="font-medium">Type:</span>   {{ vehicle.type }}</div>
+              <div><span class="font-medium">Created At:</span>   {{ formatDate(vehicle.created_at) }}</div>
+              <div><span class="font-medium">Updated At:</span>   {{ formatDate(vehicle.updated_at) }}</div>
             </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">类型:</span>
-              <span>{{ getVehicleTypeDisplay(vehicle.type) }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">创建时间:</span>
-              <span>{{ formatDate(vehicle.created_at) }}</span>
-            </div>
+            <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
           </div>
         </mat-card-content>
       </mat-card>
 
-      <!-- 使用记录 -->
+      <!-- Comments -->
       <mat-card class="shadow-md">
         <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">使用记录 ({{ usageRecords.length }})</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          <div *ngIf="usageRecords.length === 0" class="text-center py-6 text-gray-500">
-            暂无使用记录
-          </div>
-          <div *ngFor="let record of usageRecords | slice:0:3" class="mb-3 p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="flex justify-between">
-              <span class="font-medium">开始时间:</span>
-              <span>{{ formatDate(record.start_time) }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">结束时间:</span>
-              <span>{{ record.end_time ? formatDate(record.end_time) : '-' }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">状态:</span>
-              <span>{{ record.status }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">总费用:</span>
-              <span>{{ record.total_fee | currency:'CNY' }}</span>
-            </div>
-          </div>
-          <div *ngIf="usageRecords.length > 3" class="text-center text-primary cursor-pointer">
-            查看更多
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- 预订记录 -->
-      <mat-card class="shadow-md">
-        <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">预订记录 ({{ bookings.length }})</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          <div *ngIf="bookings.length === 0" class="text-center py-6 text-gray-500">
-            暂无预订记录
-          </div>
-          <div *ngFor="let booking of bookings | slice:0:3" class="mb-3 p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="flex justify-between">
-              <span class="font-medium">开始时间:</span>
-              <span>{{ formatDate(booking.start_time) }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">结束时间:</span>
-              <span>{{ formatDate(booking.end_time) }}</span>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">状态:</span>
-              <span>{{ booking.status }}</span>
-            </div>
-          </div>
-          <div *ngIf="bookings.length > 3" class="text-center text-primary cursor-pointer">
-            查看更多
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- 评论记录 -->
-      <mat-card class="shadow-md">
-        <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">评论记录 ({{ comments.length }})</mat-card-title>
+          <mat-card-title class="text-lg font-medium">Comments ({{ comments.length }})</mat-card-title>
         </mat-card-header>
         <mat-card-content class="p-4">
           <div *ngIf="comments.length === 0" class="text-center py-6 text-gray-500">
-            暂无评论记录
+            No comments found
           </div>
-          <div *ngFor="let comment of comments | slice:0:3" class="mb-3 p-3 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="flex justify-between">
-              <span class="font-medium">评分:</span>
-              <span>{{ comment.rating }}</span>
+          <div *ngFor="let comment of comments; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div class="space-y-2">
+              <br>
+              <div><span class="font-medium">Comment ID:</span>   {{ comment.comment_id }}</div>
+              <div><span class="font-medium">Rating:</span>   {{ comment.rating }}</div>
+              <div><span class="font-medium">Comment:</span>   {{ comment.comment || 'No comment' }}</div>
+              <div><span class="font-medium">Order ID:</span>   {{ comment.order_id }}</div>
+              <div><span class="font-medium">Parking ID:</span>   {{ comment.parking_space_id }}</div>
+              <div><span class="font-medium">Vehicle Plate:</span>   {{ comment.vehicle_plate }}</div>
+              <div><span class="font-medium">Created At:</span>   {{ formatDate(comment.created_at) }}</div>
             </div>
-            <div class="mt-1">
-              <span class="font-medium">评论内容:</span>
-              <p>{{ comment.comment || '无评论' }}</p>
-            </div>
-            <div class="flex justify-between mt-1">
-              <span class="font-medium">评论时间:</span>
-              <span>{{ formatDate(comment.created_at) }}</span>
-            </div>
-          </div>
-          <div *ngIf="comments.length > 3" class="text-center text-primary cursor-pointer">
-            查看更多
+            <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
           </div>
         </mat-card-content>
       </mat-card>
     </div>
   </div>
+
+      <!-- Bookings -->
+      <mat-card class="shadow-md">
+        <mat-card-header class="bg-primary/10 px-4 py-3">
+          <mat-card-title class="text-lg font-medium">Bookings ({{ bookings.length }})</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div *ngIf="bookings.length === 0" class="text-center py-6 text-gray-500">
+            No bookings found
+          </div>
+          <div *ngFor="let booking of bookings; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div class="space-y-2">
+              <br>
+              <div><span class="font-medium">Order ID:</span>   {{ booking.id || 'N/A' }}</div>
+              <div><span class="font-medium">Parking Space ID:</span>   {{ booking.parking_space_id }}</div>
+              <div><span class="font-medium">Status:</span>   {{ formatStatus(booking.status) }}</div>
+              <div><span class="font-medium">Space Type:</span>   {{ formatStatus(booking.space_type) }}</div>
+              <div><span class="font-medium">Charging Rate:</span>   {{ booking.charging_rate }} CNY/kWh</div>
+              <div><span class="font-medium">Parking Rate:</span>   {{ booking.parking_rate }} CNY/hour</div>
+              <div><span class="font-medium">Overtime Occupancy Rate:</span>   {{ booking.overtime_occupancy_rate }} CNY/min</div>
+              <div><span class="font-medium">Start Time:</span>   {{ formatDate(booking.start_time) }}</div>
+              <div><span class="font-medium">End Time:</span>   {{ formatDate(booking.end_time) }}</div>
+              <div><span class="font-medium">Created At:</span>   {{ formatDate(booking.created_at) }}</div>
+            </div>
+            <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    
+      <!-- Usage Records -->
+      <mat-card class="shadow-md">
+        <mat-card-header class="bg-primary/10 px-4 py-3">
+          <mat-card-title class="text-lg font-medium">Usage Records ({{ usageRecords.length }})</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div *ngIf="usageRecords.length === 0" class="text-center py-6 text-gray-500">
+            No usage records found
+          </div>
+          <div *ngFor="let record of usageRecords; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div class="space-y-2">
+              <br>
+              <div><span class="font-medium">Parking Space ID:</span>   {{ record.parking_space_id }}</div>
+              <div><span class="font-medium">License Plate:</span>   {{ record.license_plate }}</div>
+              <div><span class="font-medium">Status:</span>   {{ formatStatus(record.status) }}</div>
+              <div><span class="font-medium">Total Fee:</span>   {{ record.total_fee }} CNY</div>
+              <div><span class="font-medium">Electricity Used:</span>   {{ record.electricity_used ? formatStatus(record.electricity_used) : '0'}} kWh</div>
+              <div><span class="font-medium">Parking Minutes:</span>   {{ record.parking_minutes }}</div>
+              <div><span class="font-medium">Overtime Minutes:</span>   {{ record.overtime_minutes }}</div>
+              <div><span class="font-medium">Space Type:</span>   {{ formatStatus(record.space_type) }}</div>
+              <div><span class="font-medium">Charging Rate:</span>   {{ record.charging_rate }} CNY/kWh</div>
+              <div><span class="font-medium">Parking Rate:</span>   {{ record.parking_rate }} CNY/hour</div>
+              <div><span class="font-medium">Overtime Occupancy Rate:</span>   {{ record.overtime_occupancy_rate }} CNY/min</div>
+              <div><span class="font-medium">Start Time:</span>   {{ formatDate(record.start_time) }}</div>
+              <div><span class="font-medium">End Time:</span>   {{ record.end_time ? formatDate(record.end_time) : '-' }}</div>
+              <div><span class="font-medium">Charging Start Time:</span>   {{ record.charging_start_time ? formatDate(record.charging_start_time) : '-' }}</div>
+              <div><span class="font-medium">Charging Complete Time:</span>   {{ record.charging_complete_time ? formatDate(record.charging_complete_time) : '-' }}</div>
+              <div><span class="font-medium">Created At:</span>   {{ formatDate(record.created_at) }}</div>
+              <div><span class="font-medium">Updated At:</span>   {{ formatDate(record.updated_at) }}</div>
+            </div>
+            <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
 </mat-dialog-content>
+
+
 
 <mat-dialog-actions class="px-6 py-4 justify-end">
   <button 
@@ -269,7 +282,7 @@
     (click)="cancel()"
     [disabled]="loading"
   >
-    取消
+    Cancel
   </button>
   <button 
     *ngIf="isEditMode"
@@ -279,8 +292,7 @@
     (click)="saveUser()"
     class="ml-3"
   >
-    {{ isNewUser ? '创建用户' : '保存修改' }}
+    {{ isNewUser ? 'Create User' : 'Save Changes' }}
     <mat-spinner *ngIf="loading" diameter="20" class="ml-2"></mat-spinner>
   </button>
 </mat-dialog-actions>
-

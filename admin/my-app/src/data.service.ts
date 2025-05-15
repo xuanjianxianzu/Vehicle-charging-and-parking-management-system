@@ -39,11 +39,9 @@ getParkingSpaceType(id: number): Observable<ParkingSpaceType> {
     return this.http.get<SpaceDetail>(`${this.apiUrl}/${id}/details`);
   }
 
-  // 获取车位详情（包含关联数据）
-  getParkingSpaceDetail(spaceId: number): Observable<ParkingSpaceDetail> {
+getParkingSpaceDetail(spaceId: number): Observable<ParkingSpaceDetail> {
   return this.http.get<ParkingSpaceDetail>(`${this.apiUrl}/parking-spaces/${spaceId}`);
 }
-
 
   // 更新车位信息
   updateParkingSpace(spaceId: number, data: Partial<ParkingSpaceDetail>): Observable<any> {
