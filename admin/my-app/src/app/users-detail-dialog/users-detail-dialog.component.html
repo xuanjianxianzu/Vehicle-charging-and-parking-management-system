@@ -1,65 +1,51 @@
-<!-- users-detail-dialog.component.html -->
 <mat-dialog-content>
   <div class="p-4">
     <div class="flex justify-between items-center mb-4">
-      <h2 mat-dialog-title>{{ isNewUser ? 'Create User' : 'User Details' }}</h2>
+      <h2 mat-dialog-title>{{ isNewUser ? 'Create a user' : 'User Details' }}
+        <span *ngIf="!isNewUser"> #{{userDetail.id}}</span>
+      </h2>
       <button 
         *ngIf="!isNewUser && !isEditMode" 
         mat-icon-button 
         color="primary" 
         (click)="editUser()"
-        matTooltip="Edit User"
+        matTooltip="Edit user"
       >
         <mat-icon>edit</mat-icon>
       </button>
     </div>
 
-    <!-- Basic Information Card -->
+    <!-- 基础信息卡片 -->
     <mat-card class="mb-6 shadow-md">
       <mat-card-header class="bg-primary/10 px-4 py-3">
-        <mat-card-title class="text-lg font-medium">Basic Information</mat-card-title>
+        <mat-card-title class="text-lg font-medium">User basic information</mat-card-title>
       </mat-card-header>
+      <br>
       <mat-card-content class="p-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Username -->
+          <!-- 用户名（禁用） -->
           <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">User name</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
                 {{ userDetail.username }}
               </div>
               <mat-form-field *ngIf="isEditMode" class="w-full">
-                <input matInput formControlName="username" required>
-                <mat-error *ngIf="userForm.get('username')?.hasError('required')">
-                  Username is required
-                </mat-error>
+                <input matInput formControlName="username" [disabled]="true">
               </mat-form-field>
             </div>
           </div>
 
-          <!-- Name -->
-          <div class="form-field-container">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <div class="flex">
-              <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ userDetail.name || '-' }}
-              </div>
-              <mat-form-field *ngIf="isEditMode" class="w-full">
-                <input matInput formControlName="name">
-              </mat-form-field>
-            </div>
-          </div>
-
-          <!-- Password -->
+          <!-- 密码（禁用） -->
           <div class="form-field-container">
             <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div class="flex">
               <div *ngIf="!isEditMode" class="bg-gray-50 p-2 rounded border border-gray-200 w-full">
-                {{ '******'}}
+                ******
               </div>
               <mat-form-field *ngIf="isEditMode" class="w-full">
-                <input matInput type="password" formControlName="password">
-                <mat-hint>Leave blank to keep unchanged</mat-hint>
+                <input matInput type="password" formControlName="password" [disabled]="true">
+                <mat-hint>The password cannot be modified.</mat-hint>
               </mat-form-field>
             </div>
           </div>
@@ -168,17 +154,28 @@
             No vehicles found
           </div>
           <div *ngFor="let vehicle of vehicles; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="space-y-2">
-              <br>
-              <div><span class="font-medium">License Plate:</span>   {{ vehicle.license_plate }}</div>
-              <div><span class="font-medium">Type:</span>   {{ vehicle.type }}</div>
-              <div><span class="font-medium">Created At:</span>   {{ formatDate(vehicle.created_at) }}</div>
-              <div><span class="font-medium">Updated At:</span>   {{ formatDate(vehicle.updated_at) }}</div>
+    <div class="space-y-2 flex justify-between items-center">
+      <div>
+        <span class="font-medium">License Plate:</span> {{ vehicle.license_plate }}
+      </div>
+          <button 
+              *ngIf="!isNewUser" 
+              mat-icon-button 
+              color="warn" 
+              (click)="deleteVehicle(vehicle.id)"
+              matTooltip="Delete the vehicle"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
             </div>
-            <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+          <div class="space-y-2">
+      <div><span class="font-medium">Type:</span> {{ vehicle.type }}</div>
+      <div><span class="font-medium">Created At:</span> {{ formatDate(vehicle.created_at) }}</div>
+      <div><span class="font-medium">Updated At:</span> {{ formatDate(vehicle.updated_at) }}</div>
+    </div>
+    <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
+  </div>
+</mat-card-content>
 
       <!-- Comments -->
       <mat-card class="shadow-md">
@@ -193,19 +190,26 @@
             <div class="space-y-2">
               <br>
               <div><span class="font-medium">Comment ID:</span>   {{ comment.comment_id }}</div>
+              <button 
+              *ngIf="!isNewUser" 
+              mat-icon-button 
+              color="warn" 
+              (click)="deleteComment(comment.comment_id)"
+              matTooltip="Delete the comment"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
               <div><span class="font-medium">Rating:</span>   {{ comment.rating }}</div>
               <div><span class="font-medium">Comment:</span>   {{ comment.comment || 'No comment' }}</div>
               <div><span class="font-medium">Order ID:</span>   {{ comment.order_id }}</div>
               <div><span class="font-medium">Parking ID:</span>   {{ comment.parking_space_id }}</div>
-              <div><span class="font-medium">Vehicle Plate:</span>   {{ comment.vehicle_plate }}</div>
+              <div><span class="font-medium">Vehicle Plate:</span>   {{ comment.vehicle_plate || 'The vehicle has been deleted'}}</div>
               <div><span class="font-medium">Created At:</span>   {{ formatDate(comment.created_at) }}</div>
             </div>
             <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
           </div>
         </mat-card-content>
       </mat-card>
-    </div>
-  </div>
 
       <!-- Bookings -->
       <mat-card class="shadow-md">
@@ -217,10 +221,22 @@
             No bookings found
           </div>
           <div *ngFor="let booking of bookings; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="space-y-2">
-              <br>
-              <div><span class="font-medium">Order ID:</span>   {{ booking.id || 'N/A' }}</div>
+              <div class="space-y-2 flex justify-between items-center">
+                <div>
+                  <span class="font-medium">Order ID:</span> {{ booking.id || 'N/A' }}
+                </div>
+                <button 
+                  *ngIf="!isNewUser" 
+                  mat-icon-button 
+                  color="warn" 
+                  (click)="deleteBooking(booking.id)"
+                  matTooltip="Delete the reservation"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
               <div><span class="font-medium">Parking Space ID:</span>   {{ booking.parking_space_id }}</div>
+              <div><span class="font-medium">License Plate:</span>   {{ booking.license_plate || 'The vehicle has been deleted'}}</div>
               <div><span class="font-medium">Status:</span>   {{ formatStatus(booking.status) }}</div>
               <div><span class="font-medium">Space Type:</span>   {{ formatStatus(booking.space_type) }}</div>
               <div><span class="font-medium">Charging Rate:</span>   {{ booking.charging_rate }} CNY/kWh</div>
@@ -231,25 +247,26 @@
               <div><span class="font-medium">Created At:</span>   {{ formatDate(booking.created_at) }}</div>
             </div>
             <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
-          </div>
-        </mat-card-content>
-      </mat-card>
 
     
       <!-- Usage Records -->
-      <mat-card class="shadow-md">
-        <mat-card-header class="bg-primary/10 px-4 py-3">
-          <mat-card-title class="text-lg font-medium">Usage Records ({{ usageRecords.length }})</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          <div *ngIf="usageRecords.length === 0" class="text-center py-6 text-gray-500">
-            No usage records found
-          </div>
-          <div *ngFor="let record of usageRecords; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-            <div class="space-y-2">
-              <br>
+      <div *ngFor="let record of usageRecords; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+          <div class="space-y-2 flex justify-between items-center">
+            <div>
+              <span class="font-medium">Record ID:</span> {{ record.id }}
+            </div>
+              <button 
+                *ngIf="!isNewUser" 
+                mat-icon-button 
+                color="warn" 
+                (click)="deleteUsageRecord(record.id)"
+                matTooltip="Delete the usage record"
+                >
+                <mat-icon>delete</mat-icon>
+              </button>
+              </div>
               <div><span class="font-medium">Parking Space ID:</span>   {{ record.parking_space_id }}</div>
-              <div><span class="font-medium">License Plate:</span>   {{ record.license_plate }}</div>
+              <div><span class="font-medium">License Plate:</span>   {{ record.license_plate || 'The vehicle has been deleted'}}</div>
               <div><span class="font-medium">Status:</span>   {{ formatStatus(record.status) }}</div>
               <div><span class="font-medium">Total Fee:</span>   {{ record.total_fee }} CNY</div>
               <div><span class="font-medium">Electricity Used:</span>   {{ record.electricity_used ? formatStatus(record.electricity_used) : '0'}} kWh</div>
@@ -267,11 +284,6 @@
               <div><span class="font-medium">Updated At:</span>   {{ formatDate(record.updated_at) }}</div>
             </div>
             <div *ngIf="!last" class="mt-6 h-px bg-gray-200"></div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-  
-</mat-dialog-content>
 
 
 

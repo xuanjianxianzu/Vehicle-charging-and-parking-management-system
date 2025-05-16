@@ -176,17 +176,17 @@
               <span class="font-medium">Booking ID: </span>
               <span>{{ booking.id }}</span>
             </div>
-            <div class="flex justify-between">
-              <span class="font-medium">User ID: </span>
-              <span>{{ booking.user_id }}</span>
+             <div class="flex justify-between">
+              <span class="font-medium">User Name:</span>
+              <span>{{ booking.name || '-' }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="font-medium">Vehicle ID: </span>
-              <span>{{ booking.vehicle_id }}</span>
+              <span class="font-medium">Phone:</span>
+              <span>{{ booking.phone || '-' }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="font-medium">Parking Space ID: </span>
-              <span>{{ booking.parking_space_id }}</span>
+              <span class="font-medium">License Plate:</span>
+              <span>{{ booking.license_plate || '-' }}</span>
             </div>
             <div class="flex justify-between">
               <span class="font-medium">Booking Time: </span>

@@ -31,8 +31,8 @@ export interface Vehicle {
 
 /** 预订表（bookings） */
 export interface Booking {
-    parking_rate: any;
-    charging_rate: any;
+    parking_rate: number;
+    charging_rate: number;
     space_type: string;
     overtime_occupancy_rate: number;
     id: number; // 预订ID（主键）
@@ -43,6 +43,9 @@ export interface Booking {
     end_time: DateTime; // 预订结束时间
     status: 'confirmed' | 'cancelled' | 'completed'; // 预订状态（枚举）
     created_at: DateTime; // 创建时间
+    name: string; // 新增用户姓名
+    phone: string; // 新增用户电话
+    license_plate: string; // 新增车辆牌照
 }
 
 // --------------------------- 车位相关接口 ---------------------------

@@ -22,6 +22,8 @@ export class UserDetailDialogComponent implements OnInit {
   usageRecords: any[] = [];
   bookings: any[] = [];
   comments: any[] = [];
+  originalData: any ={};
+last: any;
 
   constructor(
     private dialogRef: MatDialogRef<UserDetailDialogComponent>,
@@ -38,6 +40,7 @@ export class UserDetailDialogComponent implements OnInit {
       this.fetchUserDetail();
     } else {
       this.initForm();
+      this.originalData = this.userForm.value;
     }
   }
 
@@ -66,6 +69,7 @@ export class UserDetailDialogComponent implements OnInit {
         this.comments = this.userDetail.comments || [];
         this.initForm();
         this.bindDataToForm();
+        this.originalData = { ...this.userDetail };
         this.loading = false;
       },
       error: (err) => {
@@ -88,7 +92,60 @@ export class UserDetailDialogComponent implements OnInit {
     });
   }
 
-  saveUser(): void {}
+  
+saveUser(): void {
+    if (!this.isEditMode) return;
+    if (this.userForm.invalid) return;
+    
+    const formValue = this.userForm.value;
+    if (!this.hasChanges(formValue)) {
+      this.snackBar.open('未检测到任何修改', '关闭', { duration: 3000 });
+      return;
+    }
+
+    this.loading = true;
+    const updateData = this.getUpdateData(formValue);
+    
+    this.dataService.updateUser(this.userDetail.id, updateData).subscribe({
+      next: () => {
+        this.snackBar.open('用户信息更新成功', '关闭', { duration: 3000 });
+        this.isEditMode = false;
+        this.originalData = { ...formValue }; // 更新原始数据
+        this.loading = false;
+      },
+      error: (err) => {
+        this.snackBar.open('更新失败，请检查输入', '关闭', { duration: 3000 });
+        this.loading = false;
+      }
+    });
+  }
+
+  // 检查数据是否有修改（包含关联数据的变更）
+private hasChanges(formValue: any): boolean {
+  const baseChanges = !['id', 'username', 'password'].every(field => 
+    formValue[field] === this.originalData[field]
+  );
+
+  const relatedDataChanges = 
+    this.vehicles.length !== this.originalData.vehicles.length ||
+    this.comments.length !== this.originalData.comments.length ||
+    this.bookings.length !== this.originalData.bookings.length ||
+    this.usageRecords.length !== this.originalData.usageRecords.length;
+
+  return baseChanges || relatedDataChanges;
+}
+
+  // 获取可更新的数据（排除不可修改字段）
+  private getUpdateData(formValue: any): any {
+    return {
+      name: formValue.name,
+      phone: formValue.phone,
+      email: formValue.email,
+      role: formValue.role,
+      avatar_number: formValue.avatar_number,
+      balance: formValue.balance
+    };
+  }
 
   cancel(): void {
     this.dialogRef.close(false);
@@ -97,6 +154,83 @@ export class UserDetailDialogComponent implements OnInit {
   editUser(): void {
     this.isEditMode = true;
   }
+
+  // 删除车辆
+deleteVehicle(vehicleId: number): void {
+  if (confirm('Confirm delete this vehicle?')) {
+    this.dataService.deleteVehicle(vehicleId).subscribe({
+      next: () => {
+        this.vehicles = this.vehicles.filter(v => v.id !== vehicleId);
+        this.snackBar.open('The vehicle was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        // Handle specific error codes
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
+
+// 删除预订
+deleteBooking(bookingId: number): void {
+  if (confirm('Confirm delete this booking?')) {
+    this.dataService.deleteBooking(bookingId).subscribe({
+      next: () => {
+        this.bookings = this.bookings.filter(b => b.id !== bookingId);
+        this.snackBar.open('The booking was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete booking failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
+
+// 删除使用记录
+deleteUsageRecord(recordId: number): void {
+  if (confirm('Confirm delete this usage record?')) {
+    this.dataService.deleteUsageRecord(recordId).subscribe({
+      next: () => {
+        this.usageRecords = this.usageRecords.filter(r => r.id !== recordId);
+        this.snackBar.open('The usage record was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete usage record failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
+
+// 删除评论
+deleteComment(commentId: number): void {
+  if (confirm('Confirm delete this comment?')) {
+    this.dataService.deleteComment(commentId).subscribe({
+      next: () => {
+        this.comments = this.comments.filter(c => c.comment_id !== commentId);
+        this.snackBar.open('The comment was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete comment failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
 
   formatDate(date: DateTime): string {
     return new Date(date).toLocaleString();
