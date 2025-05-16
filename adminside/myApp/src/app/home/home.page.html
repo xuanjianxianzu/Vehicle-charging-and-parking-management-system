@@ -20,19 +20,19 @@
   </div>
 
   <ion-list *ngIf="!loading">
-    <!-- 表头 -->
+    <!-- Table header -->
     <ion-grid class="header-grid">
       <ion-row>
         <ion-col size="1.5">ID</ion-col>
-        <ion-col>类型</ion-col>
-        <ion-col>状态</ion-col>
-        <ion-col>车辆</ion-col>
-        <ion-col>用户</ion-col>
-        <ion-col>操作</ion-col>
+        <ion-col>Type</ion-col>
+        <ion-col>Status</ion-col>
+        <ion-col>Vehicle</ion-col>
+        <ion-col>User</ion-col>
+        <ion-col>Action</ion-col>
       </ion-row>
     </ion-grid>
 
-    <!-- 数据行 -->
+    <!-- Data rows -->
     <ion-item *ngFor="let space of spaces">
       <ion-grid>
         <ion-row>
@@ -44,9 +44,9 @@
               [value]="space.status"
               (ionChange)="updateStatus(space, $event.detail.value)"
             >
-              <ion-select-option value="idle">空闲</ion-select-option>
-              <ion-select-option value="occupied">占用中</ion-select-option>
-              <ion-select-option value="booked">已预约</ion-select-option>
+              <ion-select-option value="idle">Idle</ion-select-option>
+              <ion-select-option value="occupied">Occupied</ion-select-option>
+              <ion-select-option value="booked">Booked</ion-select-option>
             </ion-select>
           </ion-col>
           <ion-col>{{ space.license_plate || '-' }}</ion-col>
@@ -57,7 +57,7 @@
               color="primary"
               (click)="openDetail(space.id)"
             >
-              详情
+              Details
             </ion-button>
           </ion-col>
         </ion-row>

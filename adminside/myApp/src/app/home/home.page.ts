@@ -28,7 +28,7 @@ export class HomePage implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('加载车位失败:', err);
+        console.error('Failed to load the parking space:', err);
         this.loading = false;
       },
     });
@@ -52,7 +52,7 @@ export class HomePage implements OnInit {
         this.loadSpaces();
       },
       error: (err) => {
-        console.error('更新状态失败:', err);
+        console.error('Failed to update the status:', err);
       },
     });
   }
