@@ -30,10 +30,13 @@ CREATE TABLE `users` (
   `phone` varchar(20) DEFAULT NULL COMMENT '电话',
   `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
   `role` enum('user','admin','super_admin') NOT NULL DEFAULT 'user' COMMENT '角色',
+  `avatar_number` int DEFAULT '0' COMMENT '头像编号',
+  `balance` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '账户余额',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  CONSTRAINT `users_chk_1` CHECK ((`balance` >= 0))
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -43,7 +46,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,NULL,'2222222222','$2b$10$.WYMqbnb0ZmhnaXK8OVrxOqGNhWAWJb5sFj8VmS/cqYGLMtw7cuMq',NULL,NULL,'user','2025-04-16 22:36:52','2025-04-16 22:36:52');
+INSERT INTO `users` VALUES (1,'super admin','superadmin','$2b$10$0R6UDA.UHoB9o7thV3caWO5ZJlw2aoPKcoYHWn9iGYlFwxSzvP5bC','11111111111','aaaa@aaa.com','super_admin',1,10000000.00,'2025-05-16 14:28:24','2025-05-16 14:28:24');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -56,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-17  0:11:01
+-- Dump completed on 2025-05-16 14:29:17
