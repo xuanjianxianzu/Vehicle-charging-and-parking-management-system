@@ -33,65 +33,59 @@ export class UpdateCarPage implements OnInit {
   async updateCar(){
 
     console.log(this.vehicle);
-    if(!this.licensePlateLeft||!this.licensePlateRight||!this.vehicleType){
-      await this.showToast('请填写所有字段');
-      return;
-    }
-    const licensePlateLeftRegex = /^[\u4e00-\u9fa5][A-Z]/;
-    const licensePlateRightRegex = /^[A-Z0-9]{5}$/;
-    if (!licensePlateLeftRegex.test(this.licensePlateLeft)||!licensePlateRightRegex.test(this.licensePlateRight)) {
-      await this.showToast('请按正确格式填写车牌号');
-      return;
-    }
-    const licensePlate = `${this.licensePlateLeft}·${this.licensePlateRight}`;
-    try {
-      console.log(this.vehicle.id,licensePlate, this.vehicleType, this.vehicle.user_id);
-      const response = await this.dataService.updateCar(this.vehicle.id,licensePlate, this.vehicleType, this.vehicle.user_id).toPromise();
-      switch (response.code) {
-        case 200:
-          await this.showToast('车辆更新成功');
-          this.router.navigate(['/tabs/tab2']);
-          break;
-        case 400:
-          this.showToast('该用户已存在此车牌号的车辆');
-          break;
-        default:
-          await this.showToast(`更新车辆失败，错误码: ${response.code}`);
-          break;
-      }
-      
-    } catch (error:any) {
-      if (error.status === 400) {
-        this.showToast('该用户已存在此车牌号的车辆');
-      } else {
-        this.showToast('网络异常，请检查连接');
-      }
-    }
+if (!this.licensePlateLeft || !this.licensePlateRight || !this.vehicleType) {
+  await this.showToast('Please fill in all fields');
+  return;
+}
+const licensePlateLeftRegex = /^[\u4e00-\u9fa5][A-Z]/;
+const licensePlateRightRegex = /^[A-Z0-9]{5}$/;
+if (!licensePlateLeftRegex.test(this.licensePlateLeft) || !licensePlateRightRegex.test(this.licensePlateRight)) {
+  await this.showToast('Please enter the license plate in the correct format');
+  return;
+}
+const licensePlate = `${this.licensePlateLeft}·${this.licensePlateRight}`;
+try {
+  console.log(this.vehicle.id, licensePlate, this.vehicleType, this.vehicle.user_id);
+  const response = await this.dataService.updateCar(this.vehicle.id, licensePlate, this.vehicleType, this.vehicle.user_id).toPromise();
+  switch (response.code) {
+    case 200:
+      await this.showToast('Vehicle updated successfully');
+      this.router.navigate(['/tabs/tab2']);
+      break;
+    case 400:
+      this.showToast('This user already has a vehicle with this license plate');
+      break;
+    default:
+      await this.showToast(`Failed to update vehicle, error code: ${response.code}`);
+      break;
   }
-
-
-  toDeleteCar(){
-
-    this.dataService.deleteCar(this.vehicle.id).subscribe({
-      next: () => {
-        console.log('车辆删除成功');
-        this.router.navigate(['/tabs/tab2']);
-      },
-      error: (error) => {
-        console.error('删除车辆时出错:', error);
-      }
-    });
-
+} catch (error: any) {
+  if (error.status === 400) {
+    this.showToast('This user already has a vehicle with this license plate');
+  } else {
+    this.showToast('Network error, please check your connection');
   }
+}
+}
 
-  private async showToast(message: string) {
-    const toast = await this.toastController.create({
-      message,
-      duration: 2000,
-      position: 'top'
-    });
-    await toast.present();
-  }
+toDeleteCar() {
+  this.dataService.deleteCar(this.vehicle.id).subscribe({
+    next: () => {
+      console.log('Vehicle deleted successfully');
+      this.router.navigate(['/tabs/tab2']);
+    },
+    error: (error) => {
+      console.error('Error deleting vehicle:', error);
+    }
+  });
+}
 
-
+private async showToast(message: string) {
+  const toast = await this.toastController.create({
+    message,
+    duration: 2000,
+    position: 'top'
+  });
+  await toast.present();
+}
 }

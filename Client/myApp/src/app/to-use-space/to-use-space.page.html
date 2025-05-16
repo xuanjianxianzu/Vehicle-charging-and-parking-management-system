@@ -173,25 +173,25 @@
       <ng-template>
         <ion-header>
           <ion-toolbar>
-            <ion-title>结束使用</ion-title>
+            <ion-title>End use</ion-title>
             <ion-buttons slot="end">
-              <ion-button (click)="closeModal()">关闭</ion-button>
+              <ion-button (click)="closeModal()">Close</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
           <ion-item>
-            <ion-label position="stacked">开始时间</ion-label>
+            <ion-label position="stacked">Start time</ion-label>
             <ion-text>{{ orderStartTime | date: 'yyyy-MM-dd HH:mm' }}</ion-text>
           </ion-item>
     
           <ion-item>
-            <ion-label position="stacked">充电开始时间</ion-label>
+            <ion-label position="stacked">Charging start time</ion-label>
             <ion-text>{{ orderChargingStart | date: 'yyyy-MM-dd HH:mm' }}</ion-text>
           </ion-item>
     
           <ion-item>
-            <ion-label position="stacked">充电完成时间</ion-label>
+            <ion-label position="stacked">Charging completion time</ion-label>
             <ion-datetime
               [(ngModel)]="chargingCompleteTime"
               [min]="minChargingCompleteTime"
@@ -205,7 +205,7 @@
           </ion-item>
 
           <ion-item>
-            <ion-label position="stacked">结束时间</ion-label>
+            <ion-label position="stacked">End time</ion-label>
             <ion-datetime
               [(ngModel)]="endTime"
               [min]="minEndTime"
@@ -218,7 +218,7 @@
           </ion-item>
     
           <ion-button expand="block" (click)="confirmModalThree()" [disabled]="!chargingCompleteTime">
-            确认结束使用
+            Confirm the end of use
           </ion-button>
         </ion-content>
       </ng-template>

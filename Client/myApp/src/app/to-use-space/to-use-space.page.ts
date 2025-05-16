@@ -155,19 +155,18 @@ async cancelBook() {
     if (result.code === 200) {
       this.space.status = 'idle';
     } else {
-      alert('取消失败');
+      alert('Cancellation failed');
     }
     await this.loadData();
   } catch (error) {
-    console.error('取消预约失败:', error);
-    alert('取消预约请求发送失败，请检查网络连接');
+    console.error('Failed to cancel reservation:', error);
+    alert('Failed to send cancellation request, please check network connection');
   }
 }
- 
 
 async confirmBooking(){
   if (this.duration <= 0) {
-    alert('请选择有效时长');
+    alert('Please select a valid duration');
     return;
   }
   try {
@@ -186,17 +185,15 @@ async confirmBooking(){
       await this.loadData();
       this.closeModal();
     } else {
-      alert(`预订失败: ${result.message}`);
+      alert(`Booking failed: ${result.message}`);
     }
   } catch (error) {
     console.error('Booking failed:', error);
-    alert('预订请求发送失败，请检查网络连接');
+    alert('Failed to send booking request, please check network connection');
   }
 }
 
-
 async confirmModalTwo(){
-
   try {
     const record: UsageRecords = {
       ...this.usageRecords,
@@ -213,22 +210,18 @@ async confirmModalTwo(){
       await this.loadData();
       this.closeModal();
     } else {
-      alert(`使用失败: ${result.message}`);
+      alert(`Usage failed: ${result.message}`);
     }
   } catch (error) {
-    console.error('failed:', error);
-    alert('请检查网络连接');
+    console.error('Operation failed:', error);
+    alert('Please check network connection');
   }
-
-
 }
-
-
 
 async confirmModalThree(){
   try {
     if (!this.endTime) {
-      alert('请选择结束时间');
+      alert('Please select end time');
       return;
     }
 
@@ -236,7 +229,7 @@ async confirmModalThree(){
     const chargingComplete = DateTime.fromISO(this.chargingCompleteTime!);
 
     if (endTime < chargingComplete) {
-      alert('结束时间不能早于充电完成时间');
+      alert('End time cannot be earlier than charging completion time');
       return;
     }
     this.closeModal();
@@ -248,30 +241,29 @@ async confirmModalThree(){
       'to_be_paid',
     ).toPromise();
     await this.loadData();
-    const userConfirmed = confirm('是否立即支付账单？');
+    const userConfirmed = confirm('Pay the bill immediately?');
     if (userConfirmed) {
       try {
         const response = await this.dataService.payBill(Number(this.myUserID), this.orderID).toPromise();
         if (response.code === 200) {
-          alert('支付成功');
+          alert('Payment successful');
           this.router.navigate(['/tabs/tab1']);
         } else {
-          alert('支付失败，请稍后重试');
+          alert('Payment failed, please try again later');
           this.router.navigate(['/my-bill']);
         }
       } catch (error) {
-        console.error('支付失败:', error);
-        alert('支付失败，请稍后重试');
+        console.error('Payment failed:', error);
+        alert('Payment failed, please try again later');
         this.router.navigate(['/my-bill']);
       }
     } else {
-      alert('请尽快支付');
+      alert('Please complete the payment as soon as possible');
       this.router.navigate(['/tabs/tab1']);
-
     }
   } catch (error) {
-    console.error('结束使用失败:', error);
-    alert('请求发送失败，请检查网络连接');
+    console.error('Failed to end usage:', error);
+    alert('Request failed, please check network connection');
   }
 }
 
@@ -297,8 +289,8 @@ try {
   this.openUsageModal();
   await this.loadData();
 } catch (error) {
-  console.error('失败:', error);
-  alert('请检查网络连接');
+  console.error('Operation failed:', error);
+  alert('Please check network connection');
 }
 }
 }
@@ -319,9 +311,6 @@ async toCloseOrder() {
   );
 }
 
-
-
-
 updateEndTimeLimits() {
   if (this.chargingCompleteTime) {
     this.minEndTime = this.chargingCompleteTime;
@@ -331,14 +320,6 @@ updateEndTimeLimits() {
   }
 }
 
-
-
-
-
-
-
-
-
 loadComment() {
   this.dataService.getComplete(this.spaceId).subscribe({
     next: (data: any) => {
@@ -346,10 +327,8 @@ loadComment() {
       console.log(this.comment,data.data);
     },
     error: (error) => {
-      console.error('Error:', error);
+      console.error('Error loading comments:', error);
     }
   });
 }
-
-
 }

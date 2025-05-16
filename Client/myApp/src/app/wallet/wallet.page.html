@@ -10,7 +10,7 @@
 <ion-content [fullscreen]="true">
   <ion-card>
     <ion-card-header>
-      <ion-card-title>当前余额</ion-card-title>
+      <ion-card-title>Current balance</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <h1>¥{{ balance}}</h1>
@@ -22,7 +22,7 @@
 
   <ion-list lines="none">
     <ion-list-header>
-      <ion-label>选择充值金额</ion-label>
+      <ion-label>Select the recharge amount</ion-label>
     </ion-list-header>
 
     <ion-grid>
@@ -43,7 +43,7 @@
       <ion-input
         type="number"
         [(ngModel)]="customAmount"
-        placeholder="输入自定义金额"
+        placeholder="Enter a custom amount"
         min="1"
         step="1"
         clearInput
@@ -55,7 +55,7 @@
         (click)="recharge(customAmount || 0)"
         [disabled]="!customAmount || customAmount <= 0"
       >
-        充值
+      Recharge
       </ion-button>
     </ion-item>
   </ion-list>
