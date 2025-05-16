@@ -139,6 +139,55 @@ last: any;
     });
   }
 
+  // 添加删除方法
+  deleteUsageRecord(recordId: number): void {
+    if (confirm('Confirm delete this usage record?')) {
+      this.dataService.deleteUsageRecord(recordId).subscribe({
+        next: () => {
+          this.parkingDetail.usageRecords = this.parkingDetail.usageRecords.filter(r => r.id !== recordId);
+          this.snackBar.open('Usage record deleted successfully', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          this.handleDeleteError(err, 'usage record');
+        }
+      });
+    }
+  }
+
+  deleteBooking(bookingId: number): void {
+    if (confirm('Confirm delete this booking?')) {
+      this.dataService.deleteBooking(bookingId).subscribe({
+        next: () => {
+          this.parkingDetail.bookings = this.parkingDetail.bookings.filter(b => b.id !== bookingId);
+          this.snackBar.open('Booking deleted successfully', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          this.handleDeleteError(err, 'booking');
+        }
+      });
+    }
+  }
+
+  deleteComment(commentId: number): void {
+    if (confirm('Confirm delete this comment?')) {
+      this.dataService.deleteComment(commentId).subscribe({
+        next: () => {
+          this.parkingDetail.comments = this.parkingDetail.comments.filter(c => c.comment_id !== commentId);
+          this.snackBar.open('Comment deleted successfully', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          this.handleDeleteError(err, 'comment');
+        }
+      });
+    }
+  }
+
+  // 错误处理公用方法
+  private handleDeleteError(err: any, entity: string): void {
+    const message = err.error?.message || `Failed to delete ${entity}. Please try again.`;
+    this.snackBar.open(message, 'Close', { duration: 5000 });
+  }
+
   editSpace(): void {
     this.isEditMode = true;
   }

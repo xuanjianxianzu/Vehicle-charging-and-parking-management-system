@@ -27,11 +27,11 @@ export class ParkingComponent implements OnInit {
     this.dataService.getSpaces().subscribe({
       next: (data) => {
         this.spaces = data.data;
-        console.log(this.spaces,data);
+        console.log(this.spaces, data);
         this.loading = false;
       },
       error: (err) => {
-        console.error('加载车位失败:', err);
+        console.error('Failed to load parking spaces:', err);
         this.loading = false;
       },
     });
@@ -52,18 +52,35 @@ export class ParkingComponent implements OnInit {
         this.loadSpaces();
       },
       error: (err) => {
-        console.error('更新状态失败:', err);
+        console.error('Failed to update status:', err);
       },
     });
   }
 
-  // 添加类型安全的辅助方法
+  // Type-safe helper method for status updates
   updateStatusFromTemplate(space: ParkingSpace, statusValue: string) {
     const validStatuses: ('idle' | 'occupied' | 'booked')[] = ['idle', 'occupied', 'booked'];
     if (validStatuses.includes(statusValue as any)) {
       this.updateStatus(space, statusValue as 'idle' | 'occupied' | 'booked');
     } else {
-      console.error('无效的状态值:', statusValue);
+      console.error('Invalid status value:', statusValue);
     }
+  }
+
+  formatType(type: string): string {
+    return type 
+      ? type.replace(/_/g, ' ')        // 替换下划线为空格
+            .toLowerCase()            // 转为小写
+            .replace(/\b\w/g, (l) => l.toUpperCase()) // 每个单词首字母大写
+      : '';
+  }
+
+  // 格式化状态（同理）
+  formatStatus(status: string): string {
+    return status 
+      ? status.replace(/_/g, ' ')
+              .toLowerCase()
+              .replace(/\b\w/g, (l) => l.toUpperCase())
+      : '';
   }
 }

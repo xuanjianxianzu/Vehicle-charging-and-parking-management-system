@@ -1,82 +1,79 @@
 <div class="container">
-  <h2>用户管理</h2>
+  <h2>User Management</h2>
 
   <mat-spinner *ngIf="loading" diameter="50"></mat-spinner>
 
   <table mat-table [dataSource]="users" *ngIf="!loading" class="mat-elevation-z8">
-    <!-- ID列 -->
+    <!-- ID Column -->
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef>ID</th>
       <td mat-cell *matCellDef="let user">{{ user.id }}</td>
     </ng-container>
 
-    <!-- 用户名 -->
+    <!-- Username Column -->
     <ng-container matColumnDef="username">
-      <th mat-header-cell *matHeaderCellDef>用户名</th>
+      <th mat-header-cell *matHeaderCellDef>User Name</th>
       <td mat-cell *matCellDef="let user">{{ user.username }}</td>
     </ng-container>
 
-    <!-- 姓名 -->
+    <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>姓名</th>
+      <th mat-header-cell *matHeaderCellDef>Name</th>
       <td mat-cell *matCellDef="let user">{{ user.name }}</td>
     </ng-container>
 
-    <!-- 角色 -->
+    <!-- Role Column -->
     <ng-container matColumnDef="role">
-      <th mat-header-cell *matHeaderCellDef>角色</th>
+      <th mat-header-cell *matHeaderCellDef>Role</th>
       <td mat-cell *matCellDef="let user">{{ user.role }}</td>
     </ng-container>
 
-    <!-- 余额 -->
+    <!-- Balance Column -->
     <ng-container matColumnDef="balance">
-      <th mat-header-cell *matHeaderCellDef>余额</th>
+      <th mat-header-cell *matHeaderCellDef>Balance</th>
       <td mat-cell *matCellDef="let user">{{ user.balance | currency:'CNY' }}</td>
     </ng-container>
 
-    <!-- 电话 -->
-  <ng-container matColumnDef="phone">
-    <th mat-header-cell *matHeaderCellDef>电话</th>
-    <td mat-cell *matCellDef="let user">{{ user.phone || '未填写' }}</td>
-  </ng-container>
+    <!-- Phone Column -->
+    <ng-container matColumnDef="phone">
+      <th mat-header-cell *matHeaderCellDef>Phone</th>
+      <td mat-cell *matCellDef="let user">{{ user.phone || 'Not filled' }}</td>
+    </ng-container>
 
-  <!-- 邮箱 -->
-  <ng-container matColumnDef="email">
-    <th mat-header-cell *matHeaderCellDef>邮箱</th>
-    <td mat-cell *matCellDef="let user">{{ user.email || '未填写' }}</td>
-  </ng-container>
+    <!-- Email Column -->
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let user">{{ user.email || 'Not filled' }}</td>
+    </ng-container>
 
-  <!-- 头像编号 -->
-  <ng-container matColumnDef="avatar_number">
-    <th mat-header-cell *matHeaderCellDef>头像</th>
-    <td mat-cell *matCellDef="let user">{{ user.avatar_number || 0 }}</td>
-  </ng-container>
+    <!-- Avatar Column -->
+    <ng-container matColumnDef="avatar_number">
+      <th mat-header-cell *matHeaderCellDef>Avatar</th>
+      <td mat-cell *matCellDef="let user">{{ user.avatar_number || 0 }}</td>
+    </ng-container>
 
-  <!-- 创建时间 -->
-  <ng-container matColumnDef="created_at">
-    <th mat-header-cell *matHeaderCellDef>注册时间</th>
-    <td mat-cell *matCellDef="let user">
-      {{ user.created_at | date:'yyyy-MM-dd HH:mm' }}
-    </td>
-  </ng-container>
+    <!-- Registration Time Column -->
+    <ng-container matColumnDef="created_at">
+      <th mat-header-cell *matHeaderCellDef>Registration Time</th>
+      <td mat-cell *matCellDef="let user">
+        {{ user.created_at | date:'yyyy-MM-dd HH:mm' }}
+      </td>
+    </ng-container>
 
-  <!-- 更新时间 -->
-  <ng-container matColumnDef="updated_at">
-    <th mat-header-cell *matHeaderCellDef>最后更新</th>
-    <td mat-cell *matCellDef="let user">
-      {{ user.updated_at | date:'yyyy-MM-dd HH:mm' }}
-    </td>
-  </ng-container>
+    <!-- Last Update Column -->
+    <ng-container matColumnDef="updated_at">
+      <th mat-header-cell *matHeaderCellDef>Last Update</th>
+      <td mat-cell *matCellDef="let user">
+        {{ user.updated_at | date:'yyyy-MM-dd HH:mm' }}
+      </td>
+    </ng-container>
 
-    <!-- 操作列 -->
+    <!-- Actions Column -->
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>操作</th>
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let user">
         <button mat-raised-button color="primary" (click)="openDetail(user.id)">
-          查看详情
-        </button>
-        <button mat-raised-button color="accent" (click)="updateUser(user)">
-          更新
+          View Details
         </button>
       </td>
     </ng-container>

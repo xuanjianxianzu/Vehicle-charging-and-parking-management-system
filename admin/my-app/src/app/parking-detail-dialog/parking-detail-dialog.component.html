@@ -109,12 +109,21 @@
           No usage records found
         </div>
         <div *ngFor="let record of parkingDetail.usageRecords" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-          <div class="space-y-2">
-            <div class="flex justify-between">
-              <br>
-              <span class="font-medium">Record ID: </span>
-              <span>{{ record.id }}</span>
-            </div>
+  <div class="space-y-2">
+    <div class="flex justify-between">
+      <span class="font-medium">Record ID: </span>
+      <span>{{ record.id }}</span>
+      <!-- 添加删除按钮 -->
+      <button 
+        *ngIf="!isNewSpace" 
+        mat-icon-button 
+        color="warn" 
+        (click)="deleteUsageRecord(record.id)"
+        matTooltip="Delete this usage record"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
             <div class="flex justify-between">
               <span class="font-medium">Start Time: </span>
               <span>{{ formatDate(record.start_time) }}</span>
@@ -170,12 +179,21 @@
           No booking records found
         </div>
         <div *ngFor="let booking of parkingDetail.bookings" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-          <div class="space-y-2">
-            <div class="flex justify-between">
-              <br>
-              <span class="font-medium">Booking ID: </span>
-              <span>{{ booking.id }}</span>
-            </div>
+  <div class="space-y-2">
+    <div class="flex justify-between">
+      <span class="font-medium">Booking ID: </span>
+      <span>{{ booking.id }}</span>
+      <!-- 添加删除按钮 -->
+      <button 
+        *ngIf="!isNewSpace" 
+        mat-icon-button 
+        color="warn" 
+        (click)="deleteBooking(booking.id)"
+        matTooltip="Delete this booking"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
              <div class="flex justify-between">
               <span class="font-medium">User Name:</span>
               <span>{{ booking.name || '-' }}</span>
@@ -219,12 +237,21 @@
           No comments found
         </div>
         <div *ngFor="let comment of parkingDetail.comments; let last = last" class="mb-6 p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
-          <div class="space-y-2">
-            <div class="flex justify-between">
-              <br>
-              <span class="font-medium">Comment ID: </span>
-              <span>{{ comment.comment_id }}</span>
-            </div>
+  <div class="space-y-2">
+    <div class="flex justify-between">
+      <span class="font-medium">Comment ID: </span>
+      <span>{{ comment.comment_id }}</span>
+      <!-- 添加删除按钮 -->
+      <button 
+        *ngIf="!isNewSpace" 
+        mat-icon-button 
+        color="warn" 
+        (click)="deleteComment(comment.comment_id)"
+        matTooltip="Delete this comment"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
             <div class="flex justify-between">
               <span class="font-medium">User: </span>
               <span>{{ comment.user_name || 'Guest' }}</span>

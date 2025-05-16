@@ -4,7 +4,7 @@ const dbcon = require('../models/admin_connection_database')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-router.post('/login',async (req,res) =>{
+router.post('/login', async (req, res) => {
     console.log(req.body);
     console.log('aaalogin');
     let connection;
@@ -17,22 +17,22 @@ router.post('/login',async (req,res) =>{
         if (rows.length === 0) {
             return res.status(404).json({
                 code: 404,
-                message: '用户名不存在'
+                message: 'User not found'
             });
         }
 
         const loginUser = rows[0];
 
-        console.log(password,loginUser.password);
+        console.log(password, loginUser.password);
 
         const isMatch = await bcrypt.compare(password, loginUser.password);
 
         console.log(isMatch);
 
-        if(!isMatch){
+        if (!isMatch) {
             return res.status(401).json({
                 code: 401,
-                message: '用户名或密码错误'
+                message: 'Invalid username or password'
             });
         }
 
@@ -51,23 +51,22 @@ router.post('/login',async (req,res) =>{
                 token: token,
                 expiresIn: 3600
             },
-            message: '登录成功'
+            message: 'Login successful'
         });
     
     } catch (error) {
-        console.error('登录错误:', error);
-        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+        console.error('Login error:', error);
+        return res.status(500).json({ code: 500, message: 'Internal server error' });
 
-    }finally {
+    } finally {
         if (connection) {
             await connection.end();
         }
     }
-  }
-);
+});
 
 
-router.post('/register',async (req,res) =>{
+router.post('/register', async (req, res) => {
     console.log('aaaaaregister');
     let connection;
     try {
@@ -79,7 +78,7 @@ router.post('/register',async (req,res) =>{
         if (rows.length > 0) {
             return res.status(409).json({
                 code: 409,
-                message: '用户名已存在'
+                message: 'Username already exists'
             });
         }
 
@@ -97,21 +96,20 @@ router.post('/register',async (req,res) =>{
                 username: newUser.username,
                 createdAt: newUser.created_at
             },
-            message: '注册成功'
+            message: 'Registration successful'
         });
     } catch (error) {
-        console.error('注册错误:', error);
+        console.error('Registration error:', error);
         return res.status(500).json({
             code: 500,
-            message: '服务器内部错误'
+            message: 'Internal server error'
         });
-    }finally {
+    } finally {
         if (connection) {
             await connection.end();
         }
     }
-  }
-);
+});
 
 
 
@@ -139,22 +137,21 @@ router.get('/parking-spaces', async (req, res) => {
       console.log('jjjjjjjjjjjj');
 
 
-        return res.status(201).json({
-            code: 201,
+        return res.status(200).json({
+            code: 200,
             data: rows,
-            message: '成功'
+            message: 'Success'
         });
     } catch (error) {
-        console.error('错误:', error);
+        console.error('Error:', error);
         return res.status(500).json({
             code: 500,
-            message: '服务器内部错误'
+            message: 'Internal server error'
         });
-    }finally {
+    } finally {
         if (connection) await connection.end();
     }
-  }
-);
+});
 
 
 // 获取所有车位类型
@@ -166,13 +163,13 @@ router.get('/parking-space-types', async (req, res) => {
     res.status(200).json({
       code: 200,
       data: types,
-      message: '获取车位类型成功'
+      message: 'Parking space types retrieved successfully'
     });
   } catch (err) {
-    console.error('获取车位类型错误:', err);
+    console.error('The type of parking space obtained is incorrect:', err);
     res.status(500).json({
       code: 500,
-      message: '服务器错误',
+      message: 'Server error',
       details: err.message
     });
   } finally {
@@ -189,19 +186,19 @@ router.get('/parking-space-types/:id', async (req, res) => {
     if (types.length === 0) {
       return res.status(404).json({
         code: 404,
-        message: '车位类型不存在'
+        message: 'Parking space type not found'
       });
     }
     res.status(200).json({
       code: 200,
       data: types[0],
-      message: '获取车位类型成功'
+      message: 'Parking space type retrieved successfully'
     });
   } catch (err) {
-    console.error('获取车位类型错误:', err);
+    console.error('The type of parking space obtained is incorrect:', err);
     res.status(500).json({
       code: 500,
-      message: '服务器错误',
+      message: 'Server error',
       details: err.message
     });
   } finally {
@@ -215,7 +212,7 @@ router.get('/parking-spaces/:id', async (req, res) => {
     connection = await dbcon.getConnection();
     const spaceId = req.params.id;
 
-    // 1. 查询车位基础信息及类型（不变）
+    // 1. Query parking space basic info and type (unchanged)
     const [spaceResults] = await connection.query(`
       SELECT
         ps.id,
@@ -235,12 +232,12 @@ router.get('/parking-spaces/:id', async (req, res) => {
     `, [spaceId]);
 
     if (spaceResults.length === 0) {
-      return res.status(404).json({ code: 404, message: '车位不存在' });
+      return res.status(404).json({ code: 404, message: 'Parking space not found' });
     }
 
     const parkingSpace = spaceResults[0];
 
-    // 2. 查询当前占用车辆（不变）
+    // 2. Query current occupied vehicle (unchanged)
     let currentVehicle = null;
     if (parkingSpace.vehicle_id) {
       const [vehicleResults] = await connection.query(`
@@ -257,7 +254,7 @@ router.get('/parking-spaces/:id', async (req, res) => {
       currentVehicle = vehicleResults[0] || null;
     }
 
-    // 3. 查询使用记录、预订记录（移除无效字段）
+    // 3. Query usage records and bookings (remove invalid fields)
     const [usageResults] = await connection.query(`
       SELECT * FROM usage_records WHERE parking_space_id = ?
     `, [spaceId]);
@@ -281,7 +278,7 @@ router.get('/parking-spaces/:id', async (req, res) => {
       WHERE b.parking_space_id = ?
     `, [spaceId]);
 
-    // 4. 查询车位评论（不变）
+    // 4. Query parking space comments (unchanged)
     const [commentResults] = await connection.query(`
       SELECT 
         cr.id AS comment_id,
@@ -300,7 +297,7 @@ router.get('/parking-spaces/:id', async (req, res) => {
       WHERE ur.parking_space_id = ?
     `, [spaceId]);
 
-    // 5. 构建响应（调整 bookings 字段映射）
+    // 5. Build response (adjust bookings field mapping)
     const parkingDetail = {
       ...parkingSpace,
       typeDetail: {
@@ -325,22 +322,22 @@ router.get('/parking-spaces/:id', async (req, res) => {
     res.status(200).json({ 
       code: 200, 
       data: parkingDetail, 
-      message: '成功获取车位详情' 
+      message: 'Parking space details retrieved successfully' 
     });
 
   } catch (err) {
-    console.error('服务器错误:', err); // 此处应打印完整错误堆栈
+    console.error('Server error:', err); // Should print full error stack here
     res.status(500).json({ 
       code: 500, 
-      message: '服务器内部错误', 
-      details: err.message // 建议生产环境中隐藏详细错误信息
+      message: 'Internal server error', 
+      details: err.message // Hide detailed errors in production environment
     });
   } finally {
     if (connection) await connection.end();
   }
 });
 
-// 更新车位信息（支持状态、类型、占用车辆更新）
+// Update parking space information (supports status, type, and occupied vehicle updates)
 router.put('/parking-spaces/:id', async (req, res) => {
   let connection;
   try {
@@ -348,7 +345,7 @@ router.put('/parking-spaces/:id', async (req, res) => {
     const spaceId = req.params.id;
     const updateData = req.body;
 
-    // 检查车位是否存在
+    // Check if parking space exists
     const [spaceCheck] = await connection.query(`
       SELECT id FROM parking_spaces WHERE id = ?
     `, [spaceId]);
@@ -356,21 +353,21 @@ router.put('/parking-spaces/:id', async (req, res) => {
     if (spaceCheck.length === 0) {
       return res.status(404).json({
         code: 404,
-        message: '车位不存在'
+        message: 'Parking space not found'
       });
     }
 
-    // 构建更新字段
+    // Build update fields
     const fieldsToUpdate = [];
     const values = [updateData.status, updateData.type_id, updateData.vehicle_id, spaceId];
     
-    // 状态、类型、占用车辆为可更新字段
+    // Status, type, and occupied vehicle are updatable fields
     fieldsToUpdate.push('status = ?');
     if (updateData.type_id !== undefined) fieldsToUpdate.push('type_id = ?');
     if (updateData.vehicle_id !== undefined) fieldsToUpdate.push('vehicle_id = ?');
     fieldsToUpdate.push('updated_at = NOW()');
 
-    // 执行更新
+    // Execute update
     const [result] = await connection.query(`
       UPDATE parking_spaces 
       SET ${fieldsToUpdate.join(', ')} 
@@ -380,11 +377,11 @@ router.put('/parking-spaces/:id', async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(400).json({
         code: 400,
-        message: '更新失败，无有效数据变更'
+        message: 'Update failed, no valid data changes'
       });
     }
 
-    // 返回更新后的车位详情
+    // Return updated parking space details
     const [updatedSpace] = await connection.query(`
       SELECT * FROM parking_spaces WHERE id = ?
     `, [spaceId]);
@@ -392,30 +389,28 @@ router.put('/parking-spaces/:id', async (req, res) => {
     res.status(200).json({
       code: 200,
       data: updatedSpace[0],
-      message: '车位信息更新成功'
+      message: 'Parking space information updated successfully'
     });
 
   } catch (err) {
-    console.error('更新车位错误:', err);
+    console.error('Parking space update error:', err);
     res.status(500).json({
       code: 500,
-      message: '服务器错误',
+      message: 'Server error',
       details: err.message
     });
   } finally {
     if (connection) await connection.end();
   }
 });
-  
 
-  
-// GET /admin/users - 获取所有用户（带统计信息）
+// GET /admin/users - Get all users with statistics
 router.get('/users', async (req, res) => {
   let connection;
   try {
-    connection = await dbcon.getConnection(); // 获取数据库连接
+    connection = await dbcon.getConnection(); // Get database connection
     
-    // 修正后的SQL查询（确保字段存在）
+    // Corrected SQL query (ensure fields exist)
     const [results] = await connection.query(`
       SELECT 
       u.id,
@@ -438,30 +433,30 @@ router.get('/users', async (req, res) => {
     GROUP BY u.id;
     `);
  
-    res.status(200).json({  // 明确返回状态码
+    res.status(200).json({  // Explicitly return status code
       code: 200,
       data: results,
-      message: '成功'
+      message: 'Success'
     });
   } catch (err) {
-    console.error('用户查询错误:', err);
+    console.error('User query error:', err);
     res.status(500).json({
       code: 500,
-      message: '服务器错误',
-      details: err.message  // 返回具体错误信息
+      message: 'Server error',
+      details: err.message  // Return specific error message
     });
   } finally {
     if (connection) await connection.end();
   }
 });
  
-// GET /admin/users/:id - 获取用户完整详情
+// GET /admin/users/:id - Get complete user details
 router.get('/users/:id', async (req, res) => {
   let connection;
   try {
     connection = await dbcon.getConnection();
          console.log('aaaaaa1')
-    // 查询用户基本信息
+    // Query user basic information
     const [userResults] = await connection.query(`
       SELECT * FROM users WHERE id = ?
     `, [req.params.id]);
@@ -469,18 +464,18 @@ router.get('/users/:id', async (req, res) => {
     if (userResults.length === 0) {
       return res.status(404).json({
         code: 404,
-        message: '用户不存在'
+        message: 'User not found'
       });
     }
     
     const user = userResults[0];
     
-    // 查询用户车辆
+    // Query user's vehicles
     const [vehicleResults] = await connection.query(`
       SELECT * FROM vehicles WHERE user_id = ?
     `, [req.params.id]);
     
-    // 查询用户使用记录（带关联信息）
+    // Query user's usage records (with associated information)
     const [usageResults] = await connection.query(`
       SELECT 
         ur.*,
@@ -498,7 +493,7 @@ router.get('/users/:id', async (req, res) => {
       WHERE v.user_id = ?
     `, [req.params.id]);
     
-    // 查询用户预订记录（带关联信息）
+    // Query user's booking records (with associated information)
     const [bookingResults] = await connection.query(`
       SELECT 
         b.*,
@@ -514,7 +509,7 @@ router.get('/users/:id', async (req, res) => {
       WHERE b.user_id = ?
     `, [req.params.id]);
     
-    // 查询用户评论
+    // Query user's comments
     const [commentResults] = await connection.query(`
       SELECT 
       cr.id AS comment_id,
@@ -530,7 +525,7 @@ router.get('/users/:id', async (req, res) => {
     WHERE v.user_id = ?
     `, [req.params.id]);
     
-    // 构建完整的用户详情对象
+    // Build complete user details object
     const userDetail = {
       ...user,
       vehicles: vehicleResults,
@@ -543,57 +538,15 @@ router.get('/users/:id', async (req, res) => {
     res.status(200).json({
       code: 200,
       data: userDetail,
-      message: '成功'
+      message: 'Success'
     });
   } catch (err) {
-    console.error('获取用户详情错误:', err);
+    console.error('Get user details error:', err);
     res.status(500).json({
       code: 500,
-      message: '服务器错误',
+      message: 'Server error',
       details: err.message
     });
-  } finally {
-    if (connection) await connection.end();
-  }
-});
-
-
-router.put('/users/:id', async (req, res) => {
-  let connection;
-  try {
-    connection = await dbcon.getConnection();
-    const userId = req.params.id;
-    const updateData = req.body;
-    const allowedFields = ['name', 'phone', 'email', 'role', 'avatar_number', 'balance'];
-    
-    // 过滤无效字段
-    const filteredData = Object.keys(updateData).reduce((acc, key) => {
-      if (allowedFields.includes(key)) acc[key] = updateData[key];
-      return acc;
-    }, {});
-    
-    if (Object.keys(filteredData).length === 0) {
-      return res.status(400).json({ code: 400, message: '没有可更新的数据' });
-    }
-    
-    // 检查用户是否存在
-    const [userCheck] = await connection.query('SELECT id FROM users WHERE id = ?', [userId]);
-    if (userCheck.length === 0) return res.status(404).json({ code: 404, message: '用户不存在' });
-    
-    // 构建更新语句
-    const setClauses = Object.keys(filteredData).map((key, index) => `${key} = ?`);
-    setClauses.push('updated_at = NOW()');
-    
-    const sql = `UPDATE users SET ${setClauses.join(', ')} WHERE id = ?`;
-    const values = [...Object.values(filteredData), userId];
-    
-    await connection.query(sql, values);
-    
-    const [updatedUser] = await connection.query('SELECT * FROM users WHERE id = ?', [userId]);
-    res.status(200).json({ code: 200, data: updatedUser[0], message: '更新成功' });
-  } catch (err) {
-    console.error('更新用户错误:', err);
-    res.status(500).json({ code: 500, message: '服务器错误' });
   } finally {
     if (connection) await connection.end();
   }
@@ -607,17 +560,17 @@ router.delete('/vehicles/:id', async (req, res) => {
     connection = await dbcon.getConnection();
     const vehicleId = req.params.id;
 
-    // 1. 检查车辆是否存在
+    // 1. Check if vehicle exists
     const [vehicleCheck] = await connection.query(
       'SELECT id FROM vehicles WHERE id = ?',
       [vehicleId]
     );
 
     if (vehicleCheck.length === 0) {
-      return res.status(404).json({ code: 404, message: '车辆不存在' });
+      return res.status(404).json({ code: 404, message: 'Vehicle not found' });
     }
 
-    // 2. 检查是否存在未完成的订单（重点保留逻辑）
+    // 2. Check for active orders
     const [activeOrders] = await connection.query(`
       SELECT id FROM usage_records 
       WHERE vehicle_id = ? 
@@ -627,22 +580,22 @@ router.delete('/vehicles/:id', async (req, res) => {
     if (activeOrders.length > 0) {
       return res.status(400).json({ 
         code: 400, 
-        message: '车辆存在未完成的订单，请先完成或取消订单' 
+        message: 'Active orders exist for the vehicle. Please complete or cancel orders first' 
       });
     }
 
-    // 3. 直接删除车辆（数据库自动处理外键SET NULL）
+    // 3. Delete vehicle (database handles foreign keys with SET NULL)
     await connection.query('DELETE FROM vehicles WHERE id = ?', [vehicleId]);
 
     res.status(200).json({ 
       code: 200, 
-      message: '车辆删除成功', 
+      message: 'Vehicle deleted successfully', 
       data: { vehicleId }
     });
 
   } catch (err) {
-    console.error('删除车辆错误:', err);
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    console.error('Vehicle deletion error:', err);
+    res.status(500).json({ code: 500, message: 'Server error' });
   } finally {
     if (connection) await connection.end();
   }
@@ -654,17 +607,17 @@ router.delete('/bookings/:id', async (req, res) => {
     connection = await dbcon.getConnection();
     const bookingId = req.params.id;
 
-    // 1. 检查预订是否存在
+    // 1. Check if booking exists
     const [bookingCheck] = await connection.query(
       'SELECT id FROM bookings WHERE id = ?',
       [bookingId]
     );
 
     if (bookingCheck.length === 0) {
-      return res.status(404).json({ code: 404, message: '预订不存在' });
+      return res.status(404).json({ code: 404, message: 'Booking not found' });
     }
 
-    // 2. 检查预订状态是否允许删除（示例：不允许删除已确认的预订）
+    // 2. Check booking status
     const [activeBooking] = await connection.query(
       'SELECT status FROM bookings WHERE id = ? AND status = "confirmed"',
       [bookingId]
@@ -673,22 +626,22 @@ router.delete('/bookings/:id', async (req, res) => {
     if (activeBooking.length > 0) {
       return res.status(400).json({ 
         code: 400, 
-        message: '无法删除已确认的预订，请先取消' 
+        message: 'Cannot delete confirmed booking. Please cancel first' 
       });
     }
 
-    // 3. 删除预订（外键自动处理：parking_space_id 可能设为 NULL，具体看外键约束）
+    // 3. Delete booking
     await connection.query('DELETE FROM bookings WHERE id = ?', [bookingId]);
 
     res.status(200).json({ 
       code: 200, 
-      message: '预订删除成功', 
+      message: 'Booking deleted successfully', 
       data: { bookingId }
     });
 
   } catch (err) {
-    console.error('删除预订错误:', err);
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    console.error('Booking deletion error:', err);
+    res.status(500).json({ code: 500, message: 'Server error' });
   } finally {
     if (connection) await connection.end();
   }
@@ -701,17 +654,17 @@ router.delete('/usage-records/:id', async (req, res) => {
     connection = await dbcon.getConnection();
     const recordId = req.params.id;
 
-    // 1. 检查使用记录是否存在
+    // 1. Check if usage record exists
     const [recordCheck] = await connection.query(
       'SELECT id FROM usage_records WHERE id = ?',
       [recordId]
     );
 
     if (recordCheck.length === 0) {
-      return res.status(404).json({ code: 404, message: '使用记录不存在' });
+      return res.status(404).json({ code: 404, message: 'Usage record not found' });
     }
 
-    // 2. 检查记录状态是否允许删除（示例：不允许删除进行中的记录）
+    // 2. Check record status
     const [activeRecord] = await connection.query(
       'SELECT status FROM usage_records WHERE id = ? AND status = "in_progress"',
       [recordId]
@@ -720,22 +673,22 @@ router.delete('/usage-records/:id', async (req, res) => {
     if (activeRecord.length > 0) {
       return res.status(400).json({ 
         code: 400, 
-        message: '无法删除进行中的使用记录' 
+        message: 'Cannot delete in-progress usage record' 
       });
     }
 
-    // 3. 删除使用记录（级联删除评论，因 comment_rating.order_id 外键为 CASCADE）
+    // 3. Delete usage record (cascade deletes comments via foreign key)
     await connection.query('DELETE FROM usage_records WHERE id = ?', [recordId]);
 
     res.status(200).json({ 
       code: 200, 
-      message: '使用记录删除成功', 
+      message: 'Usage record deleted successfully', 
       data: { recordId }
     });
 
   } catch (err) {
-    console.error('删除使用记录错误:', err);
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    console.error('Usage record deletion error:', err);
+    res.status(500).json({ code: 500, message: 'Server error' });
   } finally {
     if (connection) await connection.end();
   }
@@ -747,28 +700,28 @@ router.delete('/comments/:id', async (req, res) => {
     connection = await dbcon.getConnection();
     const commentId = req.params.id;
 
-    // 1. 检查评论是否存在
+    // 1. Check if comment exists
     const [commentCheck] = await connection.query(
       'SELECT id FROM comment_rating WHERE id = ?',
       [commentId]
     );
 
     if (commentCheck.length === 0) {
-      return res.status(404).json({ code: 404, message: '评论不存在' });
+      return res.status(404).json({ code: 404, message: 'Comment not found' });
     }
 
-    // 2. 直接删除评论
+    // 2. Delete comment
     await connection.query('DELETE FROM comment_rating WHERE id = ?', [commentId]);
 
     res.status(200).json({ 
       code: 200, 
-      message: '评论删除成功', 
+      message: 'Comment deleted successfully', 
       data: { commentId }
     });
 
   } catch (err) {
-    console.error('删除评论错误:', err);
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    console.error('Comment deletion error:', err);
+    res.status(500).json({ code: 500, message: 'Server error' });
   } finally {
     if (connection) await connection.end();
   }
