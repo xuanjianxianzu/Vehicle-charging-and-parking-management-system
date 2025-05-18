@@ -11,7 +11,8 @@ import { ParkingSpace } from '../../models';
 })
 export class ParkingComponent implements OnInit {
   spaces: ParkingSpace[] = [];
-  displayedColumns = ['id', 'type', 'status', 'vehicle', 'user', 'actions'];
+  // 移除'status'列
+  displayedColumns = ['id', 'type','status', 'vehicle', 'user', 'actions']; 
   loading = true;
 
   constructor(
@@ -45,42 +46,12 @@ export class ParkingComponent implements OnInit {
     });
   }
 
-  updateStatus(space: ParkingSpace, newStatus: 'idle' | 'occupied' | 'booked') {
-    this.dataService.updateSpace(space.id, { status: newStatus }).subscribe({
-      next: () => {
-        space.status = newStatus;
-        this.loadSpaces();
-      },
-      error: (err) => {
-        console.error('Failed to update status:', err);
-      },
-    });
-  }
-
-  // Type-safe helper method for status updates
-  updateStatusFromTemplate(space: ParkingSpace, statusValue: string) {
-    const validStatuses: ('idle' | 'occupied' | 'booked')[] = ['idle', 'occupied', 'booked'];
-    if (validStatuses.includes(statusValue as any)) {
-      this.updateStatus(space, statusValue as 'idle' | 'occupied' | 'booked');
-    } else {
-      console.error('Invalid status value:', statusValue);
-    }
-  }
-
   formatType(type: string): string {
     return type 
-      ? type.replace(/_/g, ' ')        // 替换下划线为空格
-            .toLowerCase()            // 转为小写
-            .replace(/\b\w/g, (l) => l.toUpperCase()) // 每个单词首字母大写
+      ? type.replace(/_/g, ' ')        
+            .toLowerCase()            
+            .replace(/\b\w/g, (l) => l.toUpperCase()) 
       : '';
   }
 
-  // 格式化状态（同理）
-  formatStatus(status: string): string {
-    return status 
-      ? status.replace(/_/g, ' ')
-              .toLowerCase()
-              .replace(/\b\w/g, (l) => l.toUpperCase())
-      : '';
-  }
 }
