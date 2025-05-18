@@ -1,27 +1,74 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>
-      <span class="web-name">SYSTEM admin</span>
-    </ion-title>
-  </ion-toolbar>
-  
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button [class.current]="true">Home</ion-button>
-      <ion-button href="/search">Search</ion-button>
-      <ion-button href="/fundraiser">Fundraiser</ion-button>
-    </ion-buttons>
+    <ion-title>车位管理</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+
+<div style="display: flex; gap: 16px; padding: 16px;">
+  <ion-card *ngFor="let PST of ParkingSpaceT" style="flex: 1; min-width: 200px;" (click)="openModal(PST)">
+    <ion-card-header>
+      <ion-card-title>{{ PST.type }}</ion-card-title>
+    </ion-card-header>
+    
+    <ion-card-content>
+      <ion-item lines="none"  *ngIf="PST.type !== 'normal'">
+        <ion-label>rate:</ion-label>
+        <ion-badge>{{ PST.rate }}</ion-badge>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-label>parking_rate:</ion-label>
+        <ion-badge>{{ PST.parking_rate }}</ion-badge>
+      </ion-item>
+      <ion-item lines="none"  *ngIf="PST.type !== 'normal'">
+        <ion-label>overtime_occupancy_rate:</ion-label>
+        <ion-badge>{{ PST.overtime_occupancy_rate }}</ion-badge>
+      </ion-item>
+      <ion-item lines="none"  *ngIf="PST.type !== 'normal'">
+        <ion-label>power:</ion-label>
+        <ion-badge>{{ PST.power }}</ion-badge>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+</div>
+
+<ion-toolbar>
+    <ion-searchbar 
+      [(ngModel)]="searchTerm" 
+      (ionChange)="filterSpaces()" 
+      placeholder="Search space">
+    </ion-searchbar>
+  </ion-toolbar>
+
   <div class="loading-spinner" *ngIf="loading">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <ion-list *ngIf="!loading">
-    <!-- 表头 -->
-    <ion-grid class="header-grid">
+
+  <ion-list *ngIf="!loading" class="listA">
+             <ion-item>
+      <ion-grid>
+        <ion-row>
+           <ion-col size="2">选择类型添加新车位</ion-col>
+          <ion-col>
+            <ion-select [(ngModel)]="newtype" interface="action-sheet" placeholder="选择类型">
+              <ion-select-option value="fast_charging">快充</ion-select-option>
+              <ion-select-option value="slow_charging">慢充</ion-select-option>
+              <ion-select-option value="normal">普通</ion-select-option>
+            </ion-select>
+          </ion-col>
+          <ion-col>
+            <ion-button fill="solid" color="primary" (click)="addSpace()">
+              添加
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+
+  <ion-item>
+    <ion-grid>
       <ion-row>
         <ion-col size="1.5">ID</ion-col>
         <ion-col>类型</ion-col>
@@ -31,33 +78,31 @@
         <ion-col>操作</ion-col>
       </ion-row>
     </ion-grid>
+</ion-item>
 
-    <!-- 数据行 -->
-    <ion-item *ngFor="let space of spaces">
+    <ion-item *ngFor="let space of filteredSpaces">
       <ion-grid>
         <ion-row>
           <ion-col size="1.5">{{ space.id }}</ion-col>
-          <ion-col>{{ space.space_type }}</ion-col>
           <ion-col>
-            <ion-select 
-              interface="action-sheet"
-              [value]="space.status"
-              (ionChange)="updateStatus(space, $event.detail.value)"
-            >
-              <ion-select-option value="idle">空闲</ion-select-option>
-              <ion-select-option value="occupied">占用中</ion-select-option>
-              <ion-select-option value="booked">已预约</ion-select-option>
+            <ion-select interface="action-sheet" [value]="space.space_type" (ionChange)="updateStatus(space.id, $event.detail.value)">
+              <ion-select-option value="fast_charging">快充</ion-select-option>
+              <ion-select-option value="slow_charging">慢充</ion-select-option>
+              <ion-select-option value="normal">普通</ion-select-option>
             </ion-select>
           </ion-col>
+          <ion-col>{{ space.status }}</ion-col>
           <ion-col>{{ space.license_plate || '-' }}</ion-col>
           <ion-col>{{ space.name || '-' }}</ion-col>
           <ion-col>
-            <ion-button 
-              fill="solid" 
-              color="primary"
-              (click)="openDetail(space.id)"
-            >
-              详情
+            <ion-button fill="solid" color="primary" (click)="Release(space.id,space.status)">
+          释放
+            </ion-button>
+            <ion-button fill="solid" color="primary" (click)="Occupancy(space.id)">
+          维护
+            </ion-button>
+            <ion-button fill="solid" color="primary" (click)="DeleteSpace(space.id,space.status)">
+          删除
             </ion-button>
           </ion-col>
         </ion-row>

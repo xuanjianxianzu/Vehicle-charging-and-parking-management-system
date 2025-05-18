@@ -13,7 +13,8 @@ export class RegisterPage {
   username: string = '';
   password: string = '';
   confirmPassword: string = '';
-
+  role:string='';
+  myRole = localStorage.getItem('role')!;
   constructor(
     private authService: AuthService,
     private toastController: ToastController,
@@ -23,7 +24,7 @@ export class RegisterPage {
   async register() {
 
 
-    if (!this.username || !this.password || !this.confirmPassword) {
+    if (!this.username || !this.password || !this.confirmPassword||!this.role) {
       await this.showToast('请填写所有字段');
       return;
     }
@@ -47,11 +48,11 @@ export class RegisterPage {
     }
 
     try {
-      const response = await this.authService.register(this.username, this.password).toPromise();
+      const response = await this.authService.register(this.role,this.username, this.password,this.myRole).toPromise();
       switch(response.code) {
         case 201:
           this.showToast('注册成功');
-          this.router.navigate(['/login']);
+          this.router.navigate(['/user']);
           break;
         case 409:
           this.showToast('用户名已存在');

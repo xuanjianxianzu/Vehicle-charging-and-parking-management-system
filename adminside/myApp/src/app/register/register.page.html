@@ -1,13 +1,18 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
+      <ion-back-button defaultHref="/user"></ion-back-button>
     </ion-buttons>
     <ion-title>register</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
+  <ion-select [(ngModel)]="role" interface="action-sheet" placeholder="选择类型">
+    <ion-select-option value="admin">管理员</ion-select-option>
+    <ion-select-option value="user">普通用户</ion-select-option>
+    <ion-select-option value="VIPUser">VIP用户</ion-select-option>
+  </ion-select>
   <ion-label position="floating">用户名</ion-label>
   <ion-input type="text" [(ngModel)]="username"></ion-input>
   <ion-label position="floating">密码</ion-label>

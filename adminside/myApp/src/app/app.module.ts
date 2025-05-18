@@ -11,10 +11,13 @@ import { AuthService } from '../app/auth/auth.service';
 
 import { FormsModule } from '@angular/forms';
 import { authInterceptor } from './auth/auth.interceptor';
+import { MdUpdatePstComponent } from './md-update-pst/md-update-pst.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
+    MdUpdatePstComponent
   ],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, FormsModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },provideHttpClient(withInterceptors([authInterceptor])),AuthService],

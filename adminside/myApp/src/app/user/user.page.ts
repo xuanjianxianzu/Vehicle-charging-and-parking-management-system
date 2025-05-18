@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DataService } from '../../data.service';
-import { UserDetailDialogComponent } from '../user-detail-dialog/user-detail-dialog.component';
 import { User } from '../../models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -16,7 +16,8 @@ export class UserPage implements OnInit {
 
   constructor(
     private dataService: DataService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -35,35 +36,18 @@ export class UserPage implements OnInit {
   }
 
   async openDetail(userId: number) {
-    const modal = await this.modalCtrl.create({
-      component: UserDetailDialogComponent,
-      componentProps: {
-        userId: userId
-      },
-      cssClass: 'full-screen-modal'
-    });
-    await modal.present();
+
   }
 
   async updateUser(user: User) {
-    const modal = await this.modalCtrl.create({
-      component: UserDetailDialogComponent,
-      componentProps: {
-        userId: user.id,
-        isUpdate: true
-      },
-      breakpoints: [0, 0.8],
-      initialBreakpoint: 0.8
-    });
-
-    await modal.present();
-    const { data } = await modal.onWillDismiss();
-    if (data?.reload) {
-      this.loadUsers();
-    }
+  
   }
 
   async deleteUser(userId: number) {
 
   }
+  async addAdmin() {
+    this.router.navigate(['/register']);
+  }
+
 }

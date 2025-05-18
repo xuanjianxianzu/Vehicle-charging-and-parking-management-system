@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { UserDetailDialogComponent } from './user-detail-dialog.component';
+import { MdUpdatePstComponent } from './md-update-pst.component';
 
-describe('UserDetailDialogComponent', () => {
-  let component: UserDetailDialogComponent;
-  let fixture: ComponentFixture<UserDetailDialogComponent>;
+describe('MdUpdatePstComponent', () => {
+  let component: MdUpdatePstComponent;
+  let fixture: ComponentFixture<MdUpdatePstComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ UserDetailDialogComponent ],
+      declarations: [ MdUpdatePstComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UserDetailDialogComponent);
+    fixture = TestBed.createComponent(MdUpdatePstComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

@@ -86,7 +86,7 @@ router.post('/login',async (req,res) =>{
         }
 
         const token = jwt.sign(
-            { userId: loginUser.id, username: loginUser.username },
+            { userId: loginUser.id, username: loginUser.username,role:loginUser.role },
             process.env.JWT_SECRET,
             { expiresIn: '3h' }
         );
@@ -854,11 +854,12 @@ router.get('/getComment/rating/:id',async (req,res) =>{
         connection = await dbcon.getConnection();
         const pId = req.params.id;
         const [usageRecords] = await connection.query(
-            `SELECT id FROM usage_records 
+            `SELECT * FROM usage_records 
             WHERE parking_space_id = ? 
             AND status = 'completed'`, 
             [pId]
         );
+        console.log(usageRecords)
         if (usageRecords.length === 0) {
             return res.status(404).json({
                 code: 404,

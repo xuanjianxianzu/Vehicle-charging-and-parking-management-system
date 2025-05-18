@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>编辑{{ PST.type }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">关闭</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item *ngIf="PST.type !== 'normal'">
+    <ion-label position="stacked">rate</ion-label>
+    <ion-input 
+      [(ngModel)]="PST.rate" 
+      type="number"
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">parking_rate</ion-label>
+    <ion-input 
+      [(ngModel)]="PST.parking_rate" 
+      type="number"
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+      <ion-item *ngIf="PST.type !== 'normal'">
+    <ion-label position="stacked">overtime_occupancy_rate</ion-label>
+    <ion-input 
+      [(ngModel)]="PST.overtime_occupancy_rate" 
+      type="number"
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+        <ion-item *ngIf="PST.type !== 'normal'">
+    <ion-label position="stacked">power</ion-label>
+    <ion-input 
+      [(ngModel)]="PST.power" 
+      type="number"
+      autofocus
+    ></ion-input>
+  </ion-item>
+  
+  <ion-button 
+    expand="block" 
+    (click)="save()"
+
+  >保存</ion-button>
+</ion-content>
