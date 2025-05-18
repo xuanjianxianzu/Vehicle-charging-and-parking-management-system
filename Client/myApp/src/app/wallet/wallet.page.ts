@@ -32,12 +32,12 @@ export class WalletPage implements OnInit {
 
   async recharge(amount: number) {
     if (!this.myUserID) {
-      this.showToast('请先登录');
+      this.showToast('Please log in first.');
       return;
     }
 
     if (!amount || amount <= 0) {
-      this.showToast('金额必须大于0');
+      this.showToast('The amount must be greater than 0');
       return;
     }
 
@@ -47,14 +47,14 @@ export class WalletPage implements OnInit {
       if (response.code === 200) {
         this.balance=response.balance;
         console.log(response);
-        this.showToast('充值成功');
+        this.showToast('Recharge successful');
         this.customAmount = null;
       } else {
-        this.showToast(response.message || '充值失败');
+        this.showToast(response.message || 'Recharge failed');
       }
     } catch (error) {
-      console.error('充值错误:', error);
-      this.showToast('网络错误，请重试');
+      console.error('Recharge error:', error);
+      this.showToast('Network error. Please try again');
     }
   }
 

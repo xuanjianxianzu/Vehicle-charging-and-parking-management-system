@@ -46,7 +46,7 @@ CREATE TABLE `usage_records` (
   CONSTRAINT `chk_charging_sequence` CHECK ((((`charging_start_time` is null) and (`charging_complete_time` is null)) or (`charging_start_time` < `charging_complete_time`))),
   CONSTRAINT `chk_status` CHECK ((((`status` = _utf8mb4'in_progress') and (`end_time` is null)) or ((`status` in (_utf8mb4'completed',_utf8mb4'cancelled',_utf8mb4'booked',_utf8mb4'end_booked',_utf8mb4'to_be_paid')) and (`end_time` is not null)))),
   CONSTRAINT `chk_time_logic` CHECK (((`start_time` < `end_time`) and ((`charging_start_time` is null) or (`charging_start_time` >= `start_time`)) and ((`charging_complete_time` is null) or (`charging_complete_time` <= `end_time`))))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,7 +55,6 @@ CREATE TABLE `usage_records` (
 
 LOCK TABLES `usage_records` WRITE;
 /*!40000 ALTER TABLE `usage_records` DISABLE KEYS */;
-INSERT INTO `usage_records` (`id`, `start_time`, `charging_start_time`, `charging_complete_time`, `end_time`, `status`, `vehicle_id`, `parking_space_id`, `electricity_used`, `total_fee`, `created_at`, `updated_at`) VALUES (1,'2025-04-16 22:37:33',NULL,NULL,'2025-04-16 22:37:38','cancelled',2,1,NULL,0.00,'2025-04-16 22:37:36','2025-04-16 22:37:38'),(2,'2025-04-16 22:37:33','2025-04-16 22:37:41','2025-04-16 22:40:00','2025-04-16 22:43:00','to_be_paid',2,1,4.00,4.44,'2025-04-16 22:37:46','2025-04-16 22:38:27');
 /*!40000 ALTER TABLE `usage_records` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -68,4 +67,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-17  0:11:00
+-- Dump completed on 2025-05-16 14:29:17

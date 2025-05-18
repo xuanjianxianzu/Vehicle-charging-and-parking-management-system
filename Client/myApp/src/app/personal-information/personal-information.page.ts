@@ -94,8 +94,8 @@ export class PersonalInformationPage implements OnInit {
 
   updateProfile() {
     this.dataService.updateUserProfile(this.user).subscribe({
-      next: (res) => console.log('更新成功', res),
-      error: (err) => console.error('更新失败', err)
+      next: (res) => console.log('Update successful', res),
+      error: (err) => console.error('Update failed', err)
     });
   }
 }

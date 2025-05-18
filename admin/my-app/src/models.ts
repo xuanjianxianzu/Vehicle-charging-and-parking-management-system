@@ -7,6 +7,7 @@ export interface User {
     id: number; // 用户ID（主键）
     name: string | null; // 姓名
     username: string; // 用户名（唯一）
+    password: string; // 密码
     phone: string | null; // 电话
     email: string | null; // 邮箱
     role: 'user' | 'admin' | 'super_admin'; // 角色（枚举）
@@ -26,18 +27,14 @@ export interface Vehicle {
     updated_at: DateTime; // 更新时间
 }
 
-/** 评论表（comment_rating） */
-export interface Comment {
-    id: number; // 评论ID（主键）
-    rating: number; // 评分（0-5，精确到0.1）
-    comment: string | null; // 评论内容
-    order_id: number; // 关联使用记录ID（外键：usage_records.id）
-    created_at: DateTime; // 创建时间
-    updated_at: DateTime; // 更新时间
-}
+
 
 /** 预订表（bookings） */
 export interface Booking {
+    parking_rate: number;
+    charging_rate: number;
+    space_type: string;
+    overtime_occupancy_rate: number;
     id: number; // 预订ID（主键）
     user_id: number; // 预订用户ID（外键：users.id）
     vehicle_id: number; // 预订车辆ID（外键：vehicles.id）
@@ -46,6 +43,9 @@ export interface Booking {
     end_time: DateTime; // 预订结束时间
     status: 'confirmed' | 'cancelled' | 'completed'; // 预订状态（枚举）
     created_at: DateTime; // 创建时间
+    name: string; // 新增用户姓名
+    phone: string; // 新增用户电话
+    license_plate: string; // 新增车辆牌照
 }
 
 // --------------------------- 车位相关接口 ---------------------------
@@ -57,8 +57,6 @@ export interface ParkingSpaceType {
     parking_rate: number; // 停车费率（元/小时）
     overtime_occupancy_rate: number; // 超时占用费率（元/分钟）
     power: number; // 充电功率（KW）
-    created_at: DateTime; // 创建时间
-    updated_at: DateTime; // 更新时间
 }
 
 /** 车位表（parking_spaces） */
@@ -77,6 +75,10 @@ export interface ParkingSpace {
 
 /** 使用记录表（usage_records） */
 export interface UsageRecord {
+    parking_rate: any;
+    charging_rate: any;
+    space_type: string;
+    license_plate: any;
     id: number; // 记录ID（主键）
     start_time: DateTime; // 开始时间
     charging_start_time: DateTime | null; // 充电开始时间（可为空）
@@ -110,9 +112,30 @@ export interface UserDetail extends User {
 
 /** 车位详情页面完整接口（包含关联数据） */
 export interface ParkingSpaceDetail extends ParkingSpace {
-    typeDetail: ParkingSpaceType; // 车位类型详情（直接关联）
+    typeDetail: ParkingSpaceType; // 车位类型详情（直接关联，已移除多余字段）
     usageRecords: UsageRecord[]; // 该车位的所有使用记录
     bookings: Booking[]; // 该车位的所有预订记录
+    comments: Comment[];
     currentVehicle: Vehicle | null; // 当前占用车辆（当 status 非 idle 时存在）
 }
 
+export interface ParkingSpaceDetailViewModel extends ParkingSpaceDetail {
+    currentVehicle: VehicleViewModel | null; 
+}
+
+export interface VehicleViewModel extends Vehicle {
+    userInfo_name?: string;
+    userInfo_phone?: string;
+}
+// 评论接口（扩展用户和车辆信息）
+export interface Comment {
+  comment_id: number; // 评论ID
+  rating: number; // 评分
+  comment: string | null; // 评论内容
+  created_at: DateTime; // 评论时间
+  order_id: number; // 关联使用记录ID
+  vehicle_plate?: string; // 车辆号牌
+  user_id?: number; // 用户ID
+  user_name?: string; // 用户姓名
+  user_phone?: string; // 用户电话
+}

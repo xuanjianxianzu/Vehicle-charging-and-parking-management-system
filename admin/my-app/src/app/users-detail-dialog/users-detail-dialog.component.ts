@@ -1,13 +1,10 @@
+// users-detail-dialog.component.ts
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { User, UserDetail, Vehicle, UsageRecord, Booking, Comment } from '../../models';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateTime } from '../../models';
 import { DataService } from '../../data.service';
-interface RoleDisplay {
-  [key: string]: string; // 添加索引签名
-}
 
 @Component({
   selector: 'app-users-detail-dialog',
@@ -16,56 +13,26 @@ interface RoleDisplay {
 })
 export class UserDetailDialogComponent implements OnInit {
   userForm!: FormGroup;
-  userDetail: UserDetail = {
-    id: 0,
-    name: null,
-    username: '',
-    password: '',
-    phone: null,
-    email: null,
-    role: 'user',
-    avatar_number: 0,
-    balance: 0,
-    created_at: '',
-    updated_at: '',
-    vehicles: [],
-    usageRecords: [],
-    bookings: [],
-    comments: []
-  };
+  userDetail: any = {};
   loading = false;
   isNewUser = false;
-  isEditMode = false; // 新增：表示是否处于编辑模式
+  isEditMode = false;
   emailPattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}';
-  // 关联数据
-  vehicles: Vehicle[] = [];
-  usageRecords: UsageRecord[] = [];
-  bookings: Booking[] = [];
-  comments: Comment[] = [];
-
-  // 枚举映射（用于显示文本转换）
-  roleDisplay: RoleDisplay = {
-    'user': '普通用户',
-    'admin': '管理员',
-    'super_admin': '超级管理员'
-  };
-
-  vehicleTypeDisplay = {
-    'electric': '电动车',
-    'fuel': '燃油车'
-  };
+  vehicles: any[] = [];
+  usageRecords: any[] = [];
+  bookings: any[] = [];
+  comments: any[] = [];
+  originalData: any ={};
+last: any;
 
   constructor(
     private dialogRef: MatDialogRef<UserDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { userId: number },
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
-    private dataService:DataService
+    private dataService: DataService
   ) {
     this.isNewUser = data.userId === null;
-    if (this.isNewUser) {
-      this.userDetail = this.getDefaultUserDetail();
-    }
   }
 
   ngOnInit(): void {
@@ -73,67 +40,45 @@ export class UserDetailDialogComponent implements OnInit {
       this.fetchUserDetail();
     } else {
       this.initForm();
+      this.originalData = this.userForm.value;
     }
   }
 
-  private getDefaultUserDetail(): UserDetail {
-    return {
-      id: 0,
-      name: null,
-      username: '',
-      password: '',
-      phone: null,
-      email: null,
-      role: 'user',
-      avatar_number: 0,
-      balance: 0,
-      created_at: '',
-      updated_at: '',
-      vehicles: [],
-      usageRecords: [],
-      bookings: [],
-      comments: []
-    };
-  }
-
-  // 初始化表单
   private initForm(): void {
     this.userForm = this.fb.group({
-      id: [this.userDetail.id],
-      name: [this.userDetail.name, Validators.maxLength(50)],
-      username: [this.userDetail.username, [Validators.required, Validators.maxLength(50)]],
-      password: [this.userDetail.password, Validators.maxLength(255)],
-      phone: [this.userDetail.phone, Validators.maxLength(20)],
-      email: [this.userDetail.email, [Validators.email, Validators.maxLength(100)]],
-      role: [this.userDetail.role, Validators.required],
-      avatar_number: [this.userDetail.avatar_number],
-      balance: [this.userDetail.balance, Validators.min(0)]
+      id: [0],
+      name: [null, Validators.maxLength(50)],
+      username: ['', [Validators.required, Validators.maxLength(50)]],
+      password: ['', Validators.maxLength(255)],
+      phone: [null, Validators.maxLength(20)],
+      email: [null, [Validators.email, Validators.maxLength(100)]],
+      role: ['user', Validators.required],
+      avatar_number: [0],
+      balance: [0, Validators.min(0)]
     });
   }
 
-  // 获取用户详情
   private fetchUserDetail(): void {
     this.loading = true;
     this.dataService.getUserDetail(this.data.userId).subscribe({
       next: (response) => {
         this.userDetail = response.data;
-        console.log(response);
-        console.log(this.userDetail);
+        this.vehicles = this.userDetail.vehicles || [];
+        this.usageRecords = this.userDetail.usageRecords || [];
+        this.bookings = this.userDetail.bookings || [];
+        this.comments = this.userDetail.comments || [];
         this.initForm();
         this.bindDataToForm();
-        this.bindRelatedData();
+        this.originalData = { ...this.userDetail };
         this.loading = false;
       },
       error: (err) => {
-        this.snackBar.open('加载失败，请检查用户ID是否存在', '关闭', { duration: 3000 });
-        this.userDetail = this.getDefaultUserDetail();
-        this.initForm();
+        this.snackBar.open('Load failed. Please check user ID.', 'Close', { duration: 3000 });
         this.loading = false;
       }
     });
   }
 
-  // 绑定基础数据到表单
   private bindDataToForm(): void {
     this.userForm.patchValue({
       id: this.userDetail.id,
@@ -147,55 +92,155 @@ export class UserDetailDialogComponent implements OnInit {
     });
   }
 
-  // 绑定关联数据
-  private bindRelatedData(): void {
-    this.vehicles = this.userDetail.vehicles || [];
-    this.usageRecords = this.userDetail.usageRecords || [];
-    this.bookings = this.userDetail.bookings || [];
-    this.comments = this.userDetail.comments || [];
-  }
-
-  // 保存用户
-  /*saveUser(): void {
-    if (this.userForm.invalid || this.loading) return;
-
+  
+saveUser(): void {
+    if (!this.isEditMode) return;
+    if (this.userForm.invalid) return;
+    
     const formValue = this.userForm.value;
-    const apiUrl = this.isNewUser ? '/api/admin/users' : `/api/admin/users/${formValue.id}`;
-    const method = this.isNewUser ? 'post' : 'put';
+    if (!this.hasChanges(formValue)) {
+      this.snackBar.open('未检测到任何修改', '关闭', { duration: 3000 });
+      return;
+    }
 
-    this.http.request<{ code: number; data: User; message: string }>(method, apiUrl, { body: formValue }).subscribe({
+    this.loading = true;
+    const updateData = this.getUpdateData(formValue);
+    
+    this.dataService.updateUser(this.userDetail.id, updateData).subscribe({
       next: () => {
-        this.snackBar.open(this.isNewUser? '用户创建成功' : '用户更新成功', '关闭', { duration: 3000 });
-        this.dialogRef.close(true);
+        this.snackBar.open('用户信息更新成功', '关闭', { duration: 3000 });
+        this.isEditMode = false;
+        this.originalData = { ...formValue }; // 更新原始数据
+        this.loading = false;
       },
       error: (err) => {
-        this.snackBar.open(`操作失败：${err.error.message}`, '关闭', { duration: 5000 });
+        this.snackBar.open('更新失败，请检查输入', '关闭', { duration: 3000 });
+        this.loading = false;
       }
     });
-  }*/
+  }
 
-  // 取消
-saveUser(){}
+  // 检查数据是否有修改（包含关联数据的变更）
+private hasChanges(formValue: any): boolean {
+  const baseChanges = !['id', 'username', 'password'].every(field => 
+    formValue[field] === this.originalData[field]
+  );
+
+  const relatedDataChanges = 
+    this.vehicles.length !== this.originalData.vehicles.length ||
+    this.comments.length !== this.originalData.comments.length ||
+    this.bookings.length !== this.originalData.bookings.length ||
+    this.usageRecords.length !== this.originalData.usageRecords.length;
+
+  return baseChanges || relatedDataChanges;
+}
+
+  // 获取可更新的数据（排除不可修改字段）
+  private getUpdateData(formValue: any): any {
+    return {
+      name: formValue.name,
+      phone: formValue.phone,
+      email: formValue.email,
+      role: formValue.role,
+      avatar_number: formValue.avatar_number,
+      balance: formValue.balance
+    };
+  }
 
   cancel(): void {
     this.dialogRef.close(false);
   }
 
-  // 进入编辑模式
   editUser(): void {
     this.isEditMode = true;
   }
 
-  getRoleDisplay(role: keyof RoleDisplay): string {
-    return this.roleDisplay[role];
+  // 删除车辆
+deleteVehicle(vehicleId: number): void {
+  if (confirm('Confirm delete this vehicle?')) {
+    this.dataService.deleteVehicle(vehicleId).subscribe({
+      next: () => {
+        this.vehicles = this.vehicles.filter(v => v.id !== vehicleId);
+        this.snackBar.open('The vehicle was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        // Handle specific error codes
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
   }
+}
 
-  formatDate(date: DateTime): string { // 明确使用DateTime类型
+// 删除预订
+deleteBooking(bookingId: number): void {
+  if (confirm('Confirm delete this booking?')) {
+    this.dataService.deleteBooking(bookingId).subscribe({
+      next: () => {
+        this.bookings = this.bookings.filter(b => b.id !== bookingId);
+        this.snackBar.open('The booking was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete booking failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
+
+// 删除使用记录
+deleteUsageRecord(recordId: number): void {
+  if (confirm('Confirm delete this usage record?')) {
+    this.dataService.deleteUsageRecord(recordId).subscribe({
+      next: () => {
+        this.usageRecords = this.usageRecords.filter(r => r.id !== recordId);
+        this.snackBar.open('The usage record was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete usage record failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
+
+// 删除评论
+deleteComment(commentId: number): void {
+  if (confirm('Confirm delete this comment?')) {
+    this.dataService.deleteComment(commentId).subscribe({
+      next: () => {
+        this.comments = this.comments.filter(c => c.comment_id !== commentId);
+        this.snackBar.open('The comment was deleted successfully.', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        if (err.error && err.error.message) {
+          this.snackBar.open(err.error.message, 'Close', { duration: 5000 });
+        } else {
+          this.snackBar.open('Delete comment failed. Please try again.', 'Close', { duration: 3000 });
+        }
+      }
+    });
+  }
+}
+
+  formatDate(date: DateTime): string {
     return new Date(date).toLocaleString();
   }
 
-  // 获取车辆类型显示文本
-  getVehicleTypeDisplay(type: Vehicle['type']): string {
-    return this.vehicleTypeDisplay[type] || type;
+  formatRole(role: string): string {
+    return role ? role.replace(/_/g, ' ') : '';
+  }
+
+  formatStatus(status: string): string {
+    return status ? status.replace(/_/g, ' ') : '';
   }
 }

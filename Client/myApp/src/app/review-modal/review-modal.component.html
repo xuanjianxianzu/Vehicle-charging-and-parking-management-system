@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>发表评价</ion-title>
+    <ion-title>Make a comment</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">关闭</ion-button>
+      <ion-button (click)="dismiss()">Close</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -22,12 +22,12 @@
   </div>
 
   <ion-item>
-    <ion-label position="stacked">评论</ion-label>
-    <ion-textarea [(ngModel)]="comment" rows="4" placeholder="请输入评论"></ion-textarea>
+    <ion-label position="stacked">Comment</ion-label>
+    <ion-textarea [(ngModel)]="comment" rows="4" placeholder="Please enter a comment."></ion-textarea>
   </ion-item>
 
   <ion-button expand="block" (click)="submit()" [disabled]="!rating">
-    提交评价
+    Submit an evaluation
   </ion-button>
 
 

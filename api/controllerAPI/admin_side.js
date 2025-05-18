@@ -4,7 +4,7 @@ const dbcon = require('../models/admin_connection_database')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-router.post('/login',async (req,res) =>{
+router.post('/login', async (req, res) => {
     console.log(req.body);
     console.log('aaalogin');
     let connection;
@@ -17,21 +17,21 @@ router.post('/login',async (req,res) =>{
         if (rows.length === 0) {
             return res.status(404).json({
                 code: 404,
-                message: '用户名不存在'
+                message: 'User not found'
             });
         }
         const loginUser = rows[0];
 
-        console.log(password,loginUser.password);
+        console.log(password, loginUser.password);
 
         const isMatch = await bcrypt.compare(password, loginUser.password);
 
         console.log(isMatch);
 
-        if(!isMatch){
+        if (!isMatch) {
             return res.status(401).json({
                 code: 401,
-                message: '用户名或密码错误'
+                message: 'Invalid username or password'
             });
         }
 
@@ -50,14 +50,14 @@ router.post('/login',async (req,res) =>{
                 token: token,
                 expiresIn: 3600
             },
-            message: '登录成功'
+            message: 'Login successful'
         });
     
     } catch (error) {
-        console.error('登录错误:', error);
-        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+        console.error('Login error:', error);
+        return res.status(500).json({ code: 500, message: 'Internal server error' });
 
-    }finally {
+    } finally {
         if (connection) {
             await connection.end();
         }
@@ -65,7 +65,7 @@ router.post('/login',async (req,res) =>{
   }
 );
 
-router.post('/register',async (req,res) =>{
+router.post('/register', async (req, res) => {
     console.log('aaaaaregister');
     let connection;
     try {
@@ -83,7 +83,7 @@ router.post('/register',async (req,res) =>{
         if (rows.length > 0) {
             return res.status(409).json({
                 code: 409,
-                message: '用户名已存在'
+                message: 'Username already exists'
             });
         }
 
@@ -101,15 +101,15 @@ router.post('/register',async (req,res) =>{
                 username: newUser.username,
                 createdAt: newUser.created_at
             },
-            message: '注册成功'
+            message: 'Registration successful'
         });
     } catch (error) {
-        console.error('注册错误:', error);
+        console.error('Registration error:', error);
         return res.status(500).json({
             code: 500,
-            message: '服务器内部错误'
+            message: 'Internal server error'
         });
-    }finally {
+    } finally {
         if (connection) {
             await connection.end();
         }
@@ -138,21 +138,18 @@ router.get('/parking-spaces', async (req, res) => {
         return res.status(201).json({
             code: 201,
             data: rows,
-            message: '成功'
+            message: 'Success'
         });
     } catch (error) {
-        console.error('错误:', error);
+        console.error('Error:', error);
         return res.status(500).json({
             code: 500,
-            message: '服务器内部错误'
+            message: 'Internal server error'
         });
-    }finally {
+    } finally {
         if (connection) await connection.end();
     }
-  }
-
-  
-);
+});
 
 router.get('/parking-spaces-type', async (req, res) => {
     let connection;
@@ -313,6 +310,7 @@ router.put('/updatePSpace', async (req, res) => {
       data: result,
       message: '成功'
     });
+
   } catch (err) {
     console.error('错误:', err);
     res.status(500).json({
@@ -338,6 +336,7 @@ router.get('/users', async (req, res) => {
       data: results,
       message: '成功'
     });
+
   } catch (err) {
     console.error('用户查询错误:', err);
     res.status(500).json({

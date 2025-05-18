@@ -10,16 +10,16 @@ import { User } from '../../models';
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
-  users: User[]=[];
+  users: User[] = [];
   displayedColumns = [
-  'id', 'username', 'name', 'role', 'balance',
-  'phone', 'email', 'avatar_number', 'created_at', 'updated_at', 
-  'actions'
-];
+    'id', 'username', 'name', 'role', 'balance',
+    'phone', 'email', 'avatar_number', 'created_at', 'updated_at', 
+    'actions'
+  ];
   loading = true;
 
   constructor(
-    private DataService: DataService,
+    private dataService: DataService, // 修正变量名首字母小写（原DataService改为dataService）
     private dialog: MatDialog
   ) {}
 
@@ -28,14 +28,14 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers() {
-    this.DataService.getUsers().subscribe({
+    this.dataService.getUsers().subscribe({
       next: (data) => {
         this.users = data.data;
-        this.loading = false
-        console.log(this.users)
+        this.loading = false;
+        console.log(this.users);
       },
       error: (err) => {
-        console.error('加载用户失败:', err);
+        console.error('Failed to load users:', err); // 英文错误提示
         this.loading = false;
       }
     });

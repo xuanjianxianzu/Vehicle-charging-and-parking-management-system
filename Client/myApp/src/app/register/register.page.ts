@@ -24,12 +24,12 @@ export class RegisterPage {
 
 
     if (!this.username || !this.password || !this.confirmPassword) {
-      await this.showToast('请填写所有字段');
+      await this.showToast('Please fill in all fields');
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      await this.showToast('两次输入的密码不一致');
+      await this.showToast('The passwords entered twice are inconsistent');
       return;
     }
 
@@ -37,12 +37,12 @@ export class RegisterPage {
     const passwordRegex = /^[a-zA-Z0-9]{8,16}$/;
 
     if (!usernameRegex.test(this.username)) {
-      await this.showToast('账号必须为10 - 15位数字');
+      await this.showToast('The account number must be 10 to 15 digits');
       return;
     }
 
     if (!passwordRegex.test(this.password)) {
-      await this.showToast('密码必须为8 - 16位数字或字母');
+      await this.showToast('The password must be 8 to 16 digits or letters');
       return;
     }
 
@@ -50,21 +50,21 @@ export class RegisterPage {
       const response = await this.authService.register(this.username, this.password).toPromise();
       switch(response.code) {
         case 201:
-          this.showToast('注册成功');
+          this.showToast('Registration successful');
           this.router.navigate(['/login']);
           break;
         case 409:
-          this.showToast('用户名已存在');
+          this.showToast('The username already exists');
           break;
         default:
-          this.showToast(response.message || '注册失败');
+          this.showToast(response.message || 'Registration failed');
       }
       
     } catch (error:any) {
       if (error.status === 409) {
-        this.showToast('用户名已存在');
+        this.showToast('The username already exists');
       } else {
-        this.showToast('网络异常，请检查连接');
+        this.showToast('Network anomaly. Please check the connection');
       }
     
     }

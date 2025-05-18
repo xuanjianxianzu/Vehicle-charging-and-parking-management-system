@@ -20,7 +20,7 @@ export class LoginComponent {
 
   async login() {
     if (!this.username || !this.password) {
-      this.showToast('请输入用户名和密码');
+      this.showToast('Please enter the username and password');
       return;
     }
 
@@ -30,7 +30,7 @@ export class LoginComponent {
       if (response.code === 200) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('myUserID', response.data.id);
-        this.showToast('登录成功');
+        this.showToast('Login successful');
         this.router.navigate(['/tabs/tab1']);
       } else {
         this.handleErrorResponse(response.code);
@@ -47,28 +47,28 @@ export class LoginComponent {
   private handleErrorResponse(code: number) {
     switch(code) {
       case 404:
-        this.showToast('用户名不存在');
+        this.showToast('The username does not exist');
         break;
       case 401:
-        this.showToast('用户名或密码错误');
+        this.showToast('The username or password is incorrect');
         break;
       default:
-        this.showToast('登录错误，请重试');
+        this.showToast('Login error. Please try again');
     }
   }
 
   private handleHttpError(error: any) {
     if (error.status === 404) {
-      this.showToast('用户名不存在');
+      this.showToast('The username does not exist');
     } else if(error.status === 401) {
-      this.showToast('用户名或密码错误');
+      this.showToast('The username or password is incorrect');
     } else {
-      this.showToast('网络异常，请检查连接');
+      this.showToast('Network anomaly. Please check the connection');
     }
   }
 
   private showToast(message: string) {
-    this.snackBar.open(message, '关闭', {
+    this.snackBar.open(message, 'Close', {
       duration: 2000,
       verticalPosition: 'top'
     });

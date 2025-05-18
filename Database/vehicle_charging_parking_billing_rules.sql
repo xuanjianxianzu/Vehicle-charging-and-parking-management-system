@@ -40,7 +40,7 @@ CREATE TABLE `billing_rules` (
 
 LOCK TABLES `billing_rules` WRITE;
 /*!40000 ALTER TABLE `billing_rules` DISABLE KEYS */;
-INSERT INTO `billing_rules` VALUES (1,'charge_duration_threshold',20.00,'充电优惠阈值（分钟）','2025-04-16 22:35:49','2025-04-16 22:35:49'),(2,'free_overtime_buffer',60.00,'免费超时时长（分钟）','2025-04-16 22:35:49','2025-04-16 22:35:49'),(3,'max_overtime_fee',30.00,'单次超时费用上限（元）','2025-04-16 22:35:49','2025-04-16 22:35:49'),(4,'parking_hour_rounding',1.00,'停车时长取整方式（1=向上取整）','2025-04-16 22:35:49','2025-04-16 22:35:49');
+INSERT INTO `billing_rules` VALUES (1,'charge_duration_threshold',20.00,'充电优惠阈值（分钟）','2025-05-16 14:28:24','2025-05-16 14:28:24'),(2,'free_overtime_buffer',60.00,'免费超时时长（分钟）','2025-05-16 14:28:24','2025-05-16 14:28:24'),(3,'max_overtime_fee',30.00,'单次超时费用上限（元）','2025-05-16 14:28:24','2025-05-16 14:28:24'),(4,'parking_hour_rounding',1.00,'停车时长取整方式（1=向上取整）','2025-05-16 14:28:24','2025-05-16 14:28:24');
 /*!40000 ALTER TABLE `billing_rules` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -53,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-17  0:11:00
+-- Dump completed on 2025-05-16 14:29:17

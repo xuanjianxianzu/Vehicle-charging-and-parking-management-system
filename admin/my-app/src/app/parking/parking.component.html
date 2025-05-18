@@ -1,65 +1,63 @@
 <div class="decorativeTop">
-    <div class="webName">
-        <span class="text1">SYSTEM</span>  
+  <div class="webName">
+    <span class="text1">SYSTEM</span>  
     <span class="text2">admin</span>  
-    </div>
-    <div class="Navigation">
-        <span class="current">home</span><a href="/search"><span>search</span></a><a href="/fundraiser"><span>fundraiser</span></a>
-        </div>
-    </div>
-
-
+  </div>
+  <div class="Navigation">
+    <span class="current">Home</span><a href="/search"><span>Search</span></a><a href="/fundraiser"><span>Fundraiser</span></a>
+  </div>
+</div>
 
 <div class="container">
   <mat-spinner *ngIf="loading" diameter="50"></mat-spinner>
 
   <table mat-table [dataSource]="spaces" *ngIf="!loading" class="mat-elevation-z8">
-    <!-- ID列 -->
+    <!-- ID Column -->
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef>ID</th>
       <td mat-cell *matCellDef="let space">{{ space.id }}</td>
     </ng-container>
 
-    <!-- 类型列 -->
+    <!-- Type Column（添加了 formatType 方法调用） -->
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef>类型</th>
-      <td mat-cell *matCellDef="let space">{{ space.space_type }}</td>
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let space">{{ formatType(space.space_type) }}</td> <!-- 关键修改点 -->
     </ng-container>
 
-    <!-- 状态列 -->
+    <!-- Status Column -->
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>状态</th>
+      <th mat-header-cell *matHeaderCellDef>Status</th>
       <td mat-cell *matCellDef="let space">
         <select #statusSelect (change)="updateStatusFromTemplate(space, statusSelect.value)">
-        <option value="idle">空闲</option>
-        <option value="occupied">占用中</option>
-        <option value="booked">已预约</option>
+          <option value="idle">Idle</option>
+          <option value="occupied">Occupied</option>
+          <option value="booked">Booked</option>
         </select>
       </td>
     </ng-container>
 
-    <!-- 关联车辆列 -->
+    <!-- Vehicle Column -->
     <ng-container matColumnDef="vehicle">
-      <th mat-header-cell *matHeaderCellDef>车辆</th>
+      <th mat-header-cell *matHeaderCellDef>Vehicle</th>
       <td mat-cell *matCellDef="let space">
         {{ space.license_plate || '-' }}
       </td>
     </ng-container>
 
-    <!-- 用户列 -->
+    <!-- User Column -->
     <ng-container matColumnDef="user">
-      <th mat-header-cell *matHeaderCellDef>用户</th>
+      <th mat-header-cell *matHeaderCellDef>User</th>
       <td mat-cell *matCellDef="let space">
         {{ space.name || '-' }}
       </td>
     </ng-container>
 
-    <!-- 操作列 -->
+    <!-- Actions Column -->
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>操作</th>
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let space">
         <button mat-raised-button color="primary" (click)="openDetail(space.id)">
-          查看详情
+          View Details
         </button>
       </td>
     </ng-container>
