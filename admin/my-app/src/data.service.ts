@@ -66,7 +66,7 @@ export class DataService {
     return this.http.put(`${this.apiUrl}/users/${userId}`, data);
   }
 
-  // 删除车辆
+  // 新增：删除车辆
   deleteVehicle(vehicleId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/vehicles/${vehicleId}`);
   }

@@ -103,7 +103,6 @@ export interface UsageRecord {
 // --------------------------- 管理端页面专用接口 ---------------------------
 /** 用户详情页面完整接口（包含关联数据） */
 export interface UserDetail extends User {
-    password: any;
     vehicles: Vehicle[]; // 用户拥有的所有车辆
     usageRecords: UsageRecord[]; // 用户的所有使用记录（通过车辆关联）
     bookings: Booking[]; // 用户的所有预订记录
