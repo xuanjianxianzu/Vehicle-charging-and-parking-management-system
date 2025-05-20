@@ -1,0 +1,24 @@
+<ion-header [translucent]="true">
+  <ion-toolbar (click)="goToInfor()">
+    <div class="header-container">
+      <img [src]="userAvatar" alt="用户头像" class="avatar">
+      <h1>{{ user?.name || '暂无昵称' }}</h1>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+
+
+
+  <ion-card class="cardF" (click)="goToSetup()">
+    <ion-card-header class="header-content2">
+      <div class="left-group">
+        <ion-icon name="settings-outline" class="left-icon"></ion-icon>
+        <span class="vehicle-text">Set Up</span>
+      <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>  </div>
+    </ion-card-header>
+  </ion-card>
+
+</ion-content>

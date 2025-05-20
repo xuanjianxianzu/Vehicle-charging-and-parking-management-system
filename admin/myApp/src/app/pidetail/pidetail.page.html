@@ -1,0 +1,50 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/personal-information"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Personal information</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card class="cardF">
+    <ion-list>
+      <ion-item class="header-content" button detail="false" (click)="openModal('avatar')">
+        <div class="left-group">
+          <span class="vehicle-text">Profile picture</span>
+          <span class="value-text"></span>
+          <img [src]="userAvatar" alt="用户头像" class="avatar" >
+        </div>
+        <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>
+      </ion-item>
+ 
+      <ion-item class="header-content" button detail="false" (click)="openModal('name')">
+        <div class="left-group">
+          <span class="vehicle-text">Name</span>
+          <span class="value-text">{{user?.name||'暂无昵称'}}</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>
+      </ion-item>
+ 
+      <ion-item class="header-content" button detail="false" (click)="openModal('email')">
+        <div class="left-group">
+          <span class="vehicle-text">eMail</span>
+          <span class="value-text">{{user?.email||'暂无邮箱'}}</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>
+      </ion-item>
+ 
+      <ion-item class="header-content" lines="none" button detail="false" (click)="openModal('phone')">
+        <div class="left-group">
+          <span class="vehicle-text">Phone</span>
+          <span class="value-text">{{user?.phone||'暂无电话'}}</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="right-icon"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+  
+
+
+</ion-content>

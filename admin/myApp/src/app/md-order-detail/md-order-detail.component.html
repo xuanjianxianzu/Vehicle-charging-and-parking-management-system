@@ -1,0 +1,87 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>订单详情</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" *ngIf="orderDetail">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>用户信息</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="none">
+        <ion-item>
+          <ion-label>姓名：</ion-label>
+          <ion-text>{{ orderDetail.name }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>用户名：</ion-label>
+          <ion-text>{{ orderDetail.username }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>联系方式：</ion-label>
+          <ion-text>{{ orderDetail.phone }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>邮箱：</ion-label>
+          <ion-text>{{ orderDetail.email }}</ion-text>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>订单信息</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="none">
+        <ion-item>
+          <ion-label>车牌号：</ion-label>
+          <ion-text>{{ orderDetail.license_plate }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>评分：</ion-label>
+          <ion-text>
+            <ion-icon name="star" slot="start"></ion-icon>
+            {{ orderDetail.rating }}/5
+          </ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>创建时间：</ion-label>
+          <ion-text>{{ orderDetail.created_at | date: 'yyyy-MM-dd HH:mm' }}</ion-text>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="orderDetail.comment">
+    <ion-card-header>
+      <ion-card-title>用户评价</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-textarea 
+        readonly
+        autoGrow
+        class="ion-no-margin"
+        [value]="orderDetail.comment">
+      </ion-textarea>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="ion-padding">
+    <ion-button 
+      expand="block" 
+      shape="round"
+      color="primary" 
+      (click)="dismiss()">
+      关闭
+    </ion-button>
+  </div>
+</ion-content>

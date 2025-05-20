@@ -81,6 +81,10 @@ export class MyBillPage implements OnInit {
         }
       }
     } else if (order.status === 'completed') {
+      if(order.comment_id){
+        alert('只能评价一次');
+        return;
+      }
       const modal = await this.modalController.create({
         component: ReviewModalComponent,
         componentProps: { orderId: order.id }

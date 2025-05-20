@@ -1,0 +1,22 @@
+<ion-app>
+
+  <div class="menu-container" *ngIf="showMenu">
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Start Menu</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item button routerLink="/home" routerDirection="forward">Home</ion-item>
+          <ion-item button routerLink="/user" routerDirection="forward">User</ion-item>
+          <ion-item button routerLink="/order" routerDirection="forward">Order</ion-item>
+          <ion-item button routerLink="/comment" routerDirection="forward">Comment</ion-item>
+          <ion-item button routerLink="/personal-information" routerDirection="forward">Mine</ion-item>
+          <ion-item button (click)="LogOut()">Log out</ion-item>
+        </ion-list>
+      </ion-content>
+    </div>
+    <ion-router-outlet id="main-content"  [class.has-show]="showMenu" [class.no-show]="!showMenu"></ion-router-outlet>
+</ion-app>
+

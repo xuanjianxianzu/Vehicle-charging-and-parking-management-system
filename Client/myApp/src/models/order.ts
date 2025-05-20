@@ -9,4 +9,5 @@ export interface Order {
     parking_space_id:number;
     electricity_used:number|null;
     total_fee:number|null;
+    comment_id:number|null;
 }

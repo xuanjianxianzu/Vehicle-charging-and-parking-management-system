@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { User } from 'src/models/user';
+import { User } from 'src/models';
 import { DataService } from 'src/data.service';
+
 @Component({
-  selector: 'app-tab4',
-  templateUrl: './tab4.page.html',
-  styleUrls: ['./tab4.page.scss'],
+  selector: 'app-personal-information',
+  templateUrl: './personal-information.page.html',
+  styleUrls: ['./personal-information.page.scss'],
   standalone: false,
 })
-export class Tab4Page implements OnInit {
+export class PersonalInformationPage implements OnInit {
   user!:User;
   myUserID = localStorage.getItem('myUserID');
 
@@ -47,39 +48,15 @@ console.log('add');
   }
 
   goToInfor(){
-    this.router.navigate(['/personal-information'], { 
+    this.router.navigate(['/pidetail'], { 
       state: { 
         userI: this.user 
       } 
     });
   }
 
-
-  goToWallet() {
-    this.router.navigate(['/wallet'], { 
-      state: { 
-        balance: this.user.balance 
-      } 
-    });
-  }
-   
-  goToAllOrders() {
-    this.router.navigate(['/my-bill']);
-  }
-   
-  goToMyUsage() {
-    this.router.navigate(['/tabs/tab3']);
-  }
-   
-  goToMyCar() {
-    this.router.navigate(['/tabs/tab2']);
-  }
-   
   goToSetup() {
     this.router.navigate(['/setup']);
-  }
-  goToMyComment() {
-    this.router.navigate(['/my-comment']);
   }
 
 }
