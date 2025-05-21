@@ -5,7 +5,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-
+  <div class="chart-container">
+    <canvas id="lineChart"></canvas>
+  </div>
   <ion-list >
   <ion-item>
     <ion-grid>
@@ -28,10 +30,10 @@
       <ion-grid >
         <ion-row>
           <ion-col size="1.5">{{ order.id }}</ion-col>
-          <ion-col>{{ order.start_time|| '-' }}</ion-col>
-          <ion-col>{{ order.charging_start_time || '-' }}</ion-col>
-          <ion-col>{{ order.charging_complete_time || '-'}}</ion-col>
-          <ion-col>{{ order.end_time|| '-' }}</ion-col>
+          <ion-col>{{ order.start_time| date:'yyyy-MM-dd HH:mm' }}</ion-col>
+          <ion-col>{{ (order.charging_start_time| date:'yyyy-MM-dd HH:mm')||'-'  }}</ion-col>
+          <ion-col>{{ (order.charging_complete_time| date:'yyyy-MM-dd HH:mm')||'-' }}</ion-col>
+          <ion-col>{{ (order.end_time| date:'yyyy-MM-dd HH:mm')||'-' }}</ion-col>
           <ion-col>{{ order.status }}</ion-col>
           <ion-col>{{ order.vehicle_id }}</ion-col>
           <ion-col>{{ order.electricity_used|| '-' }}</ion-col>

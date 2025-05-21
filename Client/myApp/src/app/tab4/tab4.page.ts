@@ -11,7 +11,7 @@ import { DataService } from 'src/data.service';
 export class Tab4Page implements OnInit {
   user!:User;
   myUserID = localStorage.getItem('myUserID');
-
+  isGray: boolean = true;
   constructor(
     private router: Router,
     private dataService:DataService,
@@ -28,11 +28,19 @@ export class Tab4Page implements OnInit {
     this.loadUser();
   }
   
+  goToVIP(){
+     this.router.navigate(['/vip']);
+  }
+
   loadUser() {
-console.log('add');
     this.dataService.getUserInf(Number(this.myUserID)).subscribe({
       next: (data: any) => {
         this.user = data.data[0];
+        if(this.user.role=='VIPUser'){
+            this.isGray = false;
+        }else{
+            this.isGray = true;
+        }
         console.log(this.user);
       },
       error: (error) => {

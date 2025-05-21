@@ -295,7 +295,8 @@ router.put('/user/details', async (req, res) => {
           role = ?,
           avatar_number = ?,
           balance = ?,
-          status=?
+          status=?,
+          vip_end_time = DATE_ADD(NOW(), INTERVAL 10 DAY)
         WHERE id = ?
         AND role IN ('admin','user','VIPUser')
       `, [name,username,phone,email,role,avatar_number,balance,status,id]);
@@ -706,9 +707,31 @@ router.get('/Order/All',async (req,res) =>{
                 ur.overtime_minutes
             FROM usage_records ur`,
         );
+            // 时间转换处理
+    const convertedOrders = order.map(record => {
+      const converted = { ...record };
+      
+      // 定义时间字段列表
+      const timeFields = [
+        'start_time',
+        'end_time',
+        'charging_start_time',
+        'charging_complete_time'
+      ];
+      timeFields.forEach(field => {
+        if (converted[field]) {
+          const utcDate = new Date(converted[field]);// 创建UTC时间对象
+          const beijingDate = new Date(// 转换为北京时间（UTC+8）
+            utcDate.getTime() + 8 * 60 * 60 * 1000
+          );
+          converted[field] = beijingDate.toISOString().replace('Z', '+08:00');// 格式化输出（ISO格式带时区标识）
+        }
+      });
+      return converted;
+    });
         return res.status(200).json({//成功响应
             code: 200,
-            data: order,
+            data: convertedOrders,
             message: '查询成功'
         });
       } catch (error) {//错误处理

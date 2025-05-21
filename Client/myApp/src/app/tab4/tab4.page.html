@@ -1,8 +1,18 @@
 <ion-header [translucent]="true">
-  <ion-toolbar (click)="goToInfor()">
+  <ion-toolbar>
     <div class="header-container">
-      <img [src]="userAvatar" alt="用户头像" class="avatar">
+      <img [src]="userAvatar" alt="用户头像" class="avatar" (click)="goToInfor()">
       <h1>{{ user?.name || '暂无昵称' }}</h1>
+      <div class="vipDiv" (click)="goToVIP()">
+      <img [style.filter]="isGray ? 'grayscale(100%)' : 'none'" src='../../assets/images/VIP.png' alt="VIP" class="VIPimg">
+     <ion-label *ngIf="user?.vip_end_time!==null">
+  {{ 
+    user?.role === 'VIPUser' 
+      ? '会员到期时间为 ' + (user?.vip_end_time | date:'yyyy-MM-dd HH:mm') 
+      : '会员已于 ' + (user?.vip_end_time | date:'yyyy-MM-dd HH:mm') + ' 到期' 
+  }}
+</ion-label>
+      </div>
     </div>
   </ion-toolbar>
 </ion-header>

@@ -62,24 +62,24 @@ export class DataService {
     return this.http.put(`${this.apiUrl}/spaceType`, body);
   }
   /*------------------------------下面是管理端的使用记录管理模块(杨佳龙)------------------------------*/
-  createUsageRecord(usageRecords: UsageRecords): Observable<any> {//插入占位车辆
+  createUsageRecord(usageRecords: UsageRecords): Observable<any> {//插入占位车辆给车位
     const body = { usageRecords };
     return this.http.post(`${this.apiUrl}/usage-records`, body);
   }
-  getOrders(): Observable<any> {//
+  getOrders(): Observable<any> {//获取所有订单
     return this.http.get<any>(`${this.apiUrl}/Order/All`);
   }
-  getOrderDetail(id: number): Observable<any> {
+  getOrderDetail(id: number): Observable<any> {//获取订单相关详细信息
     return this.http.get<any>(`${this.apiUrl}/Order/detailed/${id}`);
   }
-  deleteOrder(id: number): Observable<any> {
+  deleteOrder(id: number): Observable<any> {//删除订单
     return this.http.delete<any>(`${this.apiUrl}/deleteOrder/${id}`);
   }
   /*------------------------------下面是管理端的评价模块(张博)------------------------------*/
-  getComplete(): Observable<any> {
+  getComplete(): Observable<any> {//获取评价
     return this.http.get<any>(`${this.apiUrl}/getComment/rating`);
   }
-  deleteComment(id: number): Observable<any> {
+  deleteComment(id: number): Observable<any> {//删除评价
     return this.http.delete<any>(`${this.apiUrl}/deleteComment/${id}`);
   }
 }

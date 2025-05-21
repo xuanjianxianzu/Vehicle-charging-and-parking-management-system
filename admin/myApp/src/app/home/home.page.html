@@ -3,9 +3,16 @@
     <ion-title>车位管理</ion-title>
   </ion-toolbar>
 </ion-header>
-
 <ion-content>
-
+  <!-- 饼图 -->
+   <div style="display: flex; gap: 16px; padding: 16px;">
+  <div class="chart-container">
+    <canvas id="pieChart"></canvas>
+  </div>
+    <div class="chart-container">
+    <canvas id="barChart"></canvas>
+  </div>
+  </div>
 <div style="display: flex; gap: 16px; padding: 16px;">
   <ion-card *ngFor="let PST of ParkingSpaceT" style="flex: 1; min-width: 200px;" (click)="openModal(PST)">
     <ion-card-header>

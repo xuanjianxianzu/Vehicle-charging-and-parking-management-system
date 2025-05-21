@@ -514,7 +514,9 @@ router.get('/user/:userId', async (req, res) => {
                 u.phone,
                 u.email,
                 u.avatar_number,
-                u.balance
+                u.balance,
+                u.vip_end_time,
+                u.role
             FROM users u
             WHERE u.id = ?`,
             [userId]
@@ -620,6 +622,122 @@ router.post('/usage-records/AllMy', async (req, res) => {
         return res.status(500).json({
             code: 500,
             message: '服务器内部错误'
+        });
+    }finally {
+        if (connection) await connection.end();//释放连接到连接池
+    }
+  }
+);
+//用来充值vip的路由模块
+router.put('/VIP', async (req, res) => {
+    let connection;
+    try {
+        connection = await dbcon.getConnection();//从数据库连接池获取连接
+        const { days,amount} = req.body;//解析请求体
+        const myRole=req.user.role;
+        const userId=req.user.userId;
+        if (!amount || !days || Number(days <= 0)) {//确保数据正常,否则返回错误
+            return res.status(401).json({
+                code: 401,
+                message: '天数或金额无效'
+            });
+        }
+        // 检查余额
+        const [user] = await connection.query(
+            'SELECT balance FROM users WHERE id = ?', 
+            [userId]
+        );
+        if (Number(user[0].balance) < Number(amount)) {
+            return res.status(402).json({ 
+                code: 402, 
+                message: '余额不足' 
+            });
+        }
+        // 开启事务
+        await connection.beginTransaction();
+
+        try {
+            if (myRole === 'user') {
+                await connection.query(`
+                    UPDATE users 
+                    SET 
+                        balance = balance - ?,
+                        role = 'VIPUser',
+                        vip_end_time = DATE_ADD(NOW(), INTERVAL ? DAY)
+                    WHERE id = ?`,
+                    [amount, days, userId]
+                );
+            } else if (myRole === 'VIPUser') {
+                await connection.query(`
+                    UPDATE users 
+                    SET 
+                        balance = balance - ?,
+                        vip_end_time = DATE_ADD(
+                            COALESCE(vip_end_time, NOW()), 
+                            INTERVAL ? DAY
+                        )
+                    WHERE id = ?`,
+                    [amount, days, userId]
+                );
+            } else {
+                throw new Error('无效的用户角色');
+            }
+
+            // 提交事务
+            await connection.commit();
+
+            // 获取更新后的用户数据
+            const [[updatedUser]] = await connection.query(
+                'SELECT balance, vip_end_time FROM users WHERE id = ?',
+                [userId]
+            );
+
+            res.status(200).json({
+                code: 200,
+                data: {
+                    newBalance: updatedUser.balance,
+                    vipEndTime: updatedUser.vip_end_time
+                },
+                message: '充值成功'
+            });
+        } catch (error) {
+            // 回滚事务
+            await connection.rollback();
+            throw error;
+        }
+    } catch (error) {//错误处理
+        console.error('添加信息错误:', error);
+        return res.status(500).json({ code: 500, message: '服务器内部错误' });
+    }finally {
+        if (connection) await connection.end();//释放连接到连接池
+    }
+  }
+);
+//注销申请
+router.put('/for/cancellation', async (req, res) => {
+    let connection;
+    try {
+        connection = await dbcon.getConnection();//从数据库连接池获取连接
+        const id = req.user.userId;//解析请求体
+        //数据库更新用户表,通过id
+        const [records] = await connection.query(`
+            UPDATE users
+            SET 
+                status='to_be_cancelled'
+            WHERE 
+                id = ?;
+        `, [id]);
+        return res.status(200).json({//成功返回
+            code: 200,
+            message: '申请成功,您的帐号将在1-5个工作日注销',
+            data: records,
+        });
+    } catch (error) {//错误处理
+        console.error('错误:', error);
+        if (connection) await connection.rollback();
+        return res.status(500).json({ 
+            code: 500, 
+            message: '服务器内部错误' 
         });
     }finally {
         if (connection) await connection.end();//释放连接到连接池
