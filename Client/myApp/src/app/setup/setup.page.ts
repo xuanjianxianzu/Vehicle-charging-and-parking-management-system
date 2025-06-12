@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { DataService } from 'src/data.service';
 
 @Component({
   selector: 'app-setup',
@@ -13,6 +14,7 @@ export class SetupPage implements OnInit {
   constructor(
     private router: Router,
     private toastController: ToastController,
+    private dataService:DataService
   ) { }
 
   ngOnInit() {
@@ -33,6 +35,14 @@ export class SetupPage implements OnInit {
 
     this.router.navigate(['/login']);
   }
-  
-
+  cancelOut(){
+    this.dataService.applicationCancellation().subscribe({
+      next: (data: any) => {
+        alert(data.message)
+      },
+      error: (error) => {
+        console.error('Error:', error);
+      }
+    });
+}
 }

@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>编辑用户{{ user.id }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">关闭</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-item>
+    <ion-label position="stacked">name</ion-label>
+    <ion-input 
+      [(ngModel)]="user.name" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">username</ion-label>
+    <ion-input 
+      [(ngModel)]="user.username" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">phone</ion-label>
+    <ion-input 
+      [(ngModel)]="user.phone" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">email</ion-label>
+    <ion-input 
+      [(ngModel)]="user.email" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">role</ion-label>
+    <ion-input 
+      [(ngModel)]="user.role" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">avatar_number</ion-label>
+    <ion-input 
+      [(ngModel)]="user.avatar_number" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">balance</ion-label>
+    <ion-input 
+      [(ngModel)]="user.balance" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+
+    <ion-item>
+    <ion-label position="stacked">status</ion-label>
+    <ion-input 
+      [(ngModel)]="user.status" 
+      autofocus
+    ></ion-input>
+  </ion-item>
+  
+  <ion-button 
+    expand="block" 
+    (click)="save()"
+
+  >保存</ion-button>
+</ion-content>

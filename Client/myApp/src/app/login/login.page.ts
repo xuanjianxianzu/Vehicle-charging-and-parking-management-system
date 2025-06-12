@@ -22,7 +22,7 @@ export class LoginPage {
   async login() {
     try {
       const response = await this.authService.login(this.username, this.password).toPromise();
-      console.log(response.data.id);
+      console.log(response.data);
       switch(response.code) {
         case 200:
           localStorage.setItem('token', response.data.token);

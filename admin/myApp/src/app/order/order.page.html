@@ -1,0 +1,59 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Order</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="chart-container">
+    <canvas id="lineChart"></canvas>
+  </div>
+  <ion-list >
+  <ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="1.5">ID</ion-col>
+        <ion-col>开始时间</ion-col>
+        <ion-col>充电开始</ion-col>
+        <ion-col>充电结束</ion-col>
+        <ion-col>结束时间</ion-col>
+        <ion-col>状态</ion-col>
+        <ion-col>车辆Id</ion-col>
+        <ion-col>用电量</ion-col>
+        <ion-col>费用</ion-col>
+        <ion-col>操作</ion-col>
+      </ion-row>
+    </ion-grid>
+</ion-item>
+<ng-container *ngFor="let order of Orders">
+    <ion-item  *ngIf="order.vehicle_id>50">
+      <ion-grid >
+        <ion-row>
+          <ion-col size="1.5">{{ order.id }}</ion-col>
+          <ion-col>{{ order.start_time| date:'yyyy-MM-dd HH:mm' }}</ion-col>
+          <ion-col>{{ (order.charging_start_time| date:'yyyy-MM-dd HH:mm')||'-'  }}</ion-col>
+          <ion-col>{{ (order.charging_complete_time| date:'yyyy-MM-dd HH:mm')||'-' }}</ion-col>
+          <ion-col>{{ (order.end_time| date:'yyyy-MM-dd HH:mm')||'-' }}</ion-col>
+          <ion-col>{{ order.status }}</ion-col>
+          <ion-col>{{ order.vehicle_id }}</ion-col>
+          <ion-col>{{ order.electricity_used|| '-' }}</ion-col>
+          <ion-col>{{ order.total_fee }}</ion-col>
+          <ion-col>
+            <ion-button fill="solid" color="primary"  (click)="Release(order.parking_space_id,order.status)">
+          结束
+            </ion-button>
+            <ion-button fill="solid" color="primary" (click)="deleteOrder(order.id)" >
+          删除
+            </ion-button>
+            <ion-button fill="solid" color="primary" (click)="openModal(order.id)">
+          详情
+            </ion-button>
+          </ion-col>
+    
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    </ng-container>
+  </ion-list>
+
+</ion-content>

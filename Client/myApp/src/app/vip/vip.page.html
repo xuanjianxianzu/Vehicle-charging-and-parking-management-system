@@ -1,0 +1,33 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>VIP会员中心</ion-title>
+  </ion-toolbar>
+</ion-header>
+ 
+<ion-content [fullscreen]="true" class="vip-content">
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col 
+        size="12" 
+        size-md="4" 
+        *ngFor="let plan of vipPlans"
+        class="card-col"
+      >
+        <ion-card 
+          class="vip-card"
+          (click)="rechargeVIP(plan.days, plan.amount)"
+          button
+        >
+          <ion-card-header>
+            <ion-card-title class="card-title">{{ plan.title }}</ion-card-title>
+          </ion-card-header>
+          
+          <ion-card-content>
+            <div class="price">¥{{ plan.amount }}</div>
+            <p class="description">{{ plan.description }}</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

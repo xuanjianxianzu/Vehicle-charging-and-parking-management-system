@@ -1,0 +1,22 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Change the profile picture</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="image-grid-container">
+  <div class="image-grid">
+    <div *ngFor="let num of numbers; let i = index" class="image-item" (click)="selectImage(i)">
+      <img [src]="getImagePath(num)" alt="Profile option {{num}}" class="profile-image">
+      <ion-icon *ngIf="selectedIndex === i" name="checkmark-circle" class="selected-icon"></ion-icon>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="close-button-toolbar">
+    <ion-button expand="full" (click)="closeModal()" class="close-button">
+      Close and Save
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ name }} 的详情</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card *ngIf="userId">
+    <ion-card-header>
+      <ion-card-title>用户信息</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="none">
+        <ion-item>
+          <ion-label>用户ID：</ion-label>
+          <ion-text>{{ userId }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>用户名称：</ion-label>
+          <ion-text>{{ name }}</ion-text>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="Vehicle?.length">
+    <ion-card-header>
+      <ion-card-title>绑定车辆 ({{ Vehicle.length }})</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="full">
+        <ion-item *ngFor="let vehicle of Vehicle">
+          <ion-label>
+            <h2>车牌号：{{ vehicle.license_plate }}</h2>
+            <p>车辆ID：{{ vehicle.id }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="UserDetail?.length">
+    <ion-card-header>
+      <ion-card-title>订单记录 ({{ UserDetail.length }})</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list lines="full">
+        <ion-item *ngFor="let order of UserDetail">
+          <ion-label class="ion-text-wrap">
+            <h2>订单号：{{ order.id }}</h2>
+            <p>开始时间：{{ order.start_time | date: 'yyyy-MM-dd HH:mm' }}</p>
+            <p>结束时间：{{ order.end_time ? (order.end_time | date: 'yyyy-MM-dd HH:mm') : '进行中' }}</p>
+            <p>充电状态：{{ order.charging_start_time ? '已开始' : '未开始' }}</p>
+            <p>订单状态：{{ order.status }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <div *ngIf="!Vehicle?.length && !UserDetail?.length" class="ion-text-center ion-padding">
+    <ion-icon name="alert-circle-outline" size="large"></ion-icon>
+    <p>暂无相关数据</p>
+  </div>
+
+  <div class="ion-padding">
+    <ion-button 
+      expand="block" 
+      shape="round"
+      color="medium" 
+      (click)="dismiss()">
+      关闭详情
+    </ion-button>
+  </div>
+</ion-content>

@@ -5,4 +5,6 @@ export interface User {
     email:string|null;
     avatar_number:number;
     balance:number;
+    vip_end_time:string;
+    role:string;
 }
