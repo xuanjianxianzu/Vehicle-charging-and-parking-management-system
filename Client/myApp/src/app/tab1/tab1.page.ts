@@ -40,6 +40,7 @@ export class Tab1Page implements OnInit {
     this.isLoading = true;
     this.dataService.getParkingSpaces(0).subscribe({
       next: (data: any) => {
+        console.log(data)
         this.parkingSpaces = data.data;
         this.filterSpaces();
         this.isLoading = false;

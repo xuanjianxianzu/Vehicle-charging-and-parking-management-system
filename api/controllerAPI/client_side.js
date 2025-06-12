@@ -104,7 +104,7 @@ router.get('/parking-spaces/:id', async (req, res) => {
         let query;
         query=
             `SELECT 
-            ps.id AS id,  
+            ps.id AS id, 
             pst.type AS space_type,
             pst.rate AS charging_rate,
             pst.parking_rate,

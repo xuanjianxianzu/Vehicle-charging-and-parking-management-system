@@ -70,12 +70,10 @@ const routes: Routes = [
     path: 'my-comment',
     canActivate: [authGuard],
     loadChildren: () => import('./my-comment/my-comment.module').then( m => m.MyCommentPageModule)
-  },  {
-    path: 'aaaa',
-    loadChildren: () => import('./aaaa/aaaa.module').then( m => m.AaaaPageModule)
   },
   {
     path: 'vip',
+    canActivate: [authGuard],
     loadChildren: () => import('./vip/vip.module').then( m => m.VIPPageModule)
   },
 

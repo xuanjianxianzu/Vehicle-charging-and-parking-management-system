@@ -20,7 +20,7 @@ export class OrderPage implements OnInit {
     private modalCtrl: ModalController,) { }
 
   ngOnInit() {
-    this.createLineChart();
+
     this.loadOrders();
   }
 
@@ -29,6 +29,7 @@ this.dataService.getOrders().subscribe({
   next: (data) => {
     this.Orders = data.data;
     console.log(this.Orders)
+    this.createLineChart();
     this.calculateHourlyIncome();
   },
   error: (err) => {
@@ -94,6 +95,7 @@ this.dataService.deleteOrder(orderId).subscribe({
 
   calculateHourlyIncome() {
   const hourlyIncome = new Array(24).fill(0);
+  console.log(hourlyIncome)
   this.charts['lineChart'].data.datasets[0].data = hourlyIncome;
   this.charts['lineChart'].update();
   const now = DateTime.now().setZone('Asia/Shanghai');
@@ -104,9 +106,8 @@ this.dataService.deleteOrder(orderId).subscribe({
       const hour = parseInt(timeString.split('T')[1].substring(0, 2));
       const hourIndex = hour;
       const fee = Number(order.total_fee!)
-      console.log(hourlyIncome[hourIndex])
       hourlyIncome[hourIndex] += fee;
-      console.log(hourlyIncome[hourIndex])
+
     } catch (e) {
       console.warn('时间格式错误:', order.start_time);
     }
